@@ -45,4 +45,9 @@ public class ReadPLY {
             elementReader = reader.nextElementReader();
         }
     }
+
+    public static void updateNeighbours(){
+        //update the neighbour of the vertex
+
+    }
 }

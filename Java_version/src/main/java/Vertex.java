@@ -12,6 +12,7 @@ public class Vertex {
     //this is a vertex class
     private int index;
     private Vector3d coords;
+    //neighbour polygons
     private List<Polygon> polygons;
     //neighbour vertices
     private List<Vertex> vertices;
