@@ -1,9 +1,3 @@
-/*
- * ReadPLY.java
- * Copyright 2021 Qunhe Tech, all rights reserved.
- * Qunhe PROPRIETARY/CONFIDENTIAL, any form of usage is subject to approval.
- */
-
 import org.smurn.jply.Element;
 import org.smurn.jply.ElementReader;
 import org.smurn.jply.PlyReaderFile;
@@ -30,8 +24,8 @@ public class ReadPLY {
             while (element != null) {
                 if ("vertex".equals(element.getType().getName())) {
                     double xCoord = element.getDouble("x");
-                    double yCoord = element.getDouble("Y");
-                    double zCoord = element.getDouble("Z");
+                    double yCoord = element.getDouble("y");
+                    double zCoord = element.getDouble("z");
                     Vector3d coord = new Vector3d(xCoord, yCoord, zCoord);
                     vertices.put(vertexIndex, coord);
                     vertexIndex += 1;
@@ -50,21 +44,5 @@ public class ReadPLY {
             elementReader.close();
             elementReader = reader.nextElementReader();
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        //file reader
-        String fileName = "C:\\Users\\msipc\\Downloads\\model lib\\bunny\\reconstruction\\bun_zipper_res4.ply";
-        InputStream in = new FileInputStream(fileName);
-        PlyReaderFile reader = new PlyReaderFile(in);
-        int numFaces = reader.getElementCount("face");
-        int numVertices = reader.getElementCount("vertex");
-
-        //data initialization
-        Map<Integer, Vector3d> vertices = new HashMap<>(numFaces);
-        Map<Integer, List<Integer>> faces = new HashMap<>(numVertices);
-
-        //read the detail
-        read(reader, vertices, faces);
     }
 }

@@ -1,12 +1,5 @@
-/*
- * Polygon.java
- * Copyright 2021 Qunhe Tech, all rights reserved.
- * Qunhe PROPRIETARY/CONFIDENTIAL, any form of usage is subject to approval.
- */
-
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 
