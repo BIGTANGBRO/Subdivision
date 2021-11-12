@@ -8,19 +8,15 @@
  * @author tangshao
  */
 public class AnalysisStep {
-    public void initialMesh() {
+    public void readFile() {
 
     }
 
-    public void meshAnalysis() {
+    public void implementSubdivision() {
 
     }
 
-    public void createSubdivision() {
-
-    }
-
-    public void render() {
+    public void writeFile() {
 
     }
 }

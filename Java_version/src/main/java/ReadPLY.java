@@ -7,40 +7,64 @@
 import org.smurn.jply.Element;
 import org.smurn.jply.ElementReader;
 import org.smurn.jply.PlyReaderFile;
-
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tangshao
  */
 public class ReadPLY {
-    public static List<Vector3d> read(PlyReaderFile reader) throws IOException {
+    //read the vertex data and face data from the ply data
+    public static void read(PlyReaderFile reader, Map<Integer, Vector3d> vertices, Map<Integer, List<Integer>> faces) throws IOException {
         ElementReader elementReader = reader.nextElementReader();
-        List<Vector3d> coords = new ArrayList<>();
+        Integer vertexIndex = 0;
+        Integer faceIndex = 0;
         while (elementReader != null) {
 
             Element element = elementReader.readElement();
             while (element != null) {
                 if ("vertex".equals(element.getType().getName())) {
-
+                    double xCoord = element.getDouble("x");
+                    double yCoord = element.getDouble("Y");
+                    double zCoord = element.getDouble("Z");
+                    Vector3d coord = new Vector3d(xCoord, yCoord, zCoord);
+                    vertices.put(vertexIndex, coord);
+                    vertexIndex += 1;
+                } else if ("face".equals(element.getType().getName())) {
+                    double[] vertexArr = element.getDoubleList("vertex_indices");
+                    List<Integer> vertexList = new ArrayList<Integer>(3);
+                    for (double v : vertexArr) {
+                        vertexList.add((int) v);
+                    }
+                    faces.put(faceIndex, vertexList);
+                    faceIndex += 1;
                 }
-                // get next
+                // next element
                 element = elementReader.readElement();
             }
             elementReader.close();
             elementReader = reader.nextElementReader();
         }
-        return coords;
     }
 
     public static void main(String[] args) throws IOException {
-        String fileName = "C:\\Users\\msipc\\Downloads\\model lib\\bunny\\reconstruction\\bunny_zipper_res4.ply";
+        //file reader
+        String fileName = "C:\\Users\\msipc\\Downloads\\model lib\\bunny\\reconstruction\\bun_zipper_res4.ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
+        int numFaces = reader.getElementCount("face");
+        int numVertices = reader.getElementCount("vertex");
+
+        //data initialization
+        Map<Integer, Vector3d> vertices = new HashMap<>(numFaces);
+        Map<Integer, List<Integer>> faces = new HashMap<>(numVertices);
+
+        //read the detail
+        read(reader, vertices, faces);
     }
 }
