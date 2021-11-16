@@ -46,8 +46,11 @@ public class ReadPLY {
         }
     }
 
-    public static void updateNeighbours(){
-        //update the neighbour of the vertex
-
-    }
+//    public static Vertex getVertex(){
+//
+//    }
+//
+//    public static Polygon getPolygon(){
+//
+//    }
 }
