@@ -3,5 +3,5 @@ class PolyGon:
     vertices = list()
     #polyGon class
     neighbours = list()
-
-    neighbourEdges = list()
+    #edge class
+    edges = list()
