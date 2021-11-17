@@ -17,6 +17,7 @@ public class InputModel {
 
     /**
      * create vertices for the input model
+     *
      * @param vertices    vertices with index and coords
      * @param faces       faces with index and vertex indices
      * @param numFaces    number of faces in total
@@ -54,8 +55,73 @@ public class InputModel {
                     }
                 }
             }
-            Vertex v = new Vertex(i, coord, pointIndices.size(), pointIndices);
+            Vertex v = new Vertex(i, coord, pointIndices.size(), polygonIndices.size(), pointIndices);
             this.vertices.add(v);
+
+            //get the data from the polygons
+            for (int iFace = 0; iFace < numFaces; iFace ++ ){
+                List<Integer> vertexIndices = faces.get(iFace);
+                int nNeighbourPolygons = 0;
+                List<Integer> condition1 = new ArrayList<>(2);
+                List<Integer> condition2 = new ArrayList<>(2);
+                List<Integer> condition3 = new ArrayList<>(2);
+                //set for different edge
+                condition1.add(vertexIndices.get(1));
+                condition1.add(vertexIndices.get(2));
+                condition2.add(vertexIndices.get(1));
+                condition2.add(vertexIndices.get(3));
+                condition3.add(vertexIndices.get(2));
+                condition3.add(vertexIndices.get(3));
+
+                for (int jFace = 0; jFace < numFaces; jFace ++){
+                    if (iFace == jFace){
+                        continue;
+                    }
+                    int vCount = 0;
+                    for (int iVertex = 0; iVertex < 3; iVertex++){
+                        if (condition1.contains(faces.get(jFace).get(iVertex))){
+                            vCount += 1;
+                            if (vCount == 2){
+                                nNeighbourPolygons += 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                for (int jFace = 0; jFace < numFaces; jFace ++){
+                    if (iFace == jFace){
+                        continue;
+                    }
+                    int vCount = 0;
+                    for (int iVertex = 0; iVertex < 3; iVertex++){
+                        if (condition2.contains(faces.get(jFace).get(iVertex))){
+                            vCount += 1;
+                            if (vCount == 2){
+                                nNeighbourPolygons += 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                for (int jFace = 0; jFace < numFaces; jFace ++){
+                    if (iFace == jFace){
+                        continue;
+                    }
+                    int vCount = 0;
+                    for (int iVertex = 0; iVertex < 3; iVertex++){
+                        if (condition3.contains(faces.get(jFace).get(iVertex))){
+                            vCount += 1;
+                            if (vCount == 2){
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            //end of the polygon data construction
         }
     }
 }

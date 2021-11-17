@@ -22,19 +22,22 @@ public class Polygon {
         this.edges = new ArrayList<>();
     }
 
-    Polygon(final int index, final int numOfNeighbours, final int numOfVertices) {
+    Polygon(final int index, final int numOfVertices, int numNeighbours) {
         this.index = index;
         this.vertices = new ArrayList<>(numOfVertices);
-        this.edges = new ArrayList<>(numOfNeighbours);
-        this.neighbours = new ArrayList<>(numOfNeighbours);
+        this.edges = new ArrayList<>(numOfVertices);
+        this.neighbours = new ArrayList<>(numNeighbours);
     }
 
     public void addVertices(final Vertex newVertex) {
-        vertices.add(newVertex);
+        this.vertices.add(newVertex);
     }
 
-    public void addNeighbours(final Polygon newPolygon, final Edge edge) {
-        this.neighbours.add(newPolygon);
+    public void addEdges(final Edge edge) {
         this.edges.add(edge);
+    }
+
+    public void addNeighbours(final Polygon newPolygon) {
+        this.neighbours.add(newPolygon);
     }
 }

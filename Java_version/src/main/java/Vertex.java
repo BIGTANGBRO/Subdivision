@@ -24,22 +24,22 @@ public class Vertex {
 
     }
 
-    //Constructor for the vertex
-    Vertex(final int index, final double[] coordinates, final int nNeighbours) {
+    //Constructors for the vertex
+    Vertex(final int index, final double[] coordinates, final int nVertices, int nPolygons) {
         this.index = index;
         this.coords.setXVal(coordinates[0]);
         this.coords.setYVal(coordinates[1]);
         this.coords.setZVal(coordinates[2]);
-        this.polygons = new ArrayList<>(nNeighbours);
-        this.vertices = new ArrayList<>(nNeighbours);
-        this.vertexIndices = new ArrayList<>(nNeighbours);
+        this.polygons = new ArrayList<>(nPolygons);
+        this.vertices = new ArrayList<>(nVertices);
+        this.vertexIndices = new ArrayList<>(nVertices);
     }
 
-    Vertex(final int index, final Vector3d coordinates, final int nNeighbours, final List<Integer> vertexIndices) {
+    Vertex(final int index, final Vector3d coordinates, final int nVertices,int nPolygons, final List<Integer> vertexIndices) {
         this.index = index;
         this.coords = coordinates;
-        this.polygons = new ArrayList<>(nNeighbours);
-        this.vertices = new ArrayList<>(nNeighbours);
+        this.polygons = new ArrayList<>(nVertices);
+        this.vertices = new ArrayList<>(nVertices);
         this.vertexIndices = vertexIndices;
     }
 
