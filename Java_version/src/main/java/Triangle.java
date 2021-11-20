@@ -15,34 +15,33 @@ public class Triangle {
     protected List<Vertex> vertices;
     protected List<Edge> edges;
     //neighbour polygons
-    protected List<Triangle> neighbourTriangles;
     protected List<Integer> triangleIndices;
+    protected int numNeighbours;
 
     Triangle() {
         this.vertices = new ArrayList<>();
-        this.neighbourTriangles = new ArrayList<>();
         this.edges = new ArrayList<>();
     }
 
     /**
      * constructor
-     * @param index index number
-     * @param numNeighbours number of neighbour triangle
+     *
+     * @param index           index number
      * @param triangleIndices the index of the neighbour triangles
      */
-    Triangle(final int index, int numNeighbours, List<Integer> triangleIndices) {
+    Triangle(final int index, List<Integer> triangleIndices) {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = new ArrayList<>(3);
         this.edges = new ArrayList<>(3);
-        this.neighbourTriangles = new ArrayList<>(numNeighbours);
+        this.numNeighbours = triangleIndices.size();
     }
 
-    Triangle(final int index, List<Vertex> vertices, int numNeighbours, List<Integer> triangleIndices) {
+    Triangle(final int index, List<Vertex> vertices, List<Integer> triangleIndices) {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = vertices;
         this.edges = new ArrayList<>(3);
-        this.neighbourTriangles = new ArrayList<>(numNeighbours);
+        this.numNeighbours = triangleIndices.size();
     }
 }

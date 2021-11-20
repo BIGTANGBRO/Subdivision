@@ -53,7 +53,7 @@ public class InputModel {
                     }
                 }
             }
-            Vertex v = new Vertex(i, coord, triangleIndices.size(), pointIndices, triangleIndices);
+            Vertex v = new Vertex(i, coord, pointIndices, triangleIndices);
             this.vertices.add(v);
         }
         //end of the vertex creation
@@ -63,7 +63,6 @@ public class InputModel {
             //get the vertex indices of one surface
             List<Integer> vertexIndices = faces.get(iFace);
             List<Integer> faceIndices = new ArrayList<>();
-            int nNeighbourTriangles = 0;
             List<Integer> condition1 = new ArrayList<>(2);
             List<Integer> condition2 = new ArrayList<>(2);
             List<Integer> condition3 = new ArrayList<>(2);
@@ -84,7 +83,6 @@ public class InputModel {
                     if (condition1.contains(faces.get(jFace).get(iVertex))) {
                         vCount += 1;
                         if (vCount == 2) {
-                            nNeighbourTriangles += 1;
                             faceIndices.add(jFace);
                             break;
                         }
@@ -101,7 +99,6 @@ public class InputModel {
                     if (condition2.contains(faces.get(jFace).get(iVertex))) {
                         vCount += 1;
                         if (vCount == 2) {
-                            nNeighbourTriangles += 1;
                             faceIndices.add(jFace);
                             break;
                         }
@@ -118,19 +115,19 @@ public class InputModel {
                     if (condition3.contains(faces.get(jFace).get(iVertex))) {
                         vCount += 1;
                         if (vCount == 2) {
-                            nNeighbourTriangles += 1;
                             faceIndices.add(jFace);
                             break;
                         }
                     }
                 }
             }
-            Triangle triangle = new Triangle(iFace, nNeighbourTriangles, faceIndices);
+            Triangle triangle = new Triangle(iFace, faceIndices);
             this.triangles.add(triangle);
         }
 
         // after this constructor, still need to update triangles' properties: vertices, edges, neighbourTriangles.
         // vertices' property: triangles, neighbour vertices.
         //complete the operation for the property
+
     }
 }

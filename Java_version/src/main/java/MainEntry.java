@@ -28,6 +28,6 @@ public class MainEntry {
 
         //generate the data structure
         InputModel inputModel = new InputModel(vertices, faces, numVertices, numFaces);
-        System.out.println("Hello");
+        System.out.println("------Input model read successfully-----");
     }
 }

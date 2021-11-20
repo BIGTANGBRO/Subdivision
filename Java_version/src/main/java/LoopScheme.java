@@ -43,18 +43,19 @@ public class LoopScheme {
         return newVertices;
     }
 
-    public Vector3d computeEven(final Vertex vertex) {
+    public Vector3d computeEven(final Vertex vertex, final List<Vertex> vertices) {
         //create the even vertices
         final int n = vertex.getNumNeighbours();
         double alpha = Constant.THREEOVERSIXTEEN;
         if (n > 3) {
             alpha = 1 / n * (5 / 8 - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Constant.PI / n)), 2));
         }
-        final List<Vertex> neighbourVertices = vertex.getNeighbourVertices();
+        final List<Integer> neighbourVertices = vertex.getVertexIndices();
         final Vector3d coordV = vertex.getCoords();
         Vector3d v2 = new Vector3d(0d, 0d, 0d);
         for (int i = 0; i < n; i++) {
-            final Vector3d coordNeighbour = neighbourVertices.get(i).getCoords();
+            final Vertex v = vertices.get(neighbourVertices.get(i));
+            final Vector3d coordNeighbour = v.getCoords();
             //get the sum of the neighbour points
             final Vector3d vProduct = MathUtils.dotVal(alpha, coordNeighbour);
             v2 = MathUtils.addVector(v2, vProduct);
