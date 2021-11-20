@@ -29,7 +29,7 @@ public class Triangle {
      * @param index           index number
      * @param triangleIndices the index of the neighbour triangles
      */
-    Triangle(final int index, List<Integer> triangleIndices) {
+    Triangle(final int index, final List<Integer> triangleIndices) {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = new ArrayList<>(3);
@@ -37,7 +37,7 @@ public class Triangle {
         this.numNeighbours = triangleIndices.size();
     }
 
-    Triangle(final int index, List<Vertex> vertices, List<Integer> triangleIndices) {
+    Triangle(final int index, final List<Vertex> vertices, final List<Integer> triangleIndices) {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = vertices;
