@@ -5,17 +5,17 @@ import java.util.List;
  * @author tangshao
  */
 public class LoopScheme {
-    public List<Vector3d> computeOdd(final Polygon polygon) {
+    public List<Vector3d> computeOdd(final Triangle triangle) {
         //create the odd vertices
-        final List<Edge> edges = polygon.getEdges();
+        final List<Edge> edges = triangle.getEdges();
         final List<Vector3d> newVertices = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
             final Edge edge = edges.get(i);
             //get the edge vertex
             final Vertex v1 = edge.getA();
             final Vertex v2 = edge.getB();
-            final Polygon p1 = edge.getPolygons().get(0);
-            final Polygon p2 = edge.getPolygons().get(1);
+            final Triangle p1 = edge.getPolygons().get(0);
+            final Triangle p2 = edge.getPolygons().get(1);
             final List<Vertex> vertices1 = p1.getVertices();
             final List<Vertex> vertices2 = p2.getVertices();
             //get the neighbour vertex
@@ -50,7 +50,7 @@ public class LoopScheme {
         if (n > 3) {
             alpha = 1 / n * (5 / 8 - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Constant.PI / n)), 2));
         }
-        final List<Vertex> neighbourVertices = vertex.getVertices();
+        final List<Vertex> neighbourVertices = vertex.getNeighbourVertices();
         final Vector3d coordV = vertex.getCoords();
         Vector3d v2 = new Vector3d(0d, 0d, 0d);
         for (int i = 0; i < n; i++) {

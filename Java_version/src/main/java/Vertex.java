@@ -14,33 +14,34 @@ public class Vertex {
     private int index;
     private Vector3d coords;
     //neighbour polygons
-    private List<Polygon> polygons;
+    private List<Triangle> triangles;
+    private List<Integer> triangleIndices;
     //neighbour vertices
-    private List<Vertex> vertices;
+    private List<Vertex> neighbourVertices;
     private List<Integer> vertexIndices;
 
-    //In triangular mesh, a vertex which is not connected 6 neightbours is extradinary
     Vertex() {
 
     }
 
-    //Constructors for the vertex
-    Vertex(final int index, final double[] coordinates, final int nVertices, int nPolygons) {
-        this.index = index;
-        this.coords.setXVal(coordinates[0]);
-        this.coords.setYVal(coordinates[1]);
-        this.coords.setZVal(coordinates[2]);
-        this.polygons = new ArrayList<>(nPolygons);
-        this.vertices = new ArrayList<>(nVertices);
-        this.vertexIndices = new ArrayList<>(nVertices);
-    }
-
-    Vertex(final int index, final Vector3d coordinates, final int nVertices,int nPolygons, final List<Integer> vertexIndices) {
+    //In triangular mesh, a vertex which is not connected 6 neightbours is extradinary
+    Vertex(final int index, final Vector3d coordinates, final int nPolygons, final List<Integer> vertexIndices) {
         this.index = index;
         this.coords = coordinates;
-        this.polygons = new ArrayList<>(nVertices);
-        this.vertices = new ArrayList<>(nVertices);
+        this.triangles = new ArrayList<>(3);
+        this.neighbourVertices = new ArrayList<>(3);
         this.vertexIndices = vertexIndices;
+        this.triangleIndices = new ArrayList<>(nPolygons);
+    }
+
+    //In triangular mesh, a vertex which is not connected 6 neightbours is extradinary
+    Vertex(final int index, final Vector3d coordinates, final int nPolygons, final List<Integer> vertexIndices, final List<Integer> triangleIndices) {
+        this.index = index;
+        this.coords = coordinates;
+        this.triangles = new ArrayList<>(3);
+        this.neighbourVertices = new ArrayList<>(3);
+        this.vertexIndices = vertexIndices;
+        this.triangleIndices = triangleIndices;
     }
 
     public void setX(final double x) {
@@ -56,7 +57,7 @@ public class Vertex {
     }
 
     public int getNumNeighbours() {
-        return this.polygons.size();
+        return this.triangles.size();
     }
 
     public boolean isExtraordinary() {

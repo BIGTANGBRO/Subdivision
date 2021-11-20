@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 public class Edge {
     private int index;
-    private List<Polygon> polygons;
+    private List<Triangle> polygons;
     private Vertex a;
     private Vertex b;
 
@@ -34,7 +34,7 @@ public class Edge {
         }
     }
 
-    public void updatePolygon(final int index, final Polygon polygon) {
-        this.polygons.set(index, polygon);
+    public void updatePolygon(final int index, final Triangle triangle) {
+        this.polygons.set(index, triangle);
     }
 }

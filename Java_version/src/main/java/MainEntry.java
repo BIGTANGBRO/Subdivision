@@ -13,7 +13,7 @@ import java.util.Map;
 public class MainEntry {
     public static void main(String[] args) throws IOException {
         //file reader
-        String fileName = "C:\\Users\\msipc\\Downloads\\model lib\\bunny\\reconstruction\\bun_zipper_res4.ply";
+        String fileName = "C:\\Users\\tangj\\Downloads\\model lib\\bunny\\reconstruction\\bun_zipper_res4.ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
         int numFaces = reader.getElementCount("face");
@@ -26,7 +26,8 @@ public class MainEntry {
         //read the detail
         ReadPLY.read(reader, vertices, faces);
 
-        System.out.println("Finish");
-
+        //generate the data structure
+        InputModel inputModel = new InputModel(vertices, faces, numVertices, numFaces);
+        System.out.println("Hello");
     }
 }

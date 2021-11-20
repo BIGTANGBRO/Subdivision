@@ -12,7 +12,7 @@ import java.util.Map;
 @Setter
 public class InputModel {
     //this is the input model data structure
-    private List<Polygon> polygons;
+    private List<Triangle> triangles;
     private List<Vertex> vertices;
 
     /**
@@ -23,105 +23,114 @@ public class InputModel {
      * @param numFaces    number of faces in total
      * @param numVertices number of vertices in total
      */
-    public InputModel(Map<Integer, Vector3d> vertices, Map<Integer, List<Integer>> faces, int numFaces, int numVertices) {
+    public InputModel(Map<Integer, Vector3d> vertices, Map<Integer, List<Integer>> faces, int numVertices, int numFaces) {
         //vertex index is from 0 to numFaces;
         //face index is from 0 to numVertices
-        this.polygons = new ArrayList<>(numFaces);
+        this.triangles = new ArrayList<>(numFaces);
         this.vertices = new ArrayList<>(numVertices);
 
         for (int i = 0; i < numVertices; i++) {
             //set the parameter for the vertex i;
             Vector3d coord = vertices.get(i);
-            int numNeighbours = 0;
             List<Integer> pointIndices = new ArrayList<>();
-            List<Integer> polygonIndices = new ArrayList<>();
+            List<Integer> triangleIndices = new ArrayList<>();
 
             //iterate over the whole faces
             for (int j = 0; j < numFaces; j++) {
                 List<Integer> vertexIndices = faces.get(j);
                 for (int k = 0; k < 3; k++) {
                     if (vertexIndices.get(k).equals(i)) {
-                        numNeighbours += 1;
-                        polygonIndices.add(j);
+                        triangleIndices.add(j);
                     }
                 }
             }
             //iterate over the faces include this vertex
-            for (Integer polygonIndex : polygonIndices) {
+            for (Integer triangleIndex : triangleIndices) {
                 for (int iVertex = 0; iVertex < 3; iVertex++) {
-                    int vertexIndex = faces.get(polygonIndex).get(iVertex);
+                    int vertexIndex = faces.get(triangleIndex).get(iVertex);
                     if (vertexIndex != i && !pointIndices.contains(vertexIndex)) {
                         pointIndices.add(vertexIndex);
                     }
                 }
             }
-            Vertex v = new Vertex(i, coord, pointIndices.size(), polygonIndices.size(), pointIndices);
+            Vertex v = new Vertex(i, coord, triangleIndices.size(), pointIndices, triangleIndices);
             this.vertices.add(v);
+        }
+        //end of the vertex creation
 
-            //get the data from the polygons
-            for (int iFace = 0; iFace < numFaces; iFace ++ ){
-                List<Integer> vertexIndices = faces.get(iFace);
-                int nNeighbourPolygons = 0;
-                List<Integer> condition1 = new ArrayList<>(2);
-                List<Integer> condition2 = new ArrayList<>(2);
-                List<Integer> condition3 = new ArrayList<>(2);
-                //set for different edge
-                condition1.add(vertexIndices.get(1));
-                condition1.add(vertexIndices.get(2));
-                condition2.add(vertexIndices.get(1));
-                condition2.add(vertexIndices.get(3));
-                condition3.add(vertexIndices.get(2));
-                condition3.add(vertexIndices.get(3));
+        //get the data from the polygons
+        for (int iFace = 0; iFace < numFaces; iFace++) {
+            //get the vertex indices of one surface
+            List<Integer> vertexIndices = faces.get(iFace);
+            List<Integer> faceIndices = new ArrayList<>();
+            int nNeighbourTriangles = 0;
+            List<Integer> condition1 = new ArrayList<>(2);
+            List<Integer> condition2 = new ArrayList<>(2);
+            List<Integer> condition3 = new ArrayList<>(2);
+            //set for different edge
+            condition1.add(vertexIndices.get(0));
+            condition1.add(vertexIndices.get(1));
+            condition2.add(vertexIndices.get(0));
+            condition2.add(vertexIndices.get(2));
+            condition3.add(vertexIndices.get(1));
+            condition3.add(vertexIndices.get(2));
 
-                for (int jFace = 0; jFace < numFaces; jFace ++){
-                    if (iFace == jFace){
-                        continue;
-                    }
-                    int vCount = 0;
-                    for (int iVertex = 0; iVertex < 3; iVertex++){
-                        if (condition1.contains(faces.get(jFace).get(iVertex))){
-                            vCount += 1;
-                            if (vCount == 2){
-                                nNeighbourPolygons += 1;
-                                break;
-                            }
-                        }
-                    }
+            for (int jFace = 0; jFace < numFaces; jFace++) {
+                if (iFace == jFace) {
+                    continue;
                 }
-
-                for (int jFace = 0; jFace < numFaces; jFace ++){
-                    if (iFace == jFace){
-                        continue;
-                    }
-                    int vCount = 0;
-                    for (int iVertex = 0; iVertex < 3; iVertex++){
-                        if (condition2.contains(faces.get(jFace).get(iVertex))){
-                            vCount += 1;
-                            if (vCount == 2){
-                                nNeighbourPolygons += 1;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                for (int jFace = 0; jFace < numFaces; jFace ++){
-                    if (iFace == jFace){
-                        continue;
-                    }
-                    int vCount = 0;
-                    for (int iVertex = 0; iVertex < 3; iVertex++){
-                        if (condition3.contains(faces.get(jFace).get(iVertex))){
-                            vCount += 1;
-                            if (vCount == 2){
-
-                                break;
-                            }
+                int vCount = 0;
+                for (int iVertex = 0; iVertex < 3; iVertex++) {
+                    if (condition1.contains(faces.get(jFace).get(iVertex))) {
+                        vCount += 1;
+                        if (vCount == 2) {
+                            nNeighbourTriangles += 1;
+                            faceIndices.add(jFace);
+                            break;
                         }
                     }
                 }
             }
-            //end of the polygon data construction
+
+            for (int jFace = 0; jFace < numFaces; jFace++) {
+                if (iFace == jFace) {
+                    continue;
+                }
+                int vCount = 0;
+                for (int iVertex = 0; iVertex < 3; iVertex++) {
+                    if (condition2.contains(faces.get(jFace).get(iVertex))) {
+                        vCount += 1;
+                        if (vCount == 2) {
+                            nNeighbourTriangles += 1;
+                            faceIndices.add(jFace);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for (int jFace = 0; jFace < numFaces; jFace++) {
+                if (iFace == jFace) {
+                    continue;
+                }
+                int vCount = 0;
+                for (int iVertex = 0; iVertex < 3; iVertex++) {
+                    if (condition3.contains(faces.get(jFace).get(iVertex))) {
+                        vCount += 1;
+                        if (vCount == 2) {
+                            nNeighbourTriangles += 1;
+                            faceIndices.add(jFace);
+                            break;
+                        }
+                    }
+                }
+            }
+            Triangle triangle = new Triangle(iFace, nNeighbourTriangles, faceIndices);
+            this.triangles.add(triangle);
         }
+
+        // after this constructor, still need to update triangles' properties: vertices, edges, neighbourTriangles.
+        // vertices' property: triangles, neighbour vertices.
+        //complete the operation for the property
     }
 }
