@@ -1,6 +1,7 @@
 import org.smurn.jply.Element;
 import org.smurn.jply.ElementReader;
 import org.smurn.jply.PlyReaderFile;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +17,8 @@ public class ReadPLY {
     //read the vertex data and face data from the ply data
     public static void read(PlyReaderFile reader, Map<Integer, Vector3d> vertices, Map<Integer, List<Integer>> faces) throws IOException {
         ElementReader elementReader = reader.nextElementReader();
-        Integer vertexIndex = 0;
-        Integer faceIndex = 0;
+        int vertexIndex = 0;
+        int faceIndex = 0;
         while (elementReader != null) {
 
             Element element = elementReader.readElement();
@@ -45,12 +46,4 @@ public class ReadPLY {
             elementReader = reader.nextElementReader();
         }
     }
-
-//    public static Vertex getVertex(){
-//
-//    }
-//
-//    public static Polygon getPolygon(){
-//
-//    }
 }

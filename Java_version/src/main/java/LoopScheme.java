@@ -5,6 +5,7 @@ import java.util.List;
  * @author tangshao
  */
 public class LoopScheme {
+    //for each edge
     public List<Vector3d> computeOdd(final Triangle triangle) {
         //create the odd vertices
         final List<Edge> edges = triangle.getEdges();
@@ -43,6 +44,7 @@ public class LoopScheme {
         return newVertices;
     }
 
+    //for each vertex
     public Vector3d computeEven(final Vertex vertex, final List<Vertex> vertices) {
         //create the even vertices
         final int n = vertex.getNumNeighbours();
