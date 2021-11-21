@@ -25,8 +25,7 @@ public class Triangle {
 
     /**
      * constructor
-     *
-     * @param index           index number
+     * @param index index number
      * @param triangleIndices the index of the neighbour triangles
      */
     Triangle(final int index, final List<Integer> triangleIndices) {
