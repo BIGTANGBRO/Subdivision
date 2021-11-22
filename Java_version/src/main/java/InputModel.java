@@ -14,6 +14,11 @@ public class InputModel {
     //this is the input model data structure
     private List<Triangle> triangles;
     private List<Vertex> vertices;
+    private List<Edge> edges;
+
+    public InputModel() {
+
+    }
 
     /**
      * create vertices for the input model
@@ -29,12 +34,12 @@ public class InputModel {
         this.triangles = new ArrayList<>(numFaces);
         this.vertices = new ArrayList<>(numVertices);
 
+        //Start of vertex creation
         for (int i = 0; i < numVertices; i++) {
             //set the parameter for the vertex i;
             final Vector3d coord = vertices.get(i);
             final List<Integer> pointIndices = new ArrayList<>();
             final List<Integer> triangleIndices = new ArrayList<>();
-
             //iterate over the whole faces
             for (int j = 0; j < numFaces; j++) {
                 final List<Integer> vertexIndices = faces.get(j);
@@ -58,7 +63,7 @@ public class InputModel {
         }
         //end of the vertex creation
 
-        //get the data from the polygons
+        //Start of polygon creation
         for (int iFace = 0; iFace < numFaces; iFace++) {
             //get the vertex indices of one surface
             final List<Integer> vertexIndices = faces.get(iFace);
@@ -127,10 +132,13 @@ public class InputModel {
                 final Vertex v = this.vertices.get(vertexIndex);
                 verticesEachTri.add(v);
             }
-
-            //set the triangle
             final Triangle triangle = new Triangle(iFace, verticesEachTri, faceIndices);
             this.triangles.add(triangle);
         }
+        //end of polygon creation
+
+        //start of edge creation
+
+        //end of edge creation
     }
 }

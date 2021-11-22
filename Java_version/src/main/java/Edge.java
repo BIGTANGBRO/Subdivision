@@ -11,7 +11,6 @@ import java.util.List;
 @Setter
 public class Edge {
     private int index;
-    private List<Triangle> polygons;
     private Vertex a;
     private Vertex b;
 
@@ -19,7 +18,6 @@ public class Edge {
         this.a = a;
         this.b = b;
         this.index = index;
-        this.polygons = new ArrayList<>(2);
     }
 
     public boolean has(final Vertex v) {
@@ -32,9 +30,5 @@ public class Edge {
         } else {
             return b;
         }
-    }
-
-    public void updatePolygon(final int index, final Triangle triangle) {
-        this.polygons.set(index, triangle);
     }
 }
