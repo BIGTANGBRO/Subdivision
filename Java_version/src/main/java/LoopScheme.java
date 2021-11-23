@@ -2,7 +2,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tangshao
@@ -22,6 +24,7 @@ public class LoopScheme {
 
     /**
      * Compute the odd vertex
+     *
      * @param v1 first vertex
      * @param v2 second vertex
      * @return The coordinate of the vertex
@@ -40,17 +43,30 @@ public class LoopScheme {
     }
 
     /**
-     * get all the edge points
-     * @return a list of edge point vertex
+     * compute the new odd vertex
+     *
+     * @param numNodes number of all the vertices in the previous model
+     * @return Map with new vertex
      */
-    public List<Vertex> computeOdd() {
+    public Map<Integer, Vector3d> computeOdd(int numNodes) {
         //Iterate all the edges
-        return new ArrayList<>();
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        int index = numNodes;
+        for (Edge edge : edges) {
+            Vertex v1 = edge.getA();
+            Vertex v2 = edge.getB();
+            Vector3d coord = computeOdd(v1, v2);
+            //the index starts from numCoords
+            vertexMap.put(index, coord);
+            index += 1;
+        }
+        return vertexMap;
     }
 
     /**
      * Compute the even vertex
-     * @param vertex individual vertex
+     *
+     * @param vertex   individual vertex
      * @param vertices all the vertices
      * @return new coord of the vertex
      */

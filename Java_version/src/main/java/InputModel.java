@@ -1,9 +1,7 @@
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author tangshao
@@ -16,8 +14,20 @@ public class InputModel {
     private List<Vertex> vertices;
     private List<Edge> edges;
 
-    public InputModel() {
+    public InputModel(){
 
+    }
+
+    /**
+     * construcotr
+     * @param triangles trianle list
+     * @param vertices vertex list
+     * @param edges edge list
+     */
+    public InputModel(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
+        this.triangles = triangles;
+        this.vertices = vertices;
+        this.edges = edges;
     }
 
     /**
@@ -138,7 +148,30 @@ public class InputModel {
         //end of polygon creation
 
         //start of edge creation
-
+        HashSet<Edge> edgeSet = new HashSet<>();
+        int edgeCount = 0;
+        for (Triangle triangle : this.triangles) {
+            List<Vertex> vs = triangle.getVertices();
+            Vertex v1 = vs.get(0);
+            Vertex v2 = vs.get(1);
+            Vertex v3 = vs.get(2);
+            Edge edge1 = new Edge(v1, v2, edgeCount);
+            if (!edgeSet.contains(edge1)) {
+                edgeSet.add(edge1);
+                edgeCount += 1;
+            }
+            Edge edge2 = new Edge(v1, v3, edgeCount);
+            if (!edgeSet.contains(edge2)) {
+                edgeSet.add(edge2);
+                edgeCount += 1;
+            }
+            Edge edge3 = new Edge(v2, v2, edgeCount);
+            if (!edgeSet.contains(edge3)) {
+                edgeSet.add(edge3);
+                edgeCount += 1;
+            }
+        }
+        this.edges = new ArrayList<>(edgeSet);
         //end of edge creation
     }
 }

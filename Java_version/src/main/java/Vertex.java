@@ -18,8 +18,11 @@ public class Vertex {
     //neighbour vertices
     private List<Integer> vertexIndices;
 
-    Vertex() {
-
+    Vertex(int index) {
+        this.index = index;
+        coords = new Vector3d(0, 0, 0);
+        this.triangleIndices = new ArrayList<>();
+        this.vertexIndices = new ArrayList<>();
     }
 
     Vertex(final int index, final Vector3d coordinates, final int nPolygons, final List<Integer> vertexIndices) {
@@ -29,7 +32,7 @@ public class Vertex {
         this.triangleIndices = new ArrayList<>(nPolygons);
     }
 
-    Vertex(final int index, final Vector3d coordinates,final List<Integer> vertexIndices, final List<Integer> triangleIndices) {
+    Vertex(final int index, final Vector3d coordinates, final List<Integer> vertexIndices, final List<Integer> triangleIndices) {
         this.index = index;
         this.coords = coordinates;
         this.vertexIndices = vertexIndices;

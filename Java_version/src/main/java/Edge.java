@@ -25,10 +25,29 @@ public class Edge {
     }
 
     public Vertex getOtherVertex(final Vertex v) {
-        if (a != b) {
+        if (a != v) {
             return a;
         } else {
             return b;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.a.hashCode() + this.b.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Edge) {
+            Edge edge = (Edge) obj;
+            if ((this.a == edge.a && this.b == edge.b) || (this.b == edge.a && this.a == edge.b)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
