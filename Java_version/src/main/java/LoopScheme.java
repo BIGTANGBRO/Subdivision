@@ -66,11 +66,10 @@ public class LoopScheme {
     /**
      * Compute the even vertex
      *
-     * @param vertex   individual vertex
-     * @param vertices all the vertices
+     * @param vertex individual vertex
      * @return new coord of the vertex
      */
-    public static Vector3d computeEven(final Vertex vertex, final List<Vertex> vertices) {
+    public Vector3d computeEven(final Vertex vertex) {
         //create the even vertices
         final int n = vertex.getNumNeighbours();
         double alpha = Constant.THREEOVERSIXTEEN;
@@ -92,7 +91,20 @@ public class LoopScheme {
         return newVertex;
     }
 
-    public void connectVertices() {
-        //connect the new vertices to form the new mash
+    /**
+     * compute the even node for the whole model
+     * @return map with index and coords
+     */
+    public Map<Integer, Vector3d> ComputeEven() {
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        for (int index = 0; index < vertices.size(); index++) {
+            Vector3d coord = computeEven(vertices.get(index));
+            vertexMap.put(index, coord);
+        }
+        return vertexMap;
+    }
+
+    public void createTriangle() {
+
     }
 }
