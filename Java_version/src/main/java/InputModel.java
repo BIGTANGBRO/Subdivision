@@ -173,5 +173,16 @@ public class InputModel {
         }
         this.edges = new ArrayList<>(edgeSet);
         //end of edge creation
+
+        //add edge to the triangle
+        for (Edge edge : this.edges){
+            Vertex v1 = edge.getA();
+            Vertex v2 = edge.getB();
+            for (Triangle triangle : this.triangles){
+                if (triangle.containVertices(v1,v2)){
+                    triangle.addEdge(edge);
+                }
+            }
+        }
     }
 }

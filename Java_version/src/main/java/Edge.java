@@ -13,11 +13,13 @@ public class Edge {
     private int index;
     private Vertex a;
     private Vertex b;
+    private List<Integer> triangleIndices;
 
     Edge(final Vertex a, final Vertex b, final int index) {
         this.a = a;
         this.b = b;
         this.index = index;
+        this.triangleIndices = new ArrayList<>();
     }
 
     public boolean has(final Vertex v) {
@@ -30,6 +32,10 @@ public class Edge {
         } else {
             return b;
         }
+    }
+
+    public void addTrianleIndex(int trianleIndex){
+        this.triangleIndices.add(trianleIndex);
     }
 
     @Override

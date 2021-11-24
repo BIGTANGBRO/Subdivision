@@ -15,11 +15,13 @@ public class LoopScheme {
     private List<Triangle> triangles;
     private List<Vertex> vertices;
     private List<Edge> edges;
+    private Map<Integer, Integer> oddNodeMap;
 
     public LoopScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
         this.vertices = vertices;
         this.edges = edges;
+        this.oddNodeMap = new HashMap<>();
     }
 
     /**
@@ -43,21 +45,24 @@ public class LoopScheme {
     }
 
     /**
-     * compute the new odd vertex
+     * compute the new odd vertex/edge point
      *
      * @param numNodes number of all the vertices in the previous model
      * @return Map with new vertex
      */
     public Map<Integer, Vector3d> computeOdd(int numNodes) {
-        //Iterate all the edges
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
         int index = numNodes;
+        //iteration about the edges
         for (Edge edge : edges) {
+            //each odd node corresponds to an edge
             Vertex v1 = edge.getA();
             Vertex v2 = edge.getB();
             Vector3d coord = computeOdd(v1, v2);
             //the index starts from numCoords
             vertexMap.put(index, coord);
+            //todo: should give an edge index to the new edge point
+            oddNodeMap.put(index, edge.getIndex());
             index += 1;
         }
         return vertexMap;
@@ -104,7 +109,6 @@ public class LoopScheme {
         return vertexMap;
     }
 
-    public void createTriangle() {
-
+    public void createTriangle(Vertex v1, Vertex v2) {
     }
 }

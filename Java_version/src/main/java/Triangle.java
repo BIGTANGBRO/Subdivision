@@ -13,6 +13,7 @@ public class Triangle {
     //data structure for the polygon
     protected int index;
     protected List<Vertex> vertices;
+    protected List<Edge> edges;
     //neighbour polygons
     protected List<Integer> triangleIndices;
     protected int numNeighbours;
@@ -32,6 +33,7 @@ public class Triangle {
         this.triangleIndices = triangleIndices;
         this.vertices = new ArrayList<>(3);
         this.numNeighbours = triangleIndices.size();
+        this.edges = new ArrayList<>();
     }
 
     Triangle(final int index, final List<Vertex> vertices, final List<Integer> triangleIndices) {
@@ -39,9 +41,10 @@ public class Triangle {
         this.triangleIndices = triangleIndices;
         this.vertices = vertices;
         this.numNeighbours = triangleIndices.size();
+        this.edges = new ArrayList<>();
     }
 
-    public boolean contanVertex(Vertex vertex) {
+    public boolean containVertex(Vertex vertex) {
         return this.vertices.contains(vertex);
     }
 
@@ -56,5 +59,9 @@ public class Triangle {
             }
         }
         return null;
+    }
+
+    public void addEdge(Edge edge){
+        this.edges.add(edge);
     }
 }
