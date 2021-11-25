@@ -1,10 +1,7 @@
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author tangshao
@@ -61,8 +58,8 @@ public class LoopScheme {
             Vector3d coord = computeOdd(v1, v2);
             //the index starts from numCoords
             vertexMap.put(index, coord);
-            //todo: should give an edge index to the new edge point
-            oddNodeMap.put(index, edge.getIndex());
+            //edge point index corresponds to the edge index
+            oddNodeMap.put(edge.getIndex(), index);
             index += 1;
         }
         return vertexMap;
@@ -98,6 +95,7 @@ public class LoopScheme {
 
     /**
      * compute the even node for the whole model
+     *
      * @return map with index and coords
      */
     public Map<Integer, Vector3d> ComputeEven() {
@@ -109,6 +107,35 @@ public class LoopScheme {
         return vertexMap;
     }
 
-    public void createTriangle(Vertex v1, Vertex v2) {
+    /**
+     * connect to form the new faces
+     *
+     * @return map with face index and vertex indices
+     */
+    public Map<Integer, List<Integer>> createTriangle() {
+        //connect the vertices
+        //vertexMap is from computeOdd
+        int faceCount = 0;
+        Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        for (Triangle triangle : this.triangles) {
+            HashSet<Integer> oddVertexSet = new HashSet<>();
+            for (Vertex vertex : triangle.getVertices()) {
+                List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
+                List<Integer> vertexIndices = new ArrayList<>(3);
+                vertexIndices.add(vertex.getIndex());
+                for (Edge edge : connectedEdges) {
+                    int newVertexIndex = oddNodeMap.get(edge.getIndex());
+                    oddVertexSet.add(newVertexIndex);
+                    vertexIndices.add(newVertexIndex);
+                }
+                faceMap.put(faceCount, vertexIndices);
+                faceCount += 1;
+            }
+            //connect the new created odd vertices to form a surface
+            List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
+            faceMap.put(faceCount, oddVertexArr);
+            faceCount += 1;
+        }
+        return faceMap;
     }
 }

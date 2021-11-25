@@ -30,5 +30,8 @@ public class MainEntry {
         //generate the data structure
         InputModel inputModel = new InputModel(vertices, faces, numVertices, numFaces);
         System.out.println("------Input model read successfully-----");
+
+        //start implementing the algorithms on the data structure
+        //todo: doing loop scheme, forming new data, to inputModel, then doing scheme again.
     }
 }

@@ -14,15 +14,16 @@ public class InputModel {
     private List<Vertex> vertices;
     private List<Edge> edges;
 
-    public InputModel(){
+    public InputModel() {
 
     }
 
     /**
      * construcotr
+     *
      * @param triangles trianle list
-     * @param vertices vertex list
-     * @param edges edge list
+     * @param vertices  vertex list
+     * @param edges     edge list
      */
     public InputModel(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
@@ -165,7 +166,7 @@ public class InputModel {
                 edgeSet.add(edge2);
                 edgeCount += 1;
             }
-            Edge edge3 = new Edge(v2, v2, edgeCount);
+            Edge edge3 = new Edge(v2, v3, edgeCount);
             if (!edgeSet.contains(edge3)) {
                 edgeSet.add(edge3);
                 edgeCount += 1;
@@ -175,11 +176,11 @@ public class InputModel {
         //end of edge creation
 
         //add edge to the triangle
-        for (Edge edge : this.edges){
+        for (Edge edge : this.edges) {
             Vertex v1 = edge.getA();
             Vertex v2 = edge.getB();
-            for (Triangle triangle : this.triangles){
-                if (triangle.containVertices(v1,v2)){
+            for (Triangle triangle : this.triangles) {
+                if (triangle.containVertices(v1, v2)) {
                     triangle.addEdge(edge);
                 }
             }

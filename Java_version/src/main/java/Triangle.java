@@ -64,4 +64,14 @@ public class Triangle {
     public void addEdge(Edge edge){
         this.edges.add(edge);
     }
+
+    public List<Edge> getConnectedEdges(Vertex v) {
+        List<Edge> edges = new ArrayList<>(2);
+        for (Edge edge : this.edges){
+            if (edge.has(v)){
+                edges.add(edge);
+            }
+        }
+        return edges;
+    }
 }
