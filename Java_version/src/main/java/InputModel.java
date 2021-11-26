@@ -34,14 +34,14 @@ public class InputModel {
     /**
      * create vertices for the input model
      *
-     * @param vertices    vertices with index and coords
-     * @param faces       faces with index and vertex indices
-     * @param numFaces    number of faces in total
-     * @param numVertices number of vertices in total
+     * @param vertices vertices with index and coords
+     * @param faces    faces with index and vertex indices
      */
-    public InputModel(final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces, final int numVertices, final int numFaces) {
+    public InputModel(final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces) {
         //vertex index is from 0 to numFaces;
         //face index is from 0 to numVertices
+        int numVertices = vertices.size();
+        int numFaces = faces.size();
         this.triangles = new ArrayList<>(numFaces);
         this.vertices = new ArrayList<>(numVertices);
 

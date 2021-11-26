@@ -1,17 +1,42 @@
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author tangshao
  */
+@Getter
+@Setter
 public class AnalysisStep {
-    public static void fileRead(){
+    private Map<Integer, Vector3d> vertexMap;
+    private Map<Integer, List<Integer>> faceMap;
+
+    public AnalysisStep(Map<Integer, Vector3d> vertexMap, Map<Integer, List<Integer>> faceMap) {
+        this.faceMap = faceMap;
+        this.vertexMap = vertexMap;
 
     }
 
-    public static InputModel createTheModel() {
-        return new InputModel();
+    public InputModel createTheModel() {
+        return new InputModel(this.vertexMap, this.faceMap);
     }
 
-    public static void implementSubdivision(InputModel inputModel) {
+    public void implementSubdivision(InputModel inputModel) {
         //implement the subdivision scheme here
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexMap = loopScheme.computeOdd();
+        Map<Integer, Vector3d> vertexEvenMap = loopScheme.computeEven();
+        for (Map.Entry<Integer, Vector3d> entry : vertexEvenMap.entrySet()) {
+            vertexMap.put(entry.getKey(), entry.getValue());
+        }
+        Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle();
+        this.vertexMap = vertexMap;
+        this.faceMap = faceMap;
     }
 
     public static void writeFile() {

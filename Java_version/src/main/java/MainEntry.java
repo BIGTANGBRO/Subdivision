@@ -28,10 +28,13 @@ public class MainEntry {
         ReadPLY.read(reader, vertices, faces);
 
         //generate the data structure
-        InputModel inputModel = new InputModel(vertices, faces, numVertices, numFaces);
         System.out.println("------Input model read successfully-----");
 
         //start implementing the algorithms on the data structure
-        //todo: doing loop scheme, forming new data, to inputModel, then doing scheme again.
+        AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
+        InputModel inputModel = analysisStep.createTheModel();
+        analysisStep.implementSubdivision(inputModel);
+
+        //todo:write the file
     }
 }

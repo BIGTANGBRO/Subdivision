@@ -44,12 +44,11 @@ public class LoopScheme {
     /**
      * compute the new odd vertex/edge point
      *
-     * @param numNodes number of all the vertices in the previous model
      * @return Map with new vertex
      */
-    public Map<Integer, Vector3d> computeOdd(int numNodes) {
+    public Map<Integer, Vector3d> computeOdd() {
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        int index = numNodes;
+        int index = vertices.size();
         //iteration about the edges
         for (Edge edge : edges) {
             //each odd node corresponds to an edge
@@ -98,7 +97,7 @@ public class LoopScheme {
      *
      * @return map with index and coords
      */
-    public Map<Integer, Vector3d> ComputeEven() {
+    public Map<Integer, Vector3d> computeEven() {
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
         for (int index = 0; index < vertices.size(); index++) {
             Vector3d coord = computeEven(vertices.get(index));
