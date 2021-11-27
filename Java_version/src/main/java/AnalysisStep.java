@@ -31,9 +31,7 @@ public class AnalysisStep {
         LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
         Map<Integer, Vector3d> vertexMap = loopScheme.computeOdd();
         Map<Integer, Vector3d> vertexEvenMap = loopScheme.computeEven();
-        for (Map.Entry<Integer, Vector3d> entry : vertexEvenMap.entrySet()) {
-            vertexMap.put(entry.getKey(), entry.getValue());
-        }
+        vertexMap.putAll(vertexEvenMap);
         Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle();
         this.vertexMap = vertexMap;
         this.faceMap = faceMap;

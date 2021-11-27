@@ -30,14 +30,21 @@ public class LoopScheme {
      */
     public Vector3d computeOdd(Vertex v1, Vertex v2) {
         List<Vertex> vertices = new ArrayList<>(2);
+        int triangleCount = 0;
         for (Triangle triangle : triangles) {
             if (triangle.containVertices(v1, v2)) {
+                //serach for vLeft and vRight
                 Vertex v = triangle.getRemain(v1, v2);
                 vertices.add(v);
+                triangleCount += 1;
             }
         }
         Vector3d coord1 = MathUtils.dotVal(Constant.THREEOVEREIGHT, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
-        Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(vertices.get(0).getCoords(), vertices.get(1).getCoords()));
+        Vector3d vRight = new Vector3d(0, 0, 0);
+        if (triangleCount == 2) {
+            vRight = vertices.get(1).getCoords();
+        }
+        Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(vertices.get(0).getCoords(), vRight));
         return MathUtils.addVector(coord1, coord2);
     }
 
@@ -72,7 +79,7 @@ public class LoopScheme {
      */
     public Vector3d computeEven(final Vertex vertex) {
         //create the even vertices
-        final int n = vertex.getNumNeighbours();
+        final int n = vertex.getNumVertices();
         double alpha = Constant.THREEOVERSIXTEEN;
         if (n > 3) {
             alpha = 1 / n * (5 / 8 - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Constant.PI / n)), 2));
@@ -81,7 +88,8 @@ public class LoopScheme {
         final Vector3d coordV = vertex.getCoords();
         Vector3d v2 = new Vector3d(0d, 0d, 0d);
         for (int i = 0; i < n; i++) {
-            final Vertex v = vertices.get(neighbourVertices.get(i));
+            int neighbourIndex = neighbourVertices.get(i);
+            final Vertex v = this.vertices.get(neighbourIndex);
             final Vector3d coordNeighbour = v.getCoords();
             //get the sum of the neighbour points
             final Vector3d vProduct = MathUtils.dotVal(alpha, coordNeighbour);

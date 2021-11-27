@@ -15,7 +15,8 @@ public class MainEntry {
     public static void main(String[] args) throws IOException {
         //file reader
         String fileName = "C:\\Users\\tangj\\Downloads\\model lib\\bunny\\reconstruction\\bun_zipper_res4.ply";
-        InputStream in = new FileInputStream(fileName);
+        String fileName1 = "C:\\Users\\tangj\\Downloads\\square.ply";
+        InputStream in = new FileInputStream(fileName1);
         PlyReaderFile reader = new PlyReaderFile(in);
         int numFaces = reader.getElementCount("face");
         int numVertices = reader.getElementCount("vertex");
@@ -35,6 +36,12 @@ public class MainEntry {
         InputModel inputModel = analysisStep.createTheModel();
         analysisStep.implementSubdivision(inputModel);
 
-        //todo:write the file
+        AnalysisStep analysisStep1 = new AnalysisStep(analysisStep.getVertexMap(),analysisStep.getFaceMap());
+        InputModel inputModel1 = analysisStep.createTheModel();
+        analysisStep1.implementSubdivision(inputModel1);
+
+
+        System.out.println("-------Subdivision scheme implemented successfully-------");
+        WriteFile.plyFileWriter(analysisStep1.getVertexMap(), analysisStep1.getFaceMap());
     }
 }

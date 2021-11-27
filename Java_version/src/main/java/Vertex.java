@@ -51,12 +51,16 @@ public class Vertex {
         this.coords.setZVal(z);
     }
 
-    public int getNumNeighbours() {
+    public int getNumTriangles() {
         return this.triangleIndices.size();
     }
 
-    //In triangular mesh, a vertex which is not connected 6 neightbours is extradinary
+    public int getNumVertices() {
+        return this.vertexIndices.size();
+    }
+
+    //In triangular mesh, a vertex which is not connected 6 neighbours is extradinary
     public boolean isExtraordinary() {
-        return this.getNumNeighbours() != 6;
+        return this.getNumTriangles() != 6;
     }
 }
