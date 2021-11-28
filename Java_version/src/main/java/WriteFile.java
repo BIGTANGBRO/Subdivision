@@ -12,7 +12,7 @@ public class WriteFile {
     }
 
     public static void plyFileWriter(Map<Integer, Vector3d> vertices, Map<Integer, List<Integer>> faces) throws IOException {
-        String fileName = "C:\\Users\\tangj\\Downloads\\sub.ply";
+        String fileName = "C:\\Users\\tangj\\Downloads\\sub1.ply";
         BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply \nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertices.size() + "\n");
@@ -20,7 +20,7 @@ public class WriteFile {
         bw.write("element face " + faces.size() + "\n");
         bw.write("property list uchar int vertex_indices\n");
         bw.write("end_header\n");
-        for (int i = 0; i < vertices.size();i++){
+        for (int i = 0; i < vertices.size(); i++) {
             Vector3d coord = vertices.get(i);
             bw.write(Double.toString(coord.getXVal()) + " ");
             bw.write(Double.toString(coord.getYVal()) + " ");
@@ -28,10 +28,10 @@ public class WriteFile {
             bw.write("\n");
         }
 
-        for (int iFace = 0;iFace < faces.size();iFace++){
+        for (int iFace = 0; iFace < faces.size(); iFace++) {
             List<Integer> vertexIndices = faces.get(iFace);
             bw.write(3 + " ");
-            for (int iVertex = 0;iVertex < 3; iVertex ++){
+            for (int iVertex = 0; iVertex < 3; iVertex++) {
                 bw.write(vertexIndices.get(iVertex) + " ");
             }
             bw.write("\n");

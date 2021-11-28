@@ -16,7 +16,6 @@ public class Triangle {
     protected List<Edge> edges;
     //neighbour polygons
     protected List<Integer> triangleIndices;
-    protected int numNeighbours;
 
     Triangle() {
         this.vertices = new ArrayList<>();
@@ -32,7 +31,6 @@ public class Triangle {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = new ArrayList<>(3);
-        this.numNeighbours = triangleIndices.size();
         this.edges = new ArrayList<>();
     }
 
@@ -40,7 +38,6 @@ public class Triangle {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = vertices;
-        this.numNeighbours = triangleIndices.size();
         this.edges = new ArrayList<>();
     }
 
@@ -73,5 +70,9 @@ public class Triangle {
             }
         }
         return edges;
+    }
+
+    public int getNumNeighbours() {
+        return this.triangleIndices.size();
     }
 }

@@ -39,12 +39,11 @@ public class LoopScheme {
                 triangleCount += 1;
             }
         }
-        Vector3d coord1 = MathUtils.dotVal(Constant.THREEOVEREIGHT, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
-        Vector3d vRight = new Vector3d(0, 0, 0);
-        if (triangleCount == 2) {
-            vRight = vertices.get(1).getCoords();
+        if (triangleCount == 1) {
+            return MathUtils.dotVal(Constant.ONEOVERTWO, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
         }
-        Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(vertices.get(0).getCoords(), vRight));
+        Vector3d coord1 = MathUtils.dotVal(Constant.THREEOVEREIGHT, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
+        Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(vertices.get(0).getCoords(), vertices.get(1).getCoords()));
         return MathUtils.addVector(coord1, coord2);
     }
 
@@ -71,6 +70,10 @@ public class LoopScheme {
         return vertexMap;
     }
 
+    private double getAlpha(int n) {
+        return 1.0d / n * (5.0d / 8.0d - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Math.PI / n)), 2));
+    }
+
     /**
      * Compute the even vertex
      *
@@ -80,23 +83,20 @@ public class LoopScheme {
     public Vector3d computeEven(final Vertex vertex) {
         //create the even vertices
         final int n = vertex.getNumVertices();
-        double alpha = Constant.THREEOVERSIXTEEN;
-        if (n > 3) {
-            alpha = 1 / n * (5 / 8 - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Constant.PI / n)), 2));
-        }
+        double alpha = getAlpha(n);
+
         final List<Integer> neighbourVertices = vertex.getVertexIndices();
         final Vector3d coordV = vertex.getCoords();
-        Vector3d v2 = new Vector3d(0d, 0d, 0d);
+        Vector3d vOther = new Vector3d(0d, 0d, 0d);
         for (int i = 0; i < n; i++) {
             int neighbourIndex = neighbourVertices.get(i);
             final Vertex v = this.vertices.get(neighbourIndex);
             final Vector3d coordNeighbour = v.getCoords();
             //get the sum of the neighbour points
-            final Vector3d vProduct = MathUtils.dotVal(alpha, coordNeighbour);
-            v2 = MathUtils.addVector(v2, vProduct);
+            vOther = MathUtils.addVector(vOther, coordNeighbour);
         }
         final double coeff2 = 1 - n * alpha;
-        final Vector3d newVertex = MathUtils.addVector(MathUtils.dotVal(coeff2, coordV), v2);
+        final Vector3d newVertex = MathUtils.addVector(MathUtils.dotVal(coeff2, coordV), MathUtils.dotVal(alpha, vOther));
         return newVertex;
     }
 
