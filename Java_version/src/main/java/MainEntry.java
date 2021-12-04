@@ -10,9 +10,12 @@ import java.util.*;
  */
 public class MainEntry {
     public static void main(String[] args) throws IOException {
+        //set the current timeMills
+        long startTime = System.currentTimeMillis();
+
         //file reader
-        String modelName = "happy_vrip_res4";
-        String fileName = "C:\\Users\\tangj\\Downloads\\happy_recon\\happy_recon\\" + modelName + ".ply";
+        String modelName = "square";
+        String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
         int numFaces = reader.getElementCount("face");
@@ -22,7 +25,9 @@ public class MainEntry {
 
         //read the detail
         ReadPLY.read(reader, vertices, faces);
-        System.out.println("------Input model read successfully-----");
+        System.out.println("--------Input model read successfully-------");
+        System.out.println("Number of elements:" + numFaces);
+        System.out.println("Number of vertices:" + numVertices);
 
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
@@ -49,7 +54,11 @@ public class MainEntry {
 //        }
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
+        System.out.println("Number of elements:" + analysisStep.getFaceMap().size());
+        System.out.println("Number of vertices:" + analysisStep.getVertexMap().size());
         analysisStep.writePLY(modelName + "_res2");
+        Long endTime = System.currentTimeMillis();
         System.out.println("-------File written successfully-------");
+        System.out.println("The program takes " + (endTime - startTime)/1000d + "s");
     }
 }
