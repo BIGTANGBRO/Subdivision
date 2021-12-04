@@ -31,6 +31,7 @@ public class ReadPLY {
                     vertices.put(vertexIndex, coord);
                     vertexIndex += 1;
                 } else if ("face".equals(element.getType().getName())) {
+                    //vertex_indices
                     double[] vertexArr = element.getDoubleList("vertex_indices");
                     List<Integer> vertexList = new ArrayList<Integer>(3);
                     for (double v : vertexArr) {

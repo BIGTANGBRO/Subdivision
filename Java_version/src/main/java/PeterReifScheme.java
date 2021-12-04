@@ -1,10 +1,7 @@
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author: tangshao
@@ -18,7 +15,7 @@ public class PeterReifScheme {
     private List<Vertex> vertices;
     private Map<Integer, Integer> oddNodeMap;
 
-    public PeterReifScheme(List<Triangle> triangles, List<Edge> edges, List<Vertex> vertices) {
+    public PeterReifScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
         this.edges = edges;
         this.vertices = vertices;
@@ -43,5 +40,30 @@ public class PeterReifScheme {
             index += 1;
         }
         return vertexMap;
+    }
+
+    public Map<Integer, List<Integer>> createTriangle() {
+        int faceCount = 0;
+        Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        for (Triangle triangle : this.triangles) {
+            HashSet<Integer> oddVertexSet = new HashSet<>();
+            for (Vertex vertex : triangle.getVertices()) {
+                List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
+                List<Integer> vertexIndices = new ArrayList<>(3);
+                vertexIndices.add(vertex.getIndex());
+                for (Edge edge : connectedEdges) {
+                    int newVertexIndex = oddNodeMap.get(edge.getIndex());
+                    oddVertexSet.add(newVertexIndex);
+                    vertexIndices.add(newVertexIndex);
+                }
+                faceMap.put(faceCount, vertexIndices);
+                faceCount += 1;
+            }
+            //connect the new created odd vertices to form a surface
+            List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
+            faceMap.put(faceCount, oddVertexArr);
+            faceCount += 1;
+        }
+        return faceMap;
     }
 }

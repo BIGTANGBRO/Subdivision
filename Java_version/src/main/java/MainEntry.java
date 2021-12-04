@@ -11,7 +11,8 @@ import java.util.*;
 public class MainEntry {
     public static void main(String[] args) throws IOException {
         //file reader
-        String fileName = "C:\\Users\\tangj\\Downloads\\model lib\\bunny\\reconstruction\\bun_zipper_res2.ply";
+        String modelName = "happy_vrip_res4";
+        String fileName = "C:\\Users\\tangj\\Downloads\\happy_recon\\happy_recon\\" + modelName + ".ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
         int numFaces = reader.getElementCount("face");
@@ -26,7 +27,9 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementSubdivision(inputModel);
+        analysisStep.implementScheme1(inputModel);
+        InputModel inputModel1 = analysisStep.createTheModel();
+        analysisStep.implementScheme1(inputModel1);
 
 //        List<Vertex> verticesList = inputModel.getVertices();
 //        List<Triangle> trianglesList = inputModel.getTriangles();
@@ -45,11 +48,8 @@ public class MainEntry {
 //            newFaces.put(triangle.getIndex(), vertexIndices);
 //        }
 
-        AnalysisStep analysisStep1 = new AnalysisStep(analysisStep.getVertexMap(), analysisStep.getFaceMap());
-        InputModel inputModel1 = analysisStep1.createTheModel();
-        analysisStep1.implementSubdivision(inputModel1);
-
         System.out.println("-------Subdivision scheme implemented successfully-------");
-        WriteFile.plyFileWriter(analysisStep.getVertexMap(), analysisStep.getFaceMap());
+        analysisStep.writePLY(modelName + "_res2");
+        System.out.println("-------File written successfully-------");
     }
 }

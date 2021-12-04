@@ -1,6 +1,9 @@
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +27,8 @@ public class AnalysisStep {
         return new InputModel(this.vertexMap, this.faceMap);
     }
 
-    public void implementSubdivision(InputModel inputModel) {
-        //implement the subdivision scheme here
+    public void implementScheme1(InputModel inputModel) {
+        //implement the scheme here
         List<Triangle> triangles = inputModel.getTriangles();
         List<Edge> edges = inputModel.getEdges();
         List<Vertex> vertices = inputModel.getVertices();
@@ -40,7 +43,42 @@ public class AnalysisStep {
         this.faceMap = faceMap;
     }
 
-    public static void writeFile() {
+    public void implementScheme2(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
+        Map<Integer, List<Integer>> faceMap = pScheme.createTriangle();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = faceMap;
+    }
 
+    public void writePLY(String name) throws IOException {
+        String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        bw.write("ply \nformat ascii 1.0\ncomment zipper output\n");
+        bw.write("element vertex " + vertexMap.size() + "\n");
+        bw.write("property float x\nproperty float y\nproperty float z\n");
+        bw.write("element face " + faceMap.size() + "\n");
+        bw.write("property list uchar int vertex_indices\n");
+        bw.write("end_header\n");
+        for (int i = 0; i < vertexMap.size(); i++) {
+            Vector3d coord = vertexMap.get(i);
+            bw.write(Double.toString(coord.getXVal()) + " ");
+            bw.write(Double.toString(coord.getYVal()) + " ");
+            bw.write(Double.toString(coord.getZVal()) + " ");
+            bw.write("\n");
+        }
+
+        for (int iFace = 0; iFace < faceMap.size(); iFace++) {
+            List<Integer> vertexIndices = faceMap.get(iFace);
+            bw.write(3 + " ");
+            for (int iVertex = 0; iVertex < 3; iVertex++) {
+                bw.write(vertexIndices.get(iVertex) + " ");
+            }
+            bw.write("\n");
+        }
+        bw.close();
     }
 }
