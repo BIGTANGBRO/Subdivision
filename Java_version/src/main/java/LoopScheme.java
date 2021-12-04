@@ -71,6 +71,9 @@ public class LoopScheme {
     }
 
     private double getAlpha(int n) {
+        if (n == 3) {
+            return 3.0d / 16.0d;
+        }
         return 1.0d / n * (5.0d / 8.0d - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Math.PI / n)), 2));
     }
 

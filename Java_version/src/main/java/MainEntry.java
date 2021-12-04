@@ -9,12 +9,31 @@ import java.util.*;
  * @author tangshao
  */
 public class MainEntry {
+    public void getOriginal() {
+//        List<Vertex> verticesList = inputModel.getVertices();
+//        List<Triangle> trianglesList = inputModel.getTriangles();
+//        Map<Integer, Vector3d> newVertices = new HashMap<>();
+//        Map<Integer, List<Integer>> newFaces = new HashMap<>();
+//        for (Vertex vertex:verticesList){
+//            newVertices.put(vertex.getIndex(), vertex.getCoords());
+//        }
+//
+//        for (Triangle triangle : trianglesList){
+//            List<Vertex> vertexEachTri = triangle.getVertices();
+//            List<Integer> vertexIndices = new ArrayList<>();
+//            for (int i = 0;i < 3;i++){
+//                vertexIndices.add(vertexEachTri.get(i).getIndex());
+//            }
+//            newFaces.put(triangle.getIndex(), vertexIndices);
+//        }
+    }
+
     public static void main(String[] args) throws IOException {
         //set the current timeMills
         long startTime = System.currentTimeMillis();
 
         //file reader
-        String modelName = "square";
+        String modelName = "dolphin";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
@@ -36,29 +55,12 @@ public class MainEntry {
         InputModel inputModel1 = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel1);
 
-//        List<Vertex> verticesList = inputModel.getVertices();
-//        List<Triangle> trianglesList = inputModel.getTriangles();
-//        Map<Integer, Vector3d> newVertices = new HashMap<>();
-//        Map<Integer, List<Integer>> newFaces = new HashMap<>();
-//        for (Vertex vertex:verticesList){
-//            newVertices.put(vertex.getIndex(), vertex.getCoords());
-//        }
-//
-//        for (Triangle triangle : trianglesList){
-//            List<Vertex> vertexEachTri = triangle.getVertices();
-//            List<Integer> vertexIndices = new ArrayList<>();
-//            for (int i = 0;i < 3;i++){
-//                vertexIndices.add(vertexEachTri.get(i).getIndex());
-//            }
-//            newFaces.put(triangle.getIndex(), vertexIndices);
-//        }
-
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("Number of elements:" + analysisStep.getFaceMap().size());
         System.out.println("Number of vertices:" + analysisStep.getVertexMap().size());
-        analysisStep.writePLY(modelName + "_res2");
+        analysisStep.writePLY(modelName + "_refined");
         Long endTime = System.currentTimeMillis();
         System.out.println("-------File written successfully-------");
-        System.out.println("The program takes " + (endTime - startTime)/1000d + "s");
+        System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
     }
 }
