@@ -137,8 +137,8 @@ public class InputModel {
             final Vertex v3 = vs.get(2);
             final Edge edge1 = new Edge(v1, v2, edgeCount);
             if (!edgeSet.contains(edge1)) {
-                edgeSet.add(edge1);
                 edgeMap.put(v1.hashCode() + v2.hashCode(), edge1);
+                edgeSet.add(edge1);
                 triangle.addEdge(edge1);
                 edgeCount += 1;
             } else {
@@ -147,8 +147,8 @@ public class InputModel {
 
             final Edge edge2 = new Edge(v1, v3, edgeCount);
             if (!edgeSet.contains(edge2)) {
-                edgeSet.add(edge2);
                 edgeMap.put(v1.hashCode() + v3.hashCode(), edge2);
+                edgeSet.add(edge2);
                 triangle.addEdge(edge2);
                 edgeCount += 1;
             } else {
