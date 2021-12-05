@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class ReadPLY {
     //read the vertex data and face data from the ply data
-    public static void read(PlyReaderFile reader, Map<Integer, Vector3d> vertices, Map<Integer, List<Integer>> faces) throws IOException {
+    public static void read(final PlyReaderFile reader, final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces) throws IOException {
         ElementReader elementReader = reader.nextElementReader();
         int vertexIndex = 0;
         int faceIndex = 0;
@@ -24,17 +24,17 @@ public class ReadPLY {
             Element element = elementReader.readElement();
             while (element != null) {
                 if ("vertex".equals(element.getType().getName())) {
-                    double xCoord = element.getDouble("x");
-                    double yCoord = element.getDouble("y");
-                    double zCoord = element.getDouble("z");
-                    Vector3d coord = new Vector3d(xCoord, yCoord, zCoord);
+                    final double xCoord = element.getDouble("x");
+                    final double yCoord = element.getDouble("y");
+                    final double zCoord = element.getDouble("z");
+                    final Vector3d coord = new Vector3d(xCoord, yCoord, zCoord);
                     vertices.put(vertexIndex, coord);
                     vertexIndex += 1;
                 } else if ("face".equals(element.getType().getName())) {
                     //vertex_indices
-                    double[] vertexArr = element.getDoubleList("vertex_indices");
-                    List<Integer> vertexList = new ArrayList<Integer>(3);
-                    for (double v : vertexArr) {
+                    final double[] vertexArr = element.getDoubleList("vertex_indices");
+                    final List<Integer> vertexList = new ArrayList<Integer>(3);
+                    for (final double v : vertexArr) {
                         vertexList.add((int) v);
                     }
                     faces.put(faceIndex, vertexList);

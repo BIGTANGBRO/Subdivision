@@ -41,16 +41,16 @@ public class Triangle {
         this.edges = new ArrayList<>();
     }
 
-    public boolean containVertex(Vertex vertex) {
+    public boolean containVertex(final Vertex vertex) {
         return this.vertices.contains(vertex);
     }
 
-    public boolean containVertices(Vertex v1, Vertex v2) {
+    public boolean containVertices(final Vertex v1, final Vertex v2) {
         return (this.vertices.contains(v1) && this.vertices.contains(v2));
     }
 
-    public Vertex getRemain(Vertex v1, Vertex v2) {
-        for (Vertex v : this.vertices) {
+    public Vertex getRemain(final Vertex v1, final Vertex v2) {
+        for (final Vertex v : this.vertices) {
             if (v.getIndex() != v1.getIndex() && v.getIndex() != v2.getIndex()) {
                 return v;
             }
@@ -58,13 +58,13 @@ public class Triangle {
         return null;
     }
 
-    public void addEdge(Edge edge) {
+    public void addEdge(final Edge edge) {
         this.edges.add(edge);
     }
 
-    public List<Edge> getConnectedEdges(Vertex v) {
-        List<Edge> edges = new ArrayList<>(2);
-        for (Edge edge : this.edges) {
+    public List<Edge> getConnectedEdges(final Vertex v) {
+        final List<Edge> edges = new ArrayList<>(2);
+        for (final Edge edge : this.edges) {
             if (edge.has(v)) {
                 edges.add(edge);
             }

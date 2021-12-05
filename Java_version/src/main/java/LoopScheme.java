@@ -14,7 +14,7 @@ public class LoopScheme {
     private List<Edge> edges;
     private Map<Integer, Integer> oddNodeMap;
 
-    public LoopScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
+    public LoopScheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
         this.triangles = triangles;
         this.vertices = vertices;
         this.edges = edges;
@@ -28,13 +28,13 @@ public class LoopScheme {
      * @param v2 second vertex
      * @return The coordinate of the vertex
      */
-    public Vector3d computeOdd(Vertex v1, Vertex v2) {
-        List<Vertex> vertices = new ArrayList<>(2);
+    public Vector3d computeOdd(final Vertex v1, final Vertex v2) {
+        final List<Vertex> vertices = new ArrayList<>(2);
         int triangleCount = 0;
-        for (Triangle triangle : triangles) {
+        for (final Triangle triangle : triangles) {
             if (triangle.containVertices(v1, v2)) {
                 //serach for vLeft and vRight
-                Vertex v = triangle.getRemain(v1, v2);
+                final Vertex v = triangle.getRemain(v1, v2);
                 vertices.add(v);
                 triangleCount += 1;
             }
@@ -42,8 +42,8 @@ public class LoopScheme {
         if (triangleCount == 1) {
             return MathUtils.dotVal(Constant.ONEOVERTWO, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
         }
-        Vector3d coord1 = MathUtils.dotVal(Constant.THREEOVEREIGHT, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
-        Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(vertices.get(0).getCoords(), vertices.get(1).getCoords()));
+        final Vector3d coord1 = MathUtils.dotVal(Constant.THREEOVEREIGHT, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
+        final Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(vertices.get(0).getCoords(), vertices.get(1).getCoords()));
         return MathUtils.addVector(coord1, coord2);
     }
 
@@ -53,14 +53,14 @@ public class LoopScheme {
      * @return Map with new vertex
      */
     public Map<Integer, Vector3d> computeOdd() {
-        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        final Map<Integer, Vector3d> vertexMap = new HashMap<>();
         int index = vertices.size();
         //iteration about the edges
-        for (Edge edge : edges) {
+        for (final Edge edge : edges) {
             //each odd node corresponds to an edge
-            Vertex v1 = edge.getA();
-            Vertex v2 = edge.getB();
-            Vector3d coord = computeOdd(v1, v2);
+            final Vertex v1 = edge.getA();
+            final Vertex v2 = edge.getB();
+            final Vector3d coord = computeOdd(v1, v2);
             //the index starts from numCoords
             vertexMap.put(index, coord);
             //edge point index corresponds to the edge index
@@ -70,7 +70,7 @@ public class LoopScheme {
         return vertexMap;
     }
 
-    private double getAlpha(int n) {
+    private double getAlpha(final int n) {
         if (n == 3) {
             return 3.0d / 16.0d;
         }
@@ -86,13 +86,13 @@ public class LoopScheme {
     public Vector3d computeEven(final Vertex vertex) {
         //create the even vertices
         final int n = vertex.getNumVertices();
-        double alpha = getAlpha(n);
+        final double alpha = getAlpha(n);
 
         final List<Integer> neighbourVertices = vertex.getVertexIndices();
         final Vector3d coordV = vertex.getCoords();
         Vector3d vOther = new Vector3d(0d, 0d, 0d);
         for (int i = 0; i < n; i++) {
-            int neighbourIndex = neighbourVertices.get(i);
+            final int neighbourIndex = neighbourVertices.get(i);
             final Vertex v = this.vertices.get(neighbourIndex);
             final Vector3d coordNeighbour = v.getCoords();
             //get the sum of the neighbour points
@@ -109,9 +109,9 @@ public class LoopScheme {
      * @return map with index and coords
      */
     public Map<Integer, Vector3d> computeEven() {
-        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        final Map<Integer, Vector3d> vertexMap = new HashMap<>();
         for (int index = 0; index < vertices.size(); index++) {
-            Vector3d coord = computeEven(vertices.get(index));
+            final Vector3d coord = computeEven(vertices.get(index));
             vertexMap.put(index, coord);
         }
         return vertexMap;
@@ -126,15 +126,15 @@ public class LoopScheme {
         //connect the vertices
         //vertexMap is from computeOdd
         int faceCount = 0;
-        Map<Integer, List<Integer>> faceMap = new HashMap<>();
-        for (Triangle triangle : this.triangles) {
-            HashSet<Integer> oddVertexSet = new HashSet<>();
-            for (Vertex vertex : triangle.getVertices()) {
-                List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
-                List<Integer> vertexIndices = new ArrayList<>(3);
+        final Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        for (final Triangle triangle : this.triangles) {
+            final HashSet<Integer> oddVertexSet = new HashSet<>();
+            for (final Vertex vertex : triangle.getVertices()) {
+                final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
+                final List<Integer> vertexIndices = new ArrayList<>(3);
                 vertexIndices.add(vertex.getIndex());
-                for (Edge edge : connectedEdges) {
-                    int newVertexIndex = oddNodeMap.get(edge.getIndex());
+                for (final Edge edge : connectedEdges) {
+                    final int newVertexIndex = oddNodeMap.get(edge.getIndex());
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
@@ -142,7 +142,7 @@ public class LoopScheme {
                 faceCount += 1;
             }
             //connect the new created odd vertices to form a surface
-            List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
+            final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
             faceMap.put(faceCount, oddVertexArr);
             faceCount += 1;
         }

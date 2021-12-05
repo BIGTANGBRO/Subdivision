@@ -17,7 +17,7 @@ public class AnalysisStep {
     private Map<Integer, Vector3d> vertexMap;
     private Map<Integer, List<Integer>> faceMap;
 
-    public AnalysisStep(Map<Integer, Vector3d> vertexMap, Map<Integer, List<Integer>> faceMap) {
+    public AnalysisStep(final Map<Integer, Vector3d> vertexMap, final Map<Integer, List<Integer>> faceMap) {
         this.faceMap = faceMap;
         this.vertexMap = vertexMap;
 
@@ -27,36 +27,36 @@ public class AnalysisStep {
         return new InputModel(this.vertexMap, this.faceMap);
     }
 
-    public void implementScheme1(InputModel inputModel) {
+    public void implementScheme1(final InputModel inputModel) {
         //implement the scheme here
-        List<Triangle> triangles = inputModel.getTriangles();
-        List<Edge> edges = inputModel.getEdges();
-        List<Vertex> vertices = inputModel.getVertices();
-        LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
-        Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
-        Map<Integer, Vector3d> vertexEvenMap = loopScheme.computeEven();
-        Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle();
-        Map<Integer, Vector3d> newVertexMap = new HashMap<>();
+        final List<Triangle> triangles = inputModel.getTriangles();
+        final List<Edge> edges = inputModel.getEdges();
+        final List<Vertex> vertices = inputModel.getVertices();
+        final LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
+        final Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
+        final Map<Integer, Vector3d> vertexEvenMap = loopScheme.computeEven();
+        final Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle();
+        final Map<Integer, Vector3d> newVertexMap = new HashMap<>();
         newVertexMap.putAll(vertexOddMap);
         newVertexMap.putAll(vertexEvenMap);
         this.vertexMap = newVertexMap;
         this.faceMap = faceMap;
     }
 
-    public void implementScheme2(InputModel inputModel) {
-        List<Triangle> triangles = inputModel.getTriangles();
-        List<Edge> edges = inputModel.getEdges();
-        List<Vertex> vertices = inputModel.getVertices();
-        PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
-        Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
-        Map<Integer, List<Integer>> faceMap = pScheme.createTriangle();
+    public void implementScheme2(final InputModel inputModel) {
+        final List<Triangle> triangles = inputModel.getTriangles();
+        final List<Edge> edges = inputModel.getEdges();
+        final List<Vertex> vertices = inputModel.getVertices();
+        final PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
+        final Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
+        final Map<Integer, List<Integer>> faceMap = pScheme.createTriangle();
         this.vertexMap.putAll(vertexOddMap);
         this.faceMap = faceMap;
     }
 
-    public void writePLY(String name) throws IOException {
-        String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
-        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+    public void writePLY(final String name) throws IOException {
+        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply \nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
@@ -64,7 +64,7 @@ public class AnalysisStep {
         bw.write("property list uchar int vertex_indices\n");
         bw.write("end_header\n");
         for (int i = 0; i < vertexMap.size(); i++) {
-            Vector3d coord = vertexMap.get(i);
+            final Vector3d coord = vertexMap.get(i);
             bw.write(Double.toString(coord.getXVal()) + " ");
             bw.write(Double.toString(coord.getYVal()) + " ");
             bw.write(Double.toString(coord.getZVal()) + " ");
@@ -72,7 +72,7 @@ public class AnalysisStep {
         }
 
         for (int iFace = 0; iFace < faceMap.size(); iFace++) {
-            List<Integer> vertexIndices = faceMap.get(iFace);
+            final List<Integer> vertexIndices = faceMap.get(iFace);
             bw.write(3 + " ");
             for (int iVertex = 0; iVertex < 3; iVertex++) {
                 bw.write(vertexIndices.get(iVertex) + " ");

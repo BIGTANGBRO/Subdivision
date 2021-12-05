@@ -25,7 +25,7 @@ public class InputModel {
      * @param vertices  vertex list
      * @param edges     edge list
      */
-    public InputModel(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
+    public InputModel(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
         this.triangles = triangles;
         this.vertices = vertices;
         this.edges = edges;
@@ -40,8 +40,8 @@ public class InputModel {
     public InputModel(final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces) {
         //vertex index is from 0 to numFaces;
         //face index is from 0 to numVertices
-        int numVertices = vertices.size();
-        int numFaces = faces.size();
+        final int numVertices = vertices.size();
+        final int numFaces = faces.size();
         this.triangles = new ArrayList<>(numFaces);
         this.vertices = new ArrayList<>(numVertices);
 
@@ -50,14 +50,14 @@ public class InputModel {
             //set the parameter for the vertex i;
             final Vector3d coord = vertices.get(i);
             final List<Integer> triangleIndices = new ArrayList<>();
-            HashSet<Integer> pointSet = new HashSet<>();
+            final HashSet<Integer> pointSet = new HashSet<>();
 
             //iterate over the whole faces
             for (int j = 0; j < numFaces; j++) {
                 final List<Integer> vertexIndices = faces.get(j);
                 if (vertexIndices.contains(i)) {
                     triangleIndices.add(j);
-                    for (Integer vertexIndex : vertexIndices) {
+                    for (final Integer vertexIndex : vertexIndices) {
                         if (vertexIndex != i) {
                             pointSet.add(vertexIndex);
                         }
@@ -65,7 +65,7 @@ public class InputModel {
                 }
             }
 
-            List<Integer> pointIndices = new ArrayList<>(pointSet);
+            final List<Integer> pointIndices = new ArrayList<>(pointSet);
             final Vertex v = new Vertex(i, coord, pointIndices, triangleIndices);
             this.vertices.add(v);
         }
@@ -80,7 +80,7 @@ public class InputModel {
             final List<Integer> condition2 = new ArrayList<>(2);
             final List<Integer> condition3 = new ArrayList<>(2);
             //set for different edge
-            if (vertexIndices.size() == 2){
+            if (vertexIndices.size() == 2) {
                 System.out.println("Exception:");
                 System.out.println(iFace);
             }
@@ -99,7 +99,7 @@ public class InputModel {
                 if (faceCount == 3) {
                     break;
                 }
-                List<Integer> verticesEach = faces.get(jFace);
+                final List<Integer> verticesEach = faces.get(jFace);
                 if (verticesEach.contains(condition1.get(0)) && verticesEach.contains(condition1.get(1))) {
                     faceIndices.add(jFace);
                     faceCount += 1;
@@ -126,32 +126,46 @@ public class InputModel {
         //end of polygon creation
 
         //start of edge creation
-        HashSet<Edge> edgeSet = new HashSet<>();
+        final HashSet<Edge> edgeSet = new HashSet<>();
+        final Map<Integer, Edge> edgeMap = new HashMap<>();
+
         int edgeCount = 0;
-        for (Triangle triangle : this.triangles) {
-            List<Vertex> vs = triangle.getVertices();
-            Vertex v1 = vs.get(0);
-            Vertex v2 = vs.get(1);
-            Vertex v3 = vs.get(2);
-            Edge edge1 = new Edge(v1, v2, edgeCount);
+        for (final Triangle triangle : this.triangles) {
+            final List<Vertex> vs = triangle.getVertices();
+            final Vertex v1 = vs.get(0);
+            final Vertex v2 = vs.get(1);
+            final Vertex v3 = vs.get(2);
+            final Edge edge1 = new Edge(v1, v2, edgeCount);
             if (!edgeSet.contains(edge1)) {
-                triangle.addEdge(edge1);
                 edgeSet.add(edge1);
+                edgeMap.put(v1.hashCode() + v2.hashCode(), edge1);
+                triangle.addEdge(edge1);
                 edgeCount += 1;
+            } else {
+                triangle.addEdge(edgeMap.get(v1.hashCode() + v2.hashCode()));
             }
-            Edge edge2 = new Edge(v1, v3, edgeCount);
+
+            final Edge edge2 = new Edge(v1, v3, edgeCount);
             if (!edgeSet.contains(edge2)) {
-                triangle.addEdge(edge2);
                 edgeSet.add(edge2);
+                edgeMap.put(v1.hashCode() + v3.hashCode(), edge2);
+                triangle.addEdge(edge2);
                 edgeCount += 1;
+            } else {
+                triangle.addEdge(edgeMap.get(v1.hashCode() + v3.hashCode()));
             }
-            Edge edge3 = new Edge(v2, v3, edgeCount);
+
+            final Edge edge3 = new Edge(v2, v3, edgeCount);
             if (!edgeSet.contains(edge3)) {
-                triangle.addEdge(edge3);
+                edgeMap.put(v3.hashCode() + v2.hashCode(), edge3);
                 edgeSet.add(edge3);
+                triangle.addEdge(edge3);
                 edgeCount += 1;
+            } else {
+                triangle.addEdge(edgeMap.get(v2.hashCode() + v3.hashCode()));
             }
         }
         this.edges = new ArrayList<>(edgeSet);
+        //end of edge creation
     }
 }
