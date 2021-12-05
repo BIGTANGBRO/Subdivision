@@ -49,26 +49,23 @@ public class InputModel {
         for (int i = 0; i < numVertices; i++) {
             //set the parameter for the vertex i;
             final Vector3d coord = vertices.get(i);
-            final List<Integer> pointIndices = new ArrayList<>();
             final List<Integer> triangleIndices = new ArrayList<>();
+            HashSet<Integer> pointSet = new HashSet<>();
+
             //iterate over the whole faces
             for (int j = 0; j < numFaces; j++) {
                 final List<Integer> vertexIndices = faces.get(j);
-                for (int k = 0; k < 3; k++) {
-                    if (vertexIndices.get(k).equals(i)) {
-                        triangleIndices.add(j);
+                if (vertexIndices.contains(i)){
+                    triangleIndices.add(j);
+                    for (Integer vertexIndex : vertexIndices){
+                        if (vertexIndex != i){
+                            pointSet.add(vertexIndex);
+                        }
                     }
                 }
             }
-            //iterate over the faces include this vertex
-            for (final Integer triangleIndex : triangleIndices) {
-                for (int iVertex = 0; iVertex < 3; iVertex++) {
-                    final int vertexIndex = faces.get(triangleIndex).get(iVertex);
-                    if (vertexIndex != i && !pointIndices.contains(vertexIndex)) {
-                        pointIndices.add(vertexIndex);
-                    }
-                }
-            }
+
+            List<Integer> pointIndices = new ArrayList<>(pointSet);
             final Vertex v = new Vertex(i, coord, pointIndices, triangleIndices);
             this.vertices.add(v);
         }
