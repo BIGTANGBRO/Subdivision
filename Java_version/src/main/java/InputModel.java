@@ -55,10 +55,10 @@ public class InputModel {
             //iterate over the whole faces
             for (int j = 0; j < numFaces; j++) {
                 final List<Integer> vertexIndices = faces.get(j);
-                if (vertexIndices.contains(i)){
+                if (vertexIndices.contains(i)) {
                     triangleIndices.add(j);
-                    for (Integer vertexIndex : vertexIndices){
-                        if (vertexIndex != i){
+                    for (Integer vertexIndex : vertexIndices) {
+                        if (vertexIndex != i) {
                             pointSet.add(vertexIndex);
                         }
                     }
@@ -80,6 +80,10 @@ public class InputModel {
             final List<Integer> condition2 = new ArrayList<>(2);
             final List<Integer> condition3 = new ArrayList<>(2);
             //set for different edge
+            if (vertexIndices.size() == 2){
+                System.out.println("Exception:");
+                System.out.println(iFace);
+            }
             condition1.add(vertexIndices.get(0));
             condition1.add(vertexIndices.get(1));
             condition2.add(vertexIndices.get(0));
@@ -87,53 +91,29 @@ public class InputModel {
             condition3.add(vertexIndices.get(1));
             condition3.add(vertexIndices.get(2));
 
+            int faceCount = 0;
             for (int jFace = 0; jFace < numFaces; jFace++) {
                 if (iFace == jFace) {
                     continue;
                 }
-                int vCount = 0;
-                for (int iVertex = 0; iVertex < 3; iVertex++) {
-                    if (condition1.contains(faces.get(jFace).get(iVertex))) {
-                        vCount += 1;
-                        if (vCount == 2) {
-                            faceIndices.add(jFace);
-                            break;
-                        }
-                    }
+                if (faceCount == 3) {
+                    break;
+                }
+                List<Integer> verticesEach = faces.get(jFace);
+                if (verticesEach.contains(condition1.get(0)) && verticesEach.contains(condition1.get(1))) {
+                    faceIndices.add(jFace);
+                    faceCount += 1;
+                }
+                if (verticesEach.contains(condition2.get(0)) && verticesEach.contains(condition2.get(1))) {
+                    faceIndices.add(jFace);
+                    faceCount += 1;
+                }
+                if (verticesEach.contains(condition3.get(0)) && verticesEach.contains(condition3.get(1))) {
+                    faceIndices.add(jFace);
+                    faceCount += 1;
                 }
             }
 
-            for (int jFace = 0; jFace < numFaces; jFace++) {
-                if (iFace == jFace) {
-                    continue;
-                }
-                int vCount = 0;
-                for (int iVertex = 0; iVertex < 3; iVertex++) {
-                    if (condition2.contains(faces.get(jFace).get(iVertex))) {
-                        vCount += 1;
-                        if (vCount == 2) {
-                            faceIndices.add(jFace);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            for (int jFace = 0; jFace < numFaces; jFace++) {
-                if (iFace == jFace) {
-                    continue;
-                }
-                int vCount = 0;
-                for (int iVertex = 0; iVertex < 3; iVertex++) {
-                    if (condition3.contains(faces.get(jFace).get(iVertex))) {
-                        vCount += 1;
-                        if (vCount == 2) {
-                            faceIndices.add(jFace);
-                            break;
-                        }
-                    }
-                }
-            }
             final List<Vertex> verticesEachTri = new ArrayList<>(3);
             for (int iVertex = 0; iVertex < 3; iVertex++) {
                 final Integer vertexIndex = vertexIndices.get(iVertex);
@@ -155,32 +135,23 @@ public class InputModel {
             Vertex v3 = vs.get(2);
             Edge edge1 = new Edge(v1, v2, edgeCount);
             if (!edgeSet.contains(edge1)) {
+                triangle.addEdge(edge1);
                 edgeSet.add(edge1);
                 edgeCount += 1;
             }
             Edge edge2 = new Edge(v1, v3, edgeCount);
             if (!edgeSet.contains(edge2)) {
+                triangle.addEdge(edge2);
                 edgeSet.add(edge2);
                 edgeCount += 1;
             }
             Edge edge3 = new Edge(v2, v3, edgeCount);
             if (!edgeSet.contains(edge3)) {
+                triangle.addEdge(edge3);
                 edgeSet.add(edge3);
                 edgeCount += 1;
             }
         }
         this.edges = new ArrayList<>(edgeSet);
-        //end of edge creation
-
-        //add edge to the triangle
-        for (Edge edge : this.edges) {
-            Vertex v1 = edge.getA();
-            Vertex v2 = edge.getB();
-            for (Triangle triangle : this.triangles) {
-                if (triangle.containVertices(v1, v2)) {
-                    triangle.addEdge(edge);
-                }
-            }
-        }
     }
 }
