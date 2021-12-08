@@ -33,7 +33,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file reader
-        String modelName = "turbine";
+        String modelName = "sphere";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
@@ -54,12 +54,16 @@ public class MainEntry {
         analysisStep.implementScheme1(inputModel);
         InputModel inputModel1 = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel1);
+        ComparisonStep comparisonStep = new ComparisonStep();
+        double error = comparisonStep.getError(analysisStep.getVertexMap());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("Number of elements:" + analysisStep.getFaceMap().size());
         System.out.println("Number of vertices:" + analysisStep.getVertexMap().size());
+        System.out.println("The total error is: " + error);
         analysisStep.writePLY(modelName + "_refined");
-        Long endTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
+
         System.out.println("-------File written successfully-------");
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
     }
