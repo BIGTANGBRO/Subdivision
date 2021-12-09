@@ -43,6 +43,17 @@ public class AnalysisStep {
         this.faceMap = faceMap;
     }
 
+    public void implementScheme1_2(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
+        Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = faceMap;
+    }
+
     public void implementScheme2(final InputModel inputModel) {
         final List<Triangle> triangles = inputModel.getTriangles();
         final List<Edge> edges = inputModel.getEdges();

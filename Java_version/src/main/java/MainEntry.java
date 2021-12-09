@@ -33,7 +33,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file reader
-        String modelName = "sphere";
+        String modelName = "bun_test";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
