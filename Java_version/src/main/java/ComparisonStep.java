@@ -30,4 +30,6 @@ public class ComparisonStep {
         }
         return error / (double) vertices.size();
     }
+
+    //quantify the value of the mesh difference
 }
