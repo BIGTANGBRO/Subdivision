@@ -55,7 +55,7 @@ public class MainEntry {
         InputModel inputModel1 = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel1);
         ComparisonStep comparisonStep = new ComparisonStep();
-        double error = comparisonStep.getError(analysisStep.getVertexMap());
+        double error = comparisonStep.getSphereError(analysisStep.getVertexMap());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("Number of elements:" + analysisStep.getFaceMap().size());

@@ -16,7 +16,7 @@ public class ComparisonStep {
         return pow(127.0d, 2) - pow(x, 2) - pow(y, 2);
     }
 
-    public double getError(Map<Integer, Vector3d> vertices) {
+    public double getSphereError(Map<Integer, Vector3d> vertices) {
         //get the data from vertices;
         double error = 0.0d;
         for (Map.Entry<Integer, Vector3d> entry : vertices.entrySet()) {
@@ -31,5 +31,7 @@ public class ComparisonStep {
         return error / (double) vertices.size();
     }
 
-    //quantify the value of the mesh difference
+    public void getError(){
+
+    }
 }
