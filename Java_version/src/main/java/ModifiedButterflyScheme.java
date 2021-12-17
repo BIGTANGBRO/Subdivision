@@ -122,8 +122,35 @@ public class ModifiedButterflyScheme {
         return stencils;
     }
 
+    public List<Integer> getNeighBourPts(Vertex vMain, Vertex v2) {
+        //vMain is the extradinory and v2 is another point on e0;
+        List<Integer> indices = new ArrayList<>();
+        indices.add(v2.getIndex());
+        Vertex vPoint = v2;
+        do {
+            for (Triangle triangle : this.triangles) {
+                if (triangle.containVertices(vMain, vPoint)) {
+                    Vertex v3 = triangle.getRemain(vMain, vPoint);
+                    indices.add(v3.getIndex());
+                    vPoint = v3;
+                    break;
+                }
+            }
+        } while (vPoint.getIndex() == v2.getIndex());
+        return indices;
+    }
+
     public void computeOdd(Vertex v1, Vertex v2) {
-        //one vertex is valence 6, the other is extraordinary.
+        //set for different scenriosx
+        if (v1.getNumVertices() == 6 && v2.getNumVertices() == 6) {
+
+        } else if (v1.getNumVertices() != 6 && v2.getNumVertices() == 6) {
+
+        } else if (v2.getNumVertices() != 6 && v1.getNumVertices() == 6) {
+
+        } else {
+
+        }
     }
 
     public void computeEven() {
