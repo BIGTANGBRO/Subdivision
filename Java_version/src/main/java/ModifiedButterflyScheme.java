@@ -1,10 +1,7 @@
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author: tangshao
@@ -315,6 +312,7 @@ public class ModifiedButterflyScheme {
 
     /**
      * Iterate to compute the edge point
+     *
      * @return Map with vertex index and coordinate
      */
     public Map<Integer, Vector3d> computeOdd() {
@@ -329,5 +327,30 @@ public class ModifiedButterflyScheme {
             index += 1;
         }
         return vertexMap;
+    }
+
+    public Map<Integer, List<Integer>> createTriangle() {
+        int faceCount = 0;
+        Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        for (final Triangle triangle : this.triangles) {
+            final HashSet<Integer> oddVertexSet = new HashSet<>();
+            for (final Vertex vertex : triangle.getVertices()) {
+                final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
+                final List<Integer> vertexIndices = new ArrayList<>(3);
+                vertexIndices.add(vertex.getIndex());
+                for (final Edge edge : connectedEdges) {
+                    final int newVertexIndex = oddNodeMap.get(edge.getIndex());
+                    oddVertexSet.add(newVertexIndex);
+                    vertexIndices.add(newVertexIndex);
+                }
+                faceMap.put(faceCount, vertexIndices);
+                faceCount += 1;
+            }
+            //connect the new created odd vertices to form a surface
+            final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
+            faceMap.put(faceCount, oddVertexArr);
+            faceCount += 1;
+        }
+        return faceMap;
     }
 }
