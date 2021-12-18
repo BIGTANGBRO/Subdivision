@@ -16,6 +16,13 @@ public class MathUtils {
         return new Vector3d(xVal, yVal, zVal);
     }
 
+    public static Vector3d addVector(final Vector3d v1, final Vector3d v2, final Vector3d v3, final Vector3d v4) {
+        final double xVal = v1.getXVal() + v2.getXVal() + v3.getXVal() + v4.getXVal();
+        final double yVal = v1.getYVal() + v2.getYVal() + v3.getYVal() + v4.getYVal();
+        final double zVal = v1.getZVal() + v2.getZVal() + v3.getZVal() + v4.getZVal();
+        return new Vector3d(xVal, yVal, zVal);
+    }
+
     public static Vector3d dotVal(final double val, final Vector3d vector3d) {
         final double xVal = vector3d.getXVal() * val;
         final double yVal = vector3d.getYVal() * val;
