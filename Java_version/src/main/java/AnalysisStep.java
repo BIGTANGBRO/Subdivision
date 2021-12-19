@@ -4,6 +4,7 @@ import lombok.Setter;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.LinkOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,17 @@ public class AnalysisStep {
         final PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
         final Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
         final Map<Integer, List<Integer>> faceMap = pScheme.createTriangle();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = faceMap;
+    }
+
+    public void implementScheme3(final InputModel inputModel){
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        ModifiedButterflyScheme mScheme = new ModifiedButterflyScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = mScheme.computeOdd();
+        Map<Integer, List<Integer>> faceMap = mScheme.createTriangle();
         this.vertexMap.putAll(vertexOddMap);
         this.faceMap = faceMap;
     }

@@ -20,6 +20,7 @@ public class ModifiedButterflyScheme {
         this.triangles = triangles;
         this.vertices = vertices;
         this.edges = edges;
+        this.oddNodeMap = new HashMap<>();
     }
 
     public ModifiedButterflyScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges, double w) {
@@ -131,17 +132,29 @@ public class ModifiedButterflyScheme {
         //vMain is the extradinory and v2 is another point on e0;
         List<Integer> indices = new ArrayList<>();
         indices.add(v2.getIndex());
-        Vertex vPoint = v2;
-        do {
+        Vertex vNew = new Vertex();
+        for (Triangle triangle : this.triangles) {
+            if (triangle.containVertices(vMain, v2)) {
+                Vertex v3 = triangle.getRemain(vMain, v2);
+                indices.add(v3.getIndex());
+                vNew = v3;
+                break;
+            }
+        }
+
+        Vertex vOld = v2;
+        while (vNew != v2) {
             for (Triangle triangle : this.triangles) {
-                if (triangle.containVertices(vMain, vPoint)) {
-                    Vertex v3 = triangle.getRemain(vMain, vPoint);
-                    indices.add(v3.getIndex());
-                    vPoint = v3;
+                if (triangle.containVertices(vMain, vNew) && !triangle.containVertex(vOld)) {
+                    vOld = vNew;
+                    vNew = triangle.getRemain(vMain, vNew);
+                    if (vNew != v2) {
+                        indices.add(vNew.getIndex());
+                    }
                     break;
                 }
             }
-        } while (vPoint.getIndex() == v2.getIndex());
+        }
         return indices;
     }
 
@@ -153,7 +166,7 @@ public class ModifiedButterflyScheme {
      * @return Coefficients
      */
     private double getCoeff(int j, int n) {
-        return (0.25 + Math.cos(2d * Math.PI * (double) j / (double) n) + 0.5 * Math.cos(4d * Math.PI * (double) j / (double) n)) / (double) n;
+        return (0.25 + Math.cos(2.0d * Math.PI * (double) j / (double) n) + 0.5 * Math.cos(4.0d * Math.PI * (double) j / (double) n)) / (double) n;
     }
 
     /**
@@ -165,7 +178,6 @@ public class ModifiedButterflyScheme {
      */
     public Vector3d computeOdd(Vertex v1, Vertex v2) {
         //set for different scenriosx
-        List<Integer> verticesNear = new ArrayList<>();
         if (v1.getNumVertices() == 6 && v2.getNumVertices() == 6) {
             //both are regular
             double a = 0.5d - w;
@@ -186,24 +198,23 @@ public class ModifiedButterflyScheme {
                 Vertex v = this.vertices.get(aIndex);
                 aSum = MathUtils.addVector(aSum, MathUtils.dotVal(a, v.getCoords()));
             }
-            for (Integer bIndex : aList) {
+            for (Integer bIndex : bList) {
                 Vertex v = this.vertices.get(bIndex);
                 bSum = MathUtils.addVector(bSum, MathUtils.dotVal(b, v.getCoords()));
             }
-            for (Integer cIndex : aList) {
+            for (Integer cIndex : cList) {
                 Vertex v = this.vertices.get(cIndex);
                 cSum = MathUtils.addVector(cSum, MathUtils.dotVal(c, v.getCoords()));
             }
-            for (Integer dIndex : aList) {
+            for (Integer dIndex : dList) {
                 Vertex v = this.vertices.get(dIndex);
                 dSum = MathUtils.addVector(dSum, MathUtils.dotVal(d, v.getCoords()));
             }
-
             return MathUtils.addVector(aSum, bSum, cSum, dSum);
 
         } else if (v1.getNumVertices() != 6 && v2.getNumVertices() == 6) {
             //first case
-            verticesNear = getNeighBourPts(v1, v2);
+            List<Integer> verticesNear = getNeighBourPts(v1, v2);
             List<Double> mask = new ArrayList<>();
             if (v1.getNumVertices() == 3) {
                 mask.add(5.0d / 12.0d);
@@ -229,7 +240,7 @@ public class ModifiedButterflyScheme {
             return oddVertex;
         } else if (v2.getNumVertices() != 6 && v1.getNumVertices() == 6) {
             //second case
-            verticesNear = getNeighBourPts(v2, v1);
+            List<Integer> verticesNear = getNeighBourPts(v2, v1);
             List<Double> mask = new ArrayList<>();
             if (v2.getNumVertices() == 3) {
                 mask.add(5.0d / 12.0d);
@@ -251,8 +262,7 @@ public class ModifiedButterflyScheme {
                 newVertex = MathUtils.addVector(newVertex, vertexMulti);
             }
             Vector3d newPointMain = MathUtils.dotVal(3.0d / 4.0d, v2.getCoords());
-            Vector3d oddVertex = MathUtils.addVector(newPointMain, newVertex);
-            return oddVertex;
+            return MathUtils.addVector(newPointMain, newVertex);
         } else {
             //both are irregular
             List<Integer> verticesNear1 = getNeighBourPts(v2, v1);

@@ -18,6 +18,10 @@ public class Vertex {
     //neighbour vertices
     private List<Integer> vertexIndices;
 
+    Vertex() {
+
+    }
+
     Vertex(int index) {
         this.index = index;
         coords = new Vector3d(0, 0, 0);

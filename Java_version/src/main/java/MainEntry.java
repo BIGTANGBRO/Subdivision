@@ -33,7 +33,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file reader
-        String modelName = "dolphin";
+        String modelName = "square";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
@@ -51,16 +51,16 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme1(inputModel);
-        InputModel inputModel1 = analysisStep.createTheModel();
-        analysisStep.implementScheme1(inputModel1);
-        ComparisonStep comparisonStep = new ComparisonStep();
-        double error = comparisonStep.getSphereError(analysisStep.getVertexMap());
+        analysisStep.implementScheme3(inputModel);
+//        InputModel inputModel1 = analysisStep.createTheModel();
+//        analysisStep.implementScheme1(inputModel1);
+//        ComparisonStep comparisonStep = new ComparisonStep();
+//        double error = comparisonStep.getSphereError(analysisStep.getVertexMap());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("Number of elements:" + analysisStep.getFaceMap().size());
         System.out.println("Number of vertices:" + analysisStep.getVertexMap().size());
-        System.out.println("The total error is: " + error);
+//        System.out.println("The total error is: " + error);
         analysisStep.writePLY(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 
