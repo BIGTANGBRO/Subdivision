@@ -42,6 +42,7 @@ public class ModifiedButterflyScheme {
         //get the neighbour of the two vertices
         List<Integer> vertices1 = v1.getVertexIndices();
         List<Integer> vertices2 = v2.getVertexIndices();
+        //index of the vertex
         int id1 = v1.getIndex();
         int id2 = v2.getIndex();
         List<Integer> aList = new ArrayList<>();
@@ -78,43 +79,36 @@ public class ModifiedButterflyScheme {
         Vertex vertex22 = this.vertices.get(cdList.get(4));
         Vertex vertex23 = this.vertices.get(cdList.get(5));
 
-        int dPoint = 0;
         List<Integer> cList = new ArrayList<>(2);
         List<Integer> dList = new ArrayList<>(1);
         //for the first point
         if (vertex11.getVertexIndices().contains(vertex12.getIndex()) && vertex11.getVertexIndices().contains(vertex13.getIndex())) {
-            dPoint = vertex11.getIndex();
             cList.add(vertex12.getIndex());
             cList.add(vertex13.getIndex());
-            dList.add(dPoint);
+            dList.add(vertex11.getIndex());
         } else if (vertex12.getVertexIndices().contains(vertex11.getIndex()) && vertex12.getVertexIndices().contains(vertex13.getIndex())) {
-            dPoint = vertex12.getIndex();
             cList.add(vertex11.getIndex());
             cList.add(vertex13.getIndex());
-            dList.add(dPoint);
+            dList.add(vertex12.getIndex());
         } else {
-            dPoint = vertex13.getIndex();
             cList.add(vertex11.getIndex());
             cList.add(vertex12.getIndex());
-            dList.add(dPoint);
+            dList.add(vertex13.getIndex());
         }
 
         //for the second point
-        if (vertex11.getVertexIndices().contains(vertex22.getIndex()) && vertex21.getVertexIndices().contains(vertex23.getIndex())) {
-            dPoint = vertex21.getIndex();
+        if (vertex21.getVertexIndices().contains(vertex22.getIndex()) && vertex21.getVertexIndices().contains(vertex23.getIndex())) {
             cList.add(vertex22.getIndex());
             cList.add(vertex23.getIndex());
-            dList.add(dPoint);
+            dList.add(vertex21.getIndex());
         } else if (vertex22.getVertexIndices().contains(vertex21.getIndex()) && vertex22.getVertexIndices().contains(vertex23.getIndex())) {
-            dPoint = vertex22.getIndex();
             cList.add(vertex21.getIndex());
             cList.add(vertex23.getIndex());
-            dList.add(dPoint);
+            dList.add(vertex22.getIndex());
         } else {
-            dPoint = vertex23.getIndex();
             cList.add(vertex21.getIndex());
             cList.add(vertex22.getIndex());
-            dList.add(dPoint);
+            dList.add(vertex23.getIndex());
         }
         stencils.put("c", cList);
         stencils.put("d", dList);
@@ -131,6 +125,7 @@ public class ModifiedButterflyScheme {
     private List<Integer> getNeighBourPts(Vertex vMain, Vertex v2) {
         //vMain is the extradinory and v2 is another point on e0;
         List<Integer> indices = new ArrayList<>();
+        //start from the first point
         indices.add(v2.getIndex());
         Vertex vNew = new Vertex();
         for (Triangle triangle : this.triangles) {
