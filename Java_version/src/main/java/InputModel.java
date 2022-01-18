@@ -10,6 +10,7 @@ import java.util.*;
 @Setter
 public class InputModel {
     //this is the input model data structure
+    //triangles and vertices are in the same order
     private List<Triangle> triangles;
     private List<Vertex> vertices;
     private List<Edge> edges;
