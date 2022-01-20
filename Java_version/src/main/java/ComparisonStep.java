@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.Math.pow;
@@ -5,6 +6,7 @@ import static java.lang.Math.pow;
 /**
  * @author: tangshao
  * @Date: 2021/12/8
+ * The class used to assess the quality of the mesh model.
  */
 public class ComparisonStep {
     ComparisonStep() {
@@ -31,7 +33,39 @@ public class ComparisonStep {
         return error / (double) vertices.size();
     }
 
-    public void getError(){
+    public void getRMSError(InputModel inputModel) {
 
+    }
+
+    public double getHausorffDistance(List<Vertex> vertices1, List<Vertex> vertices2) {
+        double maxDA = 0d;
+        for (Vertex vertex1 : vertices1) {
+            double minDist = Double.POSITIVE_INFINITY;
+            for (Vertex vertex2 : vertices2) {
+                double distance = MathUtils.minusVector(vertex1.getCoords(), vertex2.getCoords()).getMod();
+                if (distance <= minDist) {
+                    minDist = distance;
+                }
+            }
+            if (minDist > maxDA) {
+                maxDA = minDist;
+            }
+        }
+
+        double maxDB = 0d;
+        for (Vertex vertex1 : vertices2) {
+            double minDist = Double.POSITIVE_INFINITY;
+            for (Vertex vertex2 : vertices1) {
+                double distance = MathUtils.minusVector(vertex1.getCoords(), vertex2.getCoords()).getMod();
+                if (distance <= minDist) {
+                    minDist = distance;
+                }
+            }
+            if (minDist > maxDB) {
+                maxDB = minDist;
+            }
+        }
+
+        return Math.max(maxDA, maxDB);
     }
 }

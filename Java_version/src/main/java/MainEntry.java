@@ -1,6 +1,7 @@
 import org.smurn.jply.PlyReaderFile;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -9,39 +10,27 @@ import java.util.*;
  * @author tangshao
  */
 public class MainEntry {
-    public void getOriginal() {
-//        List<Vertex> verticesList = inputModel.getVertices();
-//        List<Triangle> trianglesList = inputModel.getTriangles();
-//        Map<Integer, Vector3d> newVertices = new HashMap<>();
-//        Map<Integer, List<Integer>> newFaces = new HashMap<>();
-//        for (Vertex vertex:verticesList){
-//            newVertices.put(vertex.getIndex(), vertex.getCoords());
-//        }
-//
-//        for (Triangle triangle : trianglesList){
-//            List<Vertex> vertexEachTri = triangle.getVertices();
-//            List<Integer> vertexIndices = new ArrayList<>();
-//            for (int i = 0;i < 3;i++){
-//                vertexIndices.add(vertexEachTri.get(i).getIndex());
-//            }
-//            newFaces.put(triangle.getIndex(), vertexIndices);
-//        }
+    public static void compare(InputModel inputModel1, InputModel inputModel2) {
+        ComparisonStep compareStep = new ComparisonStep();
+        double error = compareStep.getHausorffDistance(inputModel1.getVertices(), inputModel2.getVertices());
+        System.out.println("The HausorffDistance Error is :" + error);
     }
 
     public static void main(String[] args) throws IOException {
         //set the current timeMills
         long startTime = System.currentTimeMillis();
 
-        //file reader
-        String modelName = "square";
+        //file location
+        String modelName = "sphere";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
+
+        //file reader
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
         int numFaces = reader.getElementCount("face");
         int numVertices = reader.getElementCount("vertex");
         Map<Integer, Vector3d> vertices = new HashMap<>(numFaces);
         Map<Integer, List<Integer>> faces = new HashMap<>(numVertices);
-
         //read the detail
         ReadPLY.read(reader, vertices, faces);
         System.out.println("--------Input model read successfully-------");
@@ -51,20 +40,22 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme3(inputModel);
-//        InputModel inputModel1 = analysisStep.createTheModel();
-//        analysisStep.implementScheme1(inputModel1);
-//        ComparisonStep comparisonStep = new ComparisonStep();
-//        double error = comparisonStep.getSphereError(analysisStep.getVertexMap());
+        analysisStep.implementScheme1(inputModel);
+        OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
-        System.out.println("Number of elements:" + analysisStep.getFaceMap().size());
-        System.out.println("Number of vertices:" + analysisStep.getVertexMap().size());
-//        System.out.println("The total error is: " + error);
-        analysisStep.writePLY(modelName + "_refined");
+        System.out.println("Number of elements:" + outputModel.getFaceMap().size());
+        System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
+
+        //write the file
+        outputModel.writePLY(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 
+        //print out the running time
         System.out.println("-------File written successfully-------");
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
+
+        //comparison
+        compare(inputModel, analysisStep.createTheModel());
     }
 }

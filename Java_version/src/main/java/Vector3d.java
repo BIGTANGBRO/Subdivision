@@ -21,4 +21,8 @@ public class Vector3d {
     public double[] getArr() {
         return new double[]{xVal, yVal, zVal};
     }
+
+    public double getMod() {
+        return Math.pow(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2), 0.5);
+    }
 }
