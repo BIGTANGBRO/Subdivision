@@ -21,7 +21,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "sphere";
+        String modelName = "testModel2 v1";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //file reader
@@ -41,7 +41,9 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel);
-        OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap());
+        Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
+        OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap(), normalMap);
+
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("Number of elements:" + outputModel.getFaceMap().size());

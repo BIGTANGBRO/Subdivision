@@ -57,4 +57,8 @@ public class MathUtils {
         double modB = Math.pow((Math.pow(v2.getXVal(), 2) + Math.pow(v2.getYVal(), 2) + Math.pow(v2.getZVal(), 2)), 0.5);
         return Math.toDegrees(Math.acos(aDotb / (modA * modB)));
     }
+
+    public static double getMod(double x, double y, double z) {
+        return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
+    }
 }

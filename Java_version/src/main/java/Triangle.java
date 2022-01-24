@@ -75,4 +75,20 @@ public class Triangle {
     public int getNumNeighbours() {
         return this.triangleIndices.size();
     }
+
+    public Vector3d getUnitNormal() {
+        Vector3d coord1 = this.vertices.get(0).getCoords();
+        Vector3d coord2 = this.vertices.get(1).getCoords();
+        Vector3d coord3 = this.vertices.get(2).getCoords();
+
+        Vector3d vec1 = MathUtils.minusVector(coord1, coord2);
+        Vector3d vec2 = MathUtils.minusVector(coord1, coord3);
+
+        double x = vec1.getYVal() * vec2.getZVal() - vec1.getZVal() * vec2.getYVal();
+        double y = vec1.getZVal() * vec2.getXVal() - vec1.getXVal() * vec2.getZVal();
+        double z = vec1.getXVal() * vec2.getYVal() - vec1.getYVal() * vec2.getXVal();
+
+        double mod = MathUtils.getMod(x, y, z);
+        return new Vector3d(x / mod, y / mod, z / mod);
+    }
 }

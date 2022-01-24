@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,5 +68,28 @@ public class ComparisonStep {
         }
 
         return Math.max(maxDA, maxDB);
+    }
+
+    //static method to get the normal vector for vertices
+    private static Vector3d getNormalForVertex(Vertex vertex, List<Triangle> triangles) {
+        List<Integer> neighbours = vertex.getTriangleIndices();
+        Vector3d vNorm = new Vector3d(0, 0, 0);
+        for (Integer index : neighbours) {
+            Triangle triangle = triangles.get(index);
+            Vector3d normFace = triangle.getUnitNormal();
+            vNorm = MathUtils.addVector(vNorm, normFace);
+        }
+        return MathUtils.dotVal(1d / (double) neighbours.size(), vNorm);
+    }
+
+    public static Map<Integer, Vector3d> getNormalForVertices(InputModel inputModel) {
+        List<Vertex> vertices = inputModel.getVertices();
+        List<Triangle> triangles = inputModel.getTriangles();
+        Map<Integer, Vector3d> normMap = new HashMap<>();
+        for (Vertex vertex : vertices) {
+            Vector3d normV = getNormalForVertex(vertex, triangles);
+            normMap.put(vertex.getIndex(), normV);
+        }
+        return normMap;
     }
 }
