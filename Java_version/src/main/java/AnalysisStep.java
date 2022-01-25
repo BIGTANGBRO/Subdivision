@@ -18,27 +18,12 @@ import java.util.Map;
 public class AnalysisStep {
     private Map<Integer, Vector3d> vertexMap;
     private Map<Integer, List<Integer>> faceMap;
+    private Map<Integer, Vector3d> vertexNormals;
 
-    public AnalysisStep(final Map<Integer, Vector3d> vertexMap, final Map<Integer, List<Integer>> faceMap) {
+    public AnalysisStep(final Map<Integer, Vector3d> vertexMap, final Map<Integer, List<Integer>> faceMap, Map<Integer, Vector3d> vertexNormals) {
         this.faceMap = faceMap;
         this.vertexMap = vertexMap;
-
-    }
-
-    public void implementScheme1(final InputModel inputModel) {
-        //implement the scheme here
-        final List<Triangle> triangles = inputModel.getTriangles();
-        final List<Edge> edges = inputModel.getEdges();
-        final List<Vertex> vertices = inputModel.getVertices();
-        final LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
-        final Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
-        final Map<Integer, Vector3d> vertexEvenMap = loopScheme.computeEven();
-        final Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle();
-        final Map<Integer, Vector3d> newVertexMap = new HashMap<>();
-        newVertexMap.putAll(vertexOddMap);
-        newVertexMap.putAll(vertexEvenMap);
-        this.vertexMap = newVertexMap;
-        this.faceMap = faceMap;
+        this.vertexNormals = vertexNormals;
     }
 
     public void implementScheme1_2(InputModel inputModel) {
@@ -47,8 +32,8 @@ public class AnalysisStep {
         List<Vertex> vertices = inputModel.getVertices();
         LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
         Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
-        Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle();
         this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle(this.vertexMap);
         this.faceMap = faceMap;
     }
 
@@ -75,6 +60,6 @@ public class AnalysisStep {
     }
 
     public InputModel createTheModel() {
-        return new InputModel(this.vertexMap, this.faceMap);
+        return new InputModel(this.vertexMap, this.faceMap, this.vertexNormals);
     }
 }

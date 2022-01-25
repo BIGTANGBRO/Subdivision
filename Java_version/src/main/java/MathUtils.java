@@ -61,4 +61,16 @@ public class MathUtils {
     public static double getMod(double x, double y, double z) {
         return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
     }
+
+    public static Vector3d getUnitNormal(Vector3d coord1, Vector3d coord2, Vector3d coord3) {
+        Vector3d vec1 = MathUtils.minusVector(coord1, coord2);
+        Vector3d vec2 = MathUtils.minusVector(coord1, coord3);
+
+        double x = vec1.getYVal() * vec2.getZVal() - vec1.getZVal() * vec2.getYVal();
+        double y = vec1.getZVal() * vec2.getXVal() - vec1.getXVal() * vec2.getZVal();
+        double z = vec1.getXVal() * vec2.getYVal() - vec1.getYVal() * vec2.getXVal();
+
+        double mod = MathUtils.getMod(x, y, z);
+        return new Vector3d(x / mod, y / mod, z / mod);
+    }
 }

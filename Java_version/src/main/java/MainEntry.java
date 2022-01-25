@@ -24,26 +24,30 @@ public class MainEntry {
         String modelName = "testModel2 v1";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
-        //file reader
+        //Variables initializing
         InputStream in = new FileInputStream(fileName);
         PlyReaderFile reader = new PlyReaderFile(in);
         int numFaces = reader.getElementCount("face");
         int numVertices = reader.getElementCount("vertex");
-        Map<Integer, Vector3d> vertices = new HashMap<>(numFaces);
-        Map<Integer, List<Integer>> faces = new HashMap<>(numVertices);
+        Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
+        Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
+        Map<Integer, Vector3d> vertexNormals = new HashMap<>(numVertices);
         //read the detail
-        ReadPLY.read(reader, vertices, faces);
+        ReadPLY.read(reader, vertices, faces, vertexNormals);
         System.out.println("--------Input model read successfully-------");
         System.out.println("Number of elements:" + numFaces);
         System.out.println("Number of vertices:" + numVertices);
 
         //start implementing the algorithms on the data structure
-        AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
+        AnalysisStep analysisStep = new AnalysisStep(vertices, faces, vertexNormals);
         InputModel inputModel = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel);
+
+
+
+        //todo:
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
         OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap(), normalMap);
-
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("Number of elements:" + outputModel.getFaceMap().size());

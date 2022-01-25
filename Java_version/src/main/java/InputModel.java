@@ -34,11 +34,11 @@ public class InputModel {
 
     /**
      * create vertices for the input model
-     *
-     * @param vertices vertices with index and coords
-     * @param faces    faces with index and vertex indices
+     * @param vertices   vertices with index and coords
+     * @param faces     faces with index and vertex indices
+     * @param vertexNormals The normals of the vertex
      */
-    public InputModel(final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces) {
+    public InputModel(final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces, Map<Integer, Vector3d> vertexNormals) {
         //vertex index is from 0 to numFaces;
         //face index is from 0 to numVertices
         final int numVertices = vertices.size();

@@ -122,13 +122,16 @@ public class LoopScheme {
      *
      * @return map with face index and vertex indices
      */
-    public Map<Integer, List<Integer>> createTriangle() {
+    public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
         //connect the vertices
         //vertexMap is from computeOdd
         int faceCount = 0;
         final Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        //iterate over the original triangles
         for (final Triangle triangle : this.triangles) {
             final HashSet<Integer> oddVertexSet = new HashSet<>();
+            //set the face topology
+            Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
                 final List<Integer> vertexIndices = new ArrayList<>(3);
@@ -138,6 +141,7 @@ public class LoopScheme {
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
+
                 faceMap.put(faceCount, vertexIndices);
                 faceCount += 1;
             }
