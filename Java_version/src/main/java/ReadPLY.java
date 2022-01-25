@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class ReadPLY {
     //read the vertex data and face data from the ply data
-    public static void read(final PlyReaderFile reader, final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces, Map<Integer, Vector3d> normalMap) throws IOException {
+    public static void read(final PlyReaderFile reader, final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces) throws IOException {
         ElementReader elementReader = reader.nextElementReader();
         int vertexIndex = 0;
         int faceIndex = 0;
@@ -28,11 +28,6 @@ public class ReadPLY {
                     final double yCoord = element.getDouble("y");
                     final double zCoord = element.getDouble("z");
                     final Vector3d coord = new Vector3d(xCoord, yCoord, zCoord);
-                    double nx = element.getDouble("nx");
-                    double ny = element.getDouble("ny");
-                    double nz = element.getDouble("nz");
-                    Vector3d vNormal = new Vector3d(nx, ny, nz);
-                    normalMap.put(vertexIndex, vNormal);
                     vertices.put(vertexIndex, coord);
                     vertexIndex += 1;
                 } else if ("face".equals(element.getType().getName())) {

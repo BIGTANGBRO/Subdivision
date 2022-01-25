@@ -31,19 +31,16 @@ public class MainEntry {
         int numVertices = reader.getElementCount("vertex");
         Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
         Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
-        Map<Integer, Vector3d> vertexNormals = new HashMap<>(numVertices);
         //read the detail
-        ReadPLY.read(reader, vertices, faces, vertexNormals);
+        ReadPLY.read(reader, vertices, faces);
         System.out.println("--------Input model read successfully-------");
         System.out.println("Number of elements:" + numFaces);
         System.out.println("Number of vertices:" + numVertices);
 
         //start implementing the algorithms on the data structure
-        AnalysisStep analysisStep = new AnalysisStep(vertices, faces, vertexNormals);
+        AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel);
-
-
 
         //todo:
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
@@ -54,7 +51,7 @@ public class MainEntry {
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
-        outputModel.writePLY(modelName + "_refined");
+        outputModel.writePLYNormal(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 
         //print out the running time

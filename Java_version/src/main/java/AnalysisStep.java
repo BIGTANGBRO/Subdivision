@@ -18,15 +18,13 @@ import java.util.Map;
 public class AnalysisStep {
     private Map<Integer, Vector3d> vertexMap;
     private Map<Integer, List<Integer>> faceMap;
-    private Map<Integer, Vector3d> vertexNormals;
 
-    public AnalysisStep(final Map<Integer, Vector3d> vertexMap, final Map<Integer, List<Integer>> faceMap, Map<Integer, Vector3d> vertexNormals) {
+    public AnalysisStep(final Map<Integer, Vector3d> vertexMap, final Map<Integer, List<Integer>> faceMap) {
         this.faceMap = faceMap;
         this.vertexMap = vertexMap;
-        this.vertexNormals = vertexNormals;
     }
 
-    public void implementScheme1_2(InputModel inputModel) {
+    public void implementScheme1(InputModel inputModel) {
         List<Triangle> triangles = inputModel.getTriangles();
         List<Edge> edges = inputModel.getEdges();
         List<Vertex> vertices = inputModel.getVertices();
@@ -38,17 +36,6 @@ public class AnalysisStep {
     }
 
     public void implementScheme2(final InputModel inputModel) {
-        final List<Triangle> triangles = inputModel.getTriangles();
-        final List<Edge> edges = inputModel.getEdges();
-        final List<Vertex> vertices = inputModel.getVertices();
-        final PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
-        final Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
-        final Map<Integer, List<Integer>> faceMap = pScheme.createTriangle();
-        this.vertexMap.putAll(vertexOddMap);
-        this.faceMap = faceMap;
-    }
-
-    public void implementScheme3(final InputModel inputModel) {
         List<Triangle> triangles = inputModel.getTriangles();
         List<Edge> edges = inputModel.getEdges();
         List<Vertex> vertices = inputModel.getVertices();
@@ -60,6 +47,6 @@ public class AnalysisStep {
     }
 
     public InputModel createTheModel() {
-        return new InputModel(this.vertexMap, this.faceMap, this.vertexNormals);
+        return new InputModel(this.vertexMap, this.faceMap);
     }
 }

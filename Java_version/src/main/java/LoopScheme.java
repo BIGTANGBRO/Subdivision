@@ -141,12 +141,22 @@ public class LoopScheme {
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
-
+                if (vertexIndices.size() == 2){
+                    System.out.println(triangle.index);
+                }
+                Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                    Collections.swap(vertexIndices, 1, 2);
+                }
                 faceMap.put(faceCount, vertexIndices);
                 faceCount += 1;
             }
             //connect the new created odd vertices to form a surface
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
+            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(oddVertexArr.get(0)), vertexMap.get(oddVertexArr.get(1)), vertexMap.get(oddVertexArr.get(2)));
+            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                Collections.swap(oddVertexArr, 1, 2);
+            }
             faceMap.put(faceCount, oddVertexArr);
             faceCount += 1;
         }
