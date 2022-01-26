@@ -58,15 +58,23 @@ public class Triangle {
         return null;
     }
 
-    public List<Vertex> getRemain(Vertex v1) {
+    public List<Vertex> getRemainInDirection(final Vertex v1){
+        int indexRemain = this.vertices.indexOf(v1);
         List<Vertex> verticesRemain = new ArrayList<>(2);
-        for (Vertex v : this.vertices) {
-            if (v.getIndex() != v1.getIndex()) {
-                verticesRemain.add(v);
-            }
+        switch(indexRemain){
+            case 0:
+                verticesRemain.add(this.vertices.get(1));
+                verticesRemain.add(this.vertices.get(2));
+            case 1:
+                verticesRemain.add(this.vertices.get(2));
+                verticesRemain.add(this.vertices.get(0));
+            default:
+                verticesRemain.add(this.vertices.get(0));
+                verticesRemain.add(this.vertices.get(1));
         }
         return verticesRemain;
     }
+
 
     public void addEdge(final Edge edge) {
         this.edges.add(edge);

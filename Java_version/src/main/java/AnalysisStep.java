@@ -42,8 +42,8 @@ public class AnalysisStep {
         List<Vertex> vertices = inputModel.getVertices();
         ModifiedButterflyScheme mScheme = new ModifiedButterflyScheme(triangles, vertices, edges);
         Map<Integer, Vector3d> vertexOddMap = mScheme.computeOdd();
-        Map<Integer, List<Integer>> faceMap = mScheme.createTriangle();
         this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = mScheme.createTriangle(this.vertexMap);
         this.faceMap = faceMap;
     }
 

@@ -30,46 +30,52 @@ public class ModifiedButterflyScheme {
         for (Integer triIndex : trianglesIndexNear) {
             trianglesNear.add(this.triangles.get(triIndex));
         }
+        int iterN = 0;
+        int maxN = trianglesNear.size() * vMain.getNumVertices() * 2;
 
         List<Vertex> verticesNear = new ArrayList<>();
         Vertex vOld = vNear;
-        do {
+        while (verticesNear.size() != vMain.getNumVertices()) {
             for (Triangle triangle : trianglesNear) {
+                if (iterN > maxN) {
+                    break;
+                }
                 if (triangle.containVertices(vOld, vMain)) {
                     Vertex vRemain = triangle.getRemain(vMain, vOld);
-                    if (!verticesNear.contains(vRemain)) {
+                    if (triangle.getRemainInDirection(vRemain).get(0).equals(vOld) && !verticesNear.contains(vRemain)) {
                         verticesNear.add(vRemain);
                         vOld = vRemain;
                     }
                 }
+                iterN += 1;
             }
-        } while (verticesNear.size() != vMain.getNumVertices());
+        }
         return verticesNear;
     }
 
     //Both are not extraordinary
-    public Map<String, List<Integer>> getStenil(Vertex v1, Vertex v2) {
-        List<Integer> vertexIndices1 = getNeighbourPtsInOrder(v1, v2);
-        List<Integer> vertexIndices2 = getNeighbourPtsInOrder(v2, v1);
-        Map<String, List<Integer>> stencils = new HashMap<>();
-        List<Integer> aList = new ArrayList<>();
-        List<Integer> bList = new ArrayList<>();
-        List<Integer> cList = new ArrayList<>();
-        List<Integer> dList = new ArrayList<>();
-        aList.add(v1.getIndex());
-        aList.add(v2.getIndex());
-        bList.add(vertexIndices1.get(1));
-        bList.add(vertexIndices1.get(5));
-        bList.add(vertexIndices2.get(1));
-        bList.add(vertexIndices2.get(5));
+    public Map<String, List<Vertex>> getStenil(Vertex v1, Vertex v2) {
+        List<Vertex> vertex1 = getNeighbourPtsInOrder(v1, v2);
+        List<Vertex> vertex2 = getNeighbourPtsInOrder(v2, v1);
+        Map<String, List<Vertex>> stencils = new HashMap<>();
+        List<Vertex> aList = new ArrayList<>();
+        List<Vertex> bList = new ArrayList<>();
+        List<Vertex> cList = new ArrayList<>();
+        List<Vertex> dList = new ArrayList<>();
+        aList.add(v1);
+        aList.add(v2);
+        bList.add(vertex1.get(1));
+        bList.add(vertex1.get(5));
+        bList.add(vertex2.get(1));
+        bList.add(vertex2.get(5));
 
-        cList.add(vertexIndices1.get(2));
-        cList.add(vertexIndices1.get(4));
-        cList.add(vertexIndices2.get(2));
-        cList.add(vertexIndices2.get(4));
+        cList.add(vertex1.get(2));
+        cList.add(vertex1.get(4));
+        cList.add(vertex2.get(2));
+        cList.add(vertex2.get(4));
 
-        dList.add(vertexIndices2.get(3));
-        dList.add(vertexIndices2.get(3));
+        dList.add(vertex2.get(3));
+        dList.add(vertex2.get(3));
         stencils.put("a", aList);
         stencils.put("b", bList);
         stencils.put("c", cList);
@@ -94,13 +100,13 @@ public class ModifiedButterflyScheme {
 
     public Vector3d calcualeExtraordinary(Vertex vMain, Vertex vNear) {
         //n is the number of neighbours
-        List<Integer> vertexIndices = getNeighbourPtsInOrder(vMain, vNear);
+        List<Vertex> vertexIndices = getNeighbourPtsInOrder(vMain, vNear);
         int n = vertexIndices.size();
         if (n == 3) {
             double[] coeffs = new double[]{5d / 12d, -1d / 12d, -1d / 12d};
             Vector3d sum = new Vector3d(0, 0, 0);
             for (int i = 0; i < 3; i++) {
-                Vertex v = this.vertices.get((vertexIndices.get(i)));
+                Vertex v = vertexIndices.get(i);
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeffs[i], v.getCoords()));
             }
             return MathUtils.addVector(sum, MathUtils.dotVal(3d / 4d, vMain.getCoords()));
@@ -108,7 +114,7 @@ public class ModifiedButterflyScheme {
             double[] coeffs = new double[]{3d / 8d, 0, -1d / 8d, 0};
             Vector3d sum = new Vector3d(0, 0, 0);
             for (int i = 0; i < 4; i++) {
-                Vertex v = this.vertices.get((vertexIndices.get(i)));
+                Vertex v = vertexIndices.get(i);
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeffs[i], v.getCoords()));
             }
             return MathUtils.addVector(sum, MathUtils.dotVal(3d / 4d, vMain.getCoords()));
@@ -116,7 +122,7 @@ public class ModifiedButterflyScheme {
             Vector3d sum = new Vector3d(0, 0, 0);
             for (int i = 0; i < 3; i++) {
                 double coeff = getCoeff(i, n);
-                Vertex v = this.vertices.get((vertexIndices.get(i)));
+                Vertex v = vertexIndices.get(i);
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff, v.getCoords()));
             }
             return MathUtils.addVector(sum, MathUtils.dotVal(3d / 4d, vMain.getCoords()));
@@ -125,26 +131,26 @@ public class ModifiedButterflyScheme {
 
     public Vector3d computeOdd(Vertex v1, Vertex v2) {
         if (v1.getNumVertices() == 6 && v2.getNumVertices() == 6) {
-            Map<String, List<Integer>> stencils = getStenil(v1, v2);
-            List<Integer> alist = stencils.get("a");
-            List<Integer> blist = stencils.get("b");
-            List<Integer> clist = stencils.get("c");
-            List<Integer> dlist = stencils.get("d");
+            Map<String, List<Vertex>> stencils = getStenil(v1, v2);
+            List<Vertex> alist = stencils.get("a");
+            List<Vertex> blist = stencils.get("b");
+            List<Vertex> clist = stencils.get("c");
+            List<Vertex> dlist = stencils.get("d");
             double[] coeff = getCoeff(-1d / 16d);
             Vector3d sum = new Vector3d(0, 0, 0);
-            for (Integer vertexIndex : alist) {
-                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[0], vertices.get(vertexIndex).getCoords()));
+            for (Vertex vertexNear : alist) {
+                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[0], vertexNear.getCoords()));
             }
 
-            for (Integer vertexIndex : blist) {
-                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[1], vertices.get(vertexIndex).getCoords()));
+            for (Vertex vertexIndex : blist) {
+                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[1], vertexIndex.getCoords()));
             }
-            for (Integer vertexIndex : clist) {
-                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[2], vertices.get(vertexIndex).getCoords()));
+            for (Vertex vertexIndex : clist) {
+                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[2], vertexIndex.getCoords()));
             }
 
-            for (Integer vertexIndex : dlist) {
-                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[3], vertices.get(vertexIndex).getCoords()));
+            for (Vertex vertexIndex : dlist) {
+                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[3], vertexIndex.getCoords()));
             }
             return sum;
         } else if (v1.getNumVertices() == 6) {
@@ -172,11 +178,13 @@ public class ModifiedButterflyScheme {
         return vertexMap;
     }
 
-    public Map<Integer, List<Integer>> createTriangle() {
+    public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
         int faceCount = 0;
         Map<Integer, List<Integer>> faceMap = new HashMap<>();
         for (final Triangle triangle : this.triangles) {
             final HashSet<Integer> oddVertexSet = new HashSet<>();
+
+            Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
                 final List<Integer> vertexIndices = new ArrayList<>(3);
@@ -186,11 +194,20 @@ public class ModifiedButterflyScheme {
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
+                Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                    Collections.swap(vertexIndices, 1, 2);
+                }
+
                 faceMap.put(faceCount, vertexIndices);
                 faceCount += 1;
             }
             //connect the new created odd vertices to form a surface
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
+            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(oddVertexArr.get(0)), vertexMap.get(oddVertexArr.get(1)), vertexMap.get(oddVertexArr.get(2)));
+            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                Collections.swap(oddVertexArr, 1, 2);
+            }
             faceMap.put(faceCount, oddVertexArr);
             faceCount += 1;
         }
