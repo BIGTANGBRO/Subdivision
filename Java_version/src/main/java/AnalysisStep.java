@@ -30,6 +30,7 @@ public class AnalysisStep {
         List<Vertex> vertices = inputModel.getVertices();
         LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
         Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
+        this.vertexMap = loopScheme.computeEven();
         this.vertexMap.putAll(vertexOddMap);
         Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle(this.vertexMap);
         this.faceMap = faceMap;
@@ -39,7 +40,7 @@ public class AnalysisStep {
         List<Triangle> triangles = inputModel.getTriangles();
         List<Edge> edges = inputModel.getEdges();
         List<Vertex> vertices = inputModel.getVertices();
-        ModifiedButterflyScheme2 mScheme = new ModifiedButterflyScheme2(triangles, vertices, edges);
+        ModifiedButterflyScheme mScheme = new ModifiedButterflyScheme(triangles, vertices, edges);
         Map<Integer, Vector3d> vertexOddMap = mScheme.computeOdd();
         Map<Integer, List<Integer>> faceMap = mScheme.createTriangle();
         this.vertexMap.putAll(vertexOddMap);

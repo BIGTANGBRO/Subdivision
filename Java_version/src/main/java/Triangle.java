@@ -58,6 +58,16 @@ public class Triangle {
         return null;
     }
 
+    public List<Vertex> getRemain(Vertex v1) {
+        List<Vertex> verticesRemain = new ArrayList<>(2);
+        for (Vertex v : this.vertices) {
+            if (v.getIndex() != v1.getIndex()) {
+                verticesRemain.add(v);
+            }
+        }
+        return verticesRemain;
+    }
+
     public void addEdge(final Edge edge) {
         this.edges.add(edge);
     }
