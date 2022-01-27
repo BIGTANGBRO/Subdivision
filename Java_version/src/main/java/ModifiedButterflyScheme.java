@@ -26,7 +26,6 @@ public class ModifiedButterflyScheme {
     public List<Vertex> getNeighbourPtsInOrder(Vertex vMain, Vertex vNear) {
         List<Integer> trianglesIndexNear = vMain.getTriangleIndices();
         List<Triangle> trianglesNear = new ArrayList<>();
-
         for (Integer triIndex : trianglesIndexNear) {
             trianglesNear.add(this.triangles.get(triIndex));
         }
