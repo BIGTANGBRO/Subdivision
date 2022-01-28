@@ -64,7 +64,7 @@ public class Vertex {
     }
 
     //In triangular mesh, a vertex which is not connected 6 neighbours is extradinary
-    public boolean isExtraordinary() {
-        return this.getNumTriangles() != 6;
+    public boolean isRegular() {
+        return this.getNumTriangles() == 6;
     }
 }

@@ -14,7 +14,7 @@ public class ModifiedButterflyScheme {
     private List<Vertex> vertices;
     private List<Edge> edges;
     private Map<Integer, Integer> oddNodeMap;
-    private double w = 1.0d / 16.0d;
+    private double w = -1.0d / 16.0d;
 
     public ModifiedButterflyScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
@@ -33,7 +33,16 @@ public class ModifiedButterflyScheme {
         int maxN = trianglesNear.size() * vMain.getNumVertices() * 2;
 
         List<Vertex> verticesNear = new ArrayList<>();
-        Vertex vOld = vNear;
+        verticesNear.add(vNear);
+        for (Triangle triangle : trianglesNear) {
+            if (triangle.containVertices(vMain, vNear) && triangle.getRemainInDirection(vMain).get(0).equals(vNear)) {
+                Vertex vRemain = triangle.getRemainInDirection(vMain).get(1);
+                verticesNear.add(vRemain);
+                break;
+            }
+        }
+
+        Vertex vOld = verticesNear.get(1);
         while (verticesNear.size() != vMain.getNumVertices()) {
             for (Triangle triangle : trianglesNear) {
                 if (iterN > maxN) {
@@ -41,13 +50,14 @@ public class ModifiedButterflyScheme {
                 }
                 if (triangle.containVertices(vOld, vMain)) {
                     Vertex vRemain = triangle.getRemain(vMain, vOld);
-                    if (triangle.getRemainInDirection(vRemain).get(0).equals(vOld) && !verticesNear.contains(vRemain)) {
+                    if (!verticesNear.contains(vRemain)) {
                         verticesNear.add(vRemain);
                         vOld = vRemain;
                     }
                 }
                 iterN += 1;
             }
+            iterN += 1;
         }
         return verticesNear;
     }
@@ -94,7 +104,7 @@ public class ModifiedButterflyScheme {
     }
 
     public double[] getCoeff(double w) {
-        return new double[]{0.5 - w, 0.125 + 2 * w, -1d / 16d - w, w};
+        return new double[]{0.5d - w, 0.125d + 2d * w, -1d / 16d - w, w};
     }
 
     public Vector3d calcualeExtraordinary(Vertex vMain, Vertex vNear) {
@@ -119,7 +129,7 @@ public class ModifiedButterflyScheme {
             return MathUtils.addVector(sum, MathUtils.dotVal(3d / 4d, vMain.getCoords()));
         } else {
             Vector3d sum = new Vector3d(0, 0, 0);
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < n; i++) {
                 double coeff = getCoeff(i, n);
                 Vertex v = vertexIndices.get(i);
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff, v.getCoords()));
@@ -129,7 +139,7 @@ public class ModifiedButterflyScheme {
     }
 
     public Vector3d computeOdd(Vertex v1, Vertex v2) {
-        if (v1.getNumVertices() == 6 && v2.getNumVertices() == 6) {
+        if (v1.isRegular() && v2.isRegular()) {
             Map<String, List<Vertex>> stencils = getStenil(v1, v2);
             List<Vertex> alist = stencils.get("a");
             List<Vertex> blist = stencils.get("b");
@@ -140,26 +150,24 @@ public class ModifiedButterflyScheme {
             for (Vertex vertexNear : alist) {
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[0], vertexNear.getCoords()));
             }
-
-            for (Vertex vertexIndex : blist) {
-                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[1], vertexIndex.getCoords()));
+            for (Vertex vertexNear : blist) {
+                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[1], vertexNear.getCoords()));
             }
-            for (Vertex vertexIndex : clist) {
-                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[2], vertexIndex.getCoords()));
+            for (Vertex vertexNear : clist) {
+                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[2], vertexNear.getCoords()));
             }
-
-            for (Vertex vertexIndex : dlist) {
-                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[3], vertexIndex.getCoords()));
+            for (Vertex vertexNear : dlist) {
+                sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[3], vertexNear.getCoords()));
             }
             return sum;
-        } else if (v1.getNumVertices() == 6) {
+        } else if (v1.isRegular()) {
             return calcualeExtraordinary(v2, v1);
-        } else if (v2.getNumVertices() == 6) {
+        } else if (v2.isRegular()) {
             return calcualeExtraordinary(v1, v2);
         } else {
             Vector3d vCoord1 = calcualeExtraordinary(v1, v2);
             Vector3d vCoord2 = calcualeExtraordinary(v2, v1);
-            return MathUtils.dotVal(0.5, MathUtils.addVector(vCoord1, vCoord2));
+            return MathUtils.dotVal(0.5d, MathUtils.addVector(vCoord1, vCoord2));
         }
     }
 
@@ -167,6 +175,7 @@ public class ModifiedButterflyScheme {
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
         int index = this.vertices.size();
         for (Edge edge : edges) {
+
             Vertex v1 = edge.getA();
             Vertex v2 = edge.getB();
             Vector3d coord = computeOdd(v1, v2);
@@ -182,7 +191,6 @@ public class ModifiedButterflyScheme {
         Map<Integer, List<Integer>> faceMap = new HashMap<>();
         for (final Triangle triangle : this.triangles) {
             final HashSet<Integer> oddVertexSet = new HashSet<>();
-
             Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
