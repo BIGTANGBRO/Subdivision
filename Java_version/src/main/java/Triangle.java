@@ -58,10 +58,10 @@ public class Triangle {
         return null;
     }
 
-    public List<Vertex> getRemainInDirection(final Vertex v1){
+    public List<Vertex> getRemainInDirection(final Vertex v1) {
         int indexRemain = this.vertices.indexOf(v1);
         List<Vertex> verticesRemain = new ArrayList<>(2);
-        switch(indexRemain){
+        switch (indexRemain) {
             case 0:
                 verticesRemain.add(this.vertices.get(1));
                 verticesRemain.add(this.vertices.get(2));
@@ -92,6 +92,15 @@ public class Triangle {
 
     public int getNumNeighbours() {
         return this.triangleIndices.size();
+    }
+
+    public boolean isNearExtraordinary() {
+        for (Vertex v : this.vertices) {
+            if (!v.isRegular()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public Vector3d getUnitNormal() {
