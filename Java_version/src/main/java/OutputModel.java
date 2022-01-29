@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * The outputModel class is used to write the information in the specfic files
  * @author: tangshao
  * @Date: 20/01/2022
  */

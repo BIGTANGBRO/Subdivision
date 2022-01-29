@@ -14,7 +14,7 @@ public class ModifiedButterflyScheme {
     private List<Vertex> vertices;
     private List<Edge> edges;
     private Map<Integer, Integer> oddNodeMap;
-    private double w = -1.0d / 16.0d;
+    private double w = -1d / 16d;
 
     public ModifiedButterflyScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
@@ -44,10 +44,11 @@ public class ModifiedButterflyScheme {
 
         Vertex vOld = verticesNear.get(1);
         while (verticesNear.size() != vMain.getNumVertices()) {
+            if (iterN > maxN) {
+                break;
+            }
             for (Triangle triangle : trianglesNear) {
-                if (iterN > maxN) {
-                    break;
-                }
+
                 if (triangle.containVertices(vOld, vMain)) {
                     Vertex vRemain = triangle.getRemain(vMain, vOld);
                     if (!verticesNear.contains(vRemain)) {
@@ -83,7 +84,7 @@ public class ModifiedButterflyScheme {
         cList.add(vertex2.get(2));
         cList.add(vertex2.get(4));
 
-        dList.add(vertex2.get(3));
+        dList.add(vertex1.get(3));
         dList.add(vertex2.get(3));
         stencils.put("a", aList);
         stencils.put("b", bList);
@@ -145,7 +146,7 @@ public class ModifiedButterflyScheme {
             List<Vertex> blist = stencils.get("b");
             List<Vertex> clist = stencils.get("c");
             List<Vertex> dlist = stencils.get("d");
-            double[] coeff = getCoeff(-1d / 16d);
+            double[] coeff = getCoeff(this.w);
             Vector3d sum = new Vector3d(0, 0, 0);
             for (Vertex vertexNear : alist) {
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[0], vertexNear.getCoords()));

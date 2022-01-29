@@ -34,10 +34,6 @@ public class ComparisonStep {
         return error / (double) vertices.size();
     }
 
-    public void getRMSError(InputModel inputModel) {
-
-    }
-
     public double getHausorffDistance(List<Vertex> vertices1, List<Vertex> vertices2) {
         double maxDA = 0d;
         for (Vertex vertex1 : vertices1) {
@@ -68,6 +64,14 @@ public class ComparisonStep {
         }
 
         return Math.max(maxDA, maxDB);
+    }
+
+    public void getHausorffDistribution(){
+
+    }
+
+    public void writeDistribution(){
+
     }
 
     //static method to get the normal vector for vertices

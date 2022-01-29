@@ -41,6 +41,7 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
         analysisStep.implementScheme2(inputModel);
+        analysisStep.implementScheme2(analysisStep.createTheModel());
 
         //todo:
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
