@@ -13,8 +13,7 @@ public class MainEntry {
     public static void compare(InputModel inputModel1, InputModel inputModel2) throws IOException {
         ComparisonStep compareStep = new ComparisonStep();
         double error = compareStep.getHausorffDistance(inputModel1.getVertices(), inputModel2.getVertices());
-        compareStep.writeDistribution(inputModel2.getVertices(), inputModel1.getVertices());
-        compareStep.writeHistogram(inputModel2.getVertices(), inputModel1.getVertices());
+        compareStep.writeHistogram(inputModel2.getVertices(), inputModel1.getVertices(),7);
         System.out.println("The HausorffDistance Error is :" + error);
     }
 

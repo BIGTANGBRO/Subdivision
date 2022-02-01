@@ -52,24 +52,19 @@ public class ComparisonStep {
         return maxDistance;
     }
 
-    private int[] createHistogram(List<Double> vertexDistances) {
-        double minDistance = Collections.min(vertexDistances);
-        double maxDistance = Collections.max(vertexDistances);
-        double interval = 0.25 * (maxDistance - minDistance);
-        double t1 = minDistance + interval;
-        double t2 = minDistance + 2 * interval;
-        double t3 = minDistance + 3 * interval;
-
-        int[] accumNum = new int[4];
-        for (Double val : vertexDistances) {
-            if (val < t1 && val >= minDistance) {
-                accumNum[0] += 1;
-            } else if (val < t2 && val >= t1) {
-                accumNum[1] += 1;
-            } else if (val < t3 && val >= t2) {
-                accumNum[2] += 1;
-            } else {
-                accumNum[3] += 1;
+    private int[] createHistogram(List<Double> vertexDistances, double[] tags) {
+        //sort the array
+        Collections.sort(vertexDistances);
+        int[] accumNum = new int[tags.length];
+        int start = 0;
+        for (int i = 0; i < tags.length; i++) {
+            for (int j = start; j < vertexDistances.size(); j++) {
+                if (vertexDistances.get(j) < tags[i]) {
+                    accumNum[i] += 1;
+                } else {
+                    start = j;
+                    break;
+                }
             }
         }
         return accumNum;
@@ -97,17 +92,17 @@ public class ComparisonStep {
         return Math.max(maxDA, maxDB);
     }
 
-    public void writeHistogram(List<Vertex> vertices1, List<Vertex> vertices2) throws IOException {
+    public void writeHistogram(List<Vertex> vertices1, List<Vertex> vertices2, int n) throws IOException {
         List<Double> vertexDistances = getMinDistanceDistribution(vertices1, vertices2);
         double minDistance = Collections.min(vertexDistances);
         double maxDistance = Collections.max(vertexDistances);
-        double interval = 0.25 * (maxDistance - minDistance);
-        double t1 = minDistance + interval;
-        double t2 = minDistance + 2 * interval;
-        double t3 = minDistance + 3 * interval;
-        double[] tags = new double[]{t1, t2, t3, maxDistance};
-        int[] accumNum = createHistogram(vertexDistances);
-        String fileName = "C:\\Users\\tangj\\Downloads\\histo.csv";
+        double interval = (maxDistance - minDistance) / n;
+        double[] tags = new double[n];
+        for (int i = 1; i <= n; i++) {
+            tags[i - 1] = 0 + i * interval;
+        }
+        int[] accumNum = createHistogram(vertexDistances, tags);
+        String fileName = "C:\\Users\\tangj\\Downloads\\histo.dat";
         BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (int i = 0; i < tags.length; i++) {
             bw.write(accumNum[i] + " " + Double.toString(tags[i]) + "\n");
