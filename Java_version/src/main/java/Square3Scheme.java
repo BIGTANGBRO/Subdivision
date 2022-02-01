@@ -131,4 +131,9 @@ public class Square3Scheme {
         }
         return vertexMap;
     }
+
+    //todo: create the triangular face
+    public void createTriangle() {
+
+    }
 }
