@@ -112,7 +112,7 @@ public class ComparisonStep {
 
     public void writeDistribution(List<Vertex> vertices1, List<Vertex> vertices2) throws IOException {
         List<Double> distribution1 = getMinDistanceDistribution(vertices1, vertices2);
-        String fileName = "C:\\Users\\tangj\\Downloads\\distribution.csv";
+        String fileName = "C:\\Users\\tangj\\Downloads\\distribution.dat";
         BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (Double distance : distribution1) {
             bw.write(Double.toString(distance) + "\n");

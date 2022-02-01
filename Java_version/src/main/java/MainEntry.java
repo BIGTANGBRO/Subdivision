@@ -13,7 +13,7 @@ public class MainEntry {
     public static void compare(InputModel inputModel1, InputModel inputModel2) throws IOException {
         ComparisonStep compareStep = new ComparisonStep();
         double error = compareStep.getHausorffDistance(inputModel1.getVertices(), inputModel2.getVertices());
-        compareStep.writeHistogram(inputModel2.getVertices(), inputModel1.getVertices(),7);
+        compareStep.writeDistribution(inputModel2.getVertices(), inputModel1.getVertices());
         System.out.println("The HausorffDistance Error is :" + error);
     }
 
@@ -22,7 +22,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "sphere";
+        String modelName = "testModel2 v1";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -41,8 +41,8 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme2(inputModel);
-        analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme1(inputModel);
+        analysisStep.implementScheme1(analysisStep.createTheModel());
 
         //todo:
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());

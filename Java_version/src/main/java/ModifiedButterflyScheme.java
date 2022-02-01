@@ -41,6 +41,15 @@ public class ModifiedButterflyScheme {
                 break;
             }
         }
+        //for some model with wrong topology, increase the robustness
+        if (verticesNear.size() <= 1) {
+            for (Triangle triangle : trianglesNear) {
+                if (triangle.containVertices(vMain, vNear)) {
+                    verticesNear.add(triangle.getRemain(vMain, vNear));
+                    break;
+                }
+            }
+        }
 
         Vertex vOld = verticesNear.get(1);
         while (verticesNear.size() != vMain.getNumVertices()) {
