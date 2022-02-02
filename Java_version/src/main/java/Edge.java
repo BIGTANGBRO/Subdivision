@@ -24,6 +24,13 @@ public class Edge {
         return v == a || v == b;
     }
 
+    public List<Vertex> getVertices() {
+        List<Vertex> vertices = new ArrayList<>();
+        vertices.add(a);
+        vertices.add(b);
+        return vertices;
+    }
+
     public Vertex getOtherVertex(final Vertex v) {
         if (a != v) {
             return a;

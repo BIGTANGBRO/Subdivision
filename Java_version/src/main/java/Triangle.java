@@ -17,6 +17,7 @@ public class Triangle {
     //neighbour polygons
     protected List<Integer> triangleIndices;
 
+
     Triangle() {
         this.vertices = new ArrayList<>();
     }

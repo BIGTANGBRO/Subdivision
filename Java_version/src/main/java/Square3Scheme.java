@@ -1,10 +1,7 @@
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author: tangshao
@@ -16,11 +13,14 @@ public class Square3Scheme {
     private List<Triangle> triangles;
     private List<Vertex> vertices;
     private List<Edge> edges;
+    //store the odd vertex corresponding to each triangle
+    private Map<Integer, Integer> triangleVertexMap;
 
     public Square3Scheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
         this.vertices = vertices;
         this.edges = edges;
+        this.triangleVertexMap = new HashMap<Integer, Integer>();
     }
 
     public List<Vertex> getPtsInOrder(Triangle triangleEach, Vertex v) {
@@ -123,9 +123,11 @@ public class Square3Scheme {
             if (triangleEach.isNearExtraordinary()) {
                 Vector3d coord = this.insertPointIrregular(triangleEach);
                 vertexMap.put(index, coord);
+                this.triangleVertexMap.put(triangleEach.getIndex(), index);
                 index += 1;
             } else {
                 vertexMap.put(index, this.insertPointRegular1(triangleEach));
+                this.triangleVertexMap.put(triangleEach.getIndex(), index);
                 index += 1;
             }
         }
@@ -133,7 +135,38 @@ public class Square3Scheme {
     }
 
     //todo: create the triangular face
-    public void createTriangle() {
+    public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> verticesMap) {
+        final HashSet<Edge> edgeSet = new HashSet<>();
+        final Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        int faceCount = 0;
+        for (Triangle triangle : this.triangles) {
+            List<Integer> triIndices = triangle.getTriangleIndices();
+            List<Edge> edgesEachTri = triangle.getEdges();
 
+            //each edge, 2 triangles created.
+            for (Edge edgeEachTri : edgesEachTri) {
+                List<Integer> vertexIndices = new ArrayList<>();
+                Triangle triangleThis = new Triangle();
+                if (edgeSet.contains(edgeEachTri)) {
+                    continue;
+                }
+                for (Integer triIndex : triIndices) {
+                    if (this.triangles.get(triIndex).containVertices(edgeEachTri.getA(), edgeEachTri.getB())) {
+                        edgeSet.add(edgeEachTri);
+                        triangleThis = this.triangles.get(triIndex);
+                    }
+                }
+                for (Vertex vertexEachEdge : edgeEachTri.getVertices()) {
+                    vertexIndices.add(vertexEachEdge.getIndex());
+                    vertexIndices.add(this.triangleVertexMap.get(triangle.getIndex()));
+                    vertexIndices.add(this.triangleVertexMap.get(triangleThis.getIndex()));
+                    faceMap.put(faceCount, vertexIndices);
+                    vertexIndices = new ArrayList<>();
+                    faceCount += 1;
+                }
+            }
+
+        }
+        return faceMap;
     }
 }
