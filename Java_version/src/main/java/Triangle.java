@@ -98,10 +98,10 @@ public class Triangle {
     public boolean isNearExtraordinary() {
         for (Vertex v : this.vertices) {
             if (!v.isRegular()) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public Vector3d getUnitNormal() {

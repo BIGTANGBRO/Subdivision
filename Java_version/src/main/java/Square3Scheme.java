@@ -23,8 +23,9 @@ public class Square3Scheme {
         this.triangleVertexMap = new HashMap<Integer, Integer>();
     }
 
-    public List<Vertex> getPtsInOrder(Triangle triangleEach, Vertex v) {
-        List<Edge> edgesConnect = triangleEach.getConnectedEdges(v);
+    //similar to that in modified butterfly
+    public List<Vertex> getPtsInOrder(Triangle triangleInsert, Vertex v) {
+        List<Edge> edgesConnect = triangleInsert.getConnectedEdges(v);
         List<Integer> trianglesIndexNear = v.getTriangleIndices();
         List<Triangle> trianglesNear = new ArrayList<>();
         for (Integer triIndex : trianglesIndexNear) {
@@ -32,15 +33,13 @@ public class Square3Scheme {
         }
         List<Vertex> verticesNear = new ArrayList<>();
 
-        for (Edge edge : edgesConnect) {
-            if (edge.getA().equals(v)) {
-                verticesNear.add(edge.getB());
-            } else {
-                verticesNear.add(edge.getA());
-            }
-        }
-
+        //initial point insertion
+        Vertex p0 = edgesConnect.get(0).getOtherVertex(v);
+        Vertex p1 = edgesConnect.get(1).getOtherVertex(v);
+        verticesNear.add(p0);
+        verticesNear.add(p1);
         Vertex vOld = verticesNear.get(1);
+
         int iterN = 0;
         int maxN = trianglesNear.size() * v.getNumVertices() * 2;
 
@@ -49,7 +48,6 @@ public class Square3Scheme {
                 break;
             }
             for (Triangle triangle : trianglesNear) {
-
                 if (triangle.containVertices(vOld, v)) {
                     Vertex vRemain = triangle.getRemain(v, vOld);
                     if (!verticesNear.contains(vRemain)) {
@@ -65,7 +63,7 @@ public class Square3Scheme {
     }
 
     private double getCoeff(int n, int j) {
-        return (1d / 9d + 2d / 3d * Math.cos(2 * Math.PI * j / n) + 2d / 9d * Math.cos(4 * Math.PI * j / n)) / n;
+        return (1d / 9d + 2d / 3d * Math.cos(2 * Math.PI * (double) j / (double) n) + 2d / 9d * Math.cos(4 * Math.PI * (double) j / (double) n)) / (double) n;
     }
 
     public Vector3d insertPointIrregular(Triangle triangleEach) {
@@ -84,7 +82,7 @@ public class Square3Scheme {
                             MathUtils.addVector(sum, MathUtils.dotVal(coeffs[i], vEach.getCoords()));
                         }
                     case 4:
-                        coeffs = new double[]{7d / 36d, 1d / 27d, 1d / 27d, -5d / 36d};
+                        coeffs = new double[]{7d / 36d, 1d / 27d, -5d / 36d, 1d / 27d};
                         for (int i = 0; i < verticesNear.size(); i++) {
                             Vertex vEach = verticesNear.get(i);
                             MathUtils.addVector(sum, MathUtils.dotVal(coeffs[i], vEach.getCoords()));
@@ -103,14 +101,14 @@ public class Square3Scheme {
         int nExtra = coords.size();
         Vector3d coordNewVertex = new Vector3d(0, 0, 0);
         for (Vector3d coordEach : coords) {
-            MathUtils.addVector(coordNewVertex, coordEach);
+            coordNewVertex = MathUtils.addVector(coordNewVertex, coordEach);
         }
         return MathUtils.dotVal(1d / (double) nExtra, coordNewVertex);
     }
 
     public Vector3d insertPointRegular(Triangle triangleEach) {
         Vector3d coord = new Vector3d(0, 0, 0);
-        for (Vertex v : triangleEach.vertices) {
+        for (Vertex v : triangleEach.getVertices()) {
             coord = MathUtils.addVector(coord, v.getCoords());
         }
         return MathUtils.dotVal(1d / 3d, coord);
@@ -152,24 +150,7 @@ public class Square3Scheme {
                         triangleThis = this.triangles.get(triIndex);
                     }
                 }
-                for (Vertex vertexEachEdge : edgeEachTri.getVertices()) {
-                    vertexIndices.add(vertexEachEdge.getIndex());
-                    Integer vertex1 = this.triangleVertexMap.get(triangle.getIndex());
-                    Integer vertex2 = this.triangleVertexMap.get(triangleThis.getIndex());
-                    vertexIndices.add(vertex1);
-                    vertexIndices.add(vertex2);
-                    Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexEachEdge.getCoords(), verticesMap.get(vertex1), verticesMap.get(vertex2));
-                    if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
-                        Collections.swap(vertexIndices, 1, 2);
-                    }
-                    faceMap.put(faceCount, vertexIndices);
-                    vertexIndices = new ArrayList<>();
-                    faceCount += 1;
-                }
-            }
-            for (Edge edgeEachTri : edgesEachTri) {
-                if (!edgeSet.contains(edgeEachTri)) {
-                    List<Integer> vertexIndices = new ArrayList<>();
+                if (triangleThis.getVertices().size() == 0) {
                     vertexIndices.add(this.triangleVertexMap.get(triangle.getIndex()));
                     vertexIndices.add(edgeEachTri.getA().getIndex());
                     vertexIndices.add(edgeEachTri.getB().getIndex());
@@ -179,9 +160,23 @@ public class Square3Scheme {
                     }
                     faceMap.put(faceCount, vertexIndices);
                     faceCount += 1;
+                } else {
+                    for (Vertex vertexEachEdge : edgeEachTri.getVertices()) {
+                        vertexIndices.add(vertexEachEdge.getIndex());
+                        Integer vertex1 = this.triangleVertexMap.get(triangle.getIndex());
+                        Integer vertex2 = this.triangleVertexMap.get(triangleThis.getIndex());
+                        vertexIndices.add(vertex1);
+                        vertexIndices.add(vertex2);
+                        Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexEachEdge.getCoords(), verticesMap.get(vertex1), verticesMap.get(vertex2));
+                        if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                            Collections.swap(vertexIndices, 1, 2);
+                        }
+                        faceMap.put(faceCount, vertexIndices);
+                        vertexIndices = new ArrayList<>();
+                        faceCount += 1;
+                    }
                 }
             }
-
         }
         return faceMap;
     }
