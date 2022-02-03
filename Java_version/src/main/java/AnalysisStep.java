@@ -47,6 +47,17 @@ public class AnalysisStep {
         this.faceMap = faceMap;
     }
 
+    public void implementScheme3(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        Square3Scheme sScheme = new Square3Scheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexMap = sScheme.insertPoints();
+        this.vertexMap.putAll(vertexMap);
+        Map<Integer, List<Integer>> faceMap = sScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
+    }
+
     public InputModel createTheModel() {
         return new InputModel(this.vertexMap, this.faceMap);
     }

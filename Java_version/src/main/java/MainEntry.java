@@ -41,8 +41,8 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme1(inputModel);
-        analysisStep.implementScheme1(analysisStep.createTheModel());
+        analysisStep.implementScheme3(inputModel);
+        //analysisStep.implementScheme1(analysisStep.createTheModel());
 
         //todo:
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
@@ -61,6 +61,6 @@ public class MainEntry {
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
 
         //comparison
-        compare(inputModel, analysisStep.createTheModel());
+        //compare(inputModel, analysisStep.createTheModel());
     }
 }

@@ -75,7 +75,7 @@ public class Square3Scheme {
             if (!v.isRegular()) {
                 int n = v.getNumVertices();
                 List<Vertex> verticesNear = getPtsInOrder(triangleEach, v);
-                Vector3d sum = new Vector3d(0, 0, 0);
+                Vector3d sum = MathUtils.dotVal(8d / 9d, v.getCoords());
                 switch (n) {
                     case 3:
                         double[] coeffs = new double[]{7d / 27d, -2d / 27d, -2d / 27d};
@@ -108,7 +108,7 @@ public class Square3Scheme {
         return MathUtils.dotVal(1d / (double) nExtra, coordNewVertex);
     }
 
-    public Vector3d insertPointRegular1(Triangle triangleEach) {
+    public Vector3d insertPointRegular(Triangle triangleEach) {
         Vector3d coord = new Vector3d(0, 0, 0);
         for (Vertex v : triangleEach.vertices) {
             coord = MathUtils.addVector(coord, v.getCoords());
@@ -117,24 +117,20 @@ public class Square3Scheme {
     }
 
     public Map<Integer, Vector3d> insertPoints() {
-        int index = vertices.size();
+        int index = this.vertices.size();
         Map<Integer, Vector3d> vertexMap = new HashMap<Integer, Vector3d>();
         for (Triangle triangleEach : this.triangles) {
             if (triangleEach.isNearExtraordinary()) {
-                Vector3d coord = this.insertPointIrregular(triangleEach);
-                vertexMap.put(index, coord);
-                this.triangleVertexMap.put(triangleEach.getIndex(), index);
-                index += 1;
+                vertexMap.put(index, this.insertPointIrregular(triangleEach));
             } else {
-                vertexMap.put(index, this.insertPointRegular1(triangleEach));
-                this.triangleVertexMap.put(triangleEach.getIndex(), index);
-                index += 1;
+                vertexMap.put(index, this.insertPointRegular(triangleEach));
             }
+            this.triangleVertexMap.put(triangleEach.getIndex(), index);
+            index += 1;
         }
         return vertexMap;
     }
 
-    //todo: create the triangular face
     public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> verticesMap) {
         final HashSet<Edge> edgeSet = new HashSet<>();
         final Map<Integer, List<Integer>> faceMap = new HashMap<>();
@@ -142,7 +138,7 @@ public class Square3Scheme {
         for (Triangle triangle : this.triangles) {
             List<Integer> triIndices = triangle.getTriangleIndices();
             List<Edge> edgesEachTri = triangle.getEdges();
-
+            Vector3d faceNormal = triangle.getUnitNormal();
             //each edge, 2 triangles created.
             for (Edge edgeEachTri : edgesEachTri) {
                 List<Integer> vertexIndices = new ArrayList<>();
@@ -158,10 +154,30 @@ public class Square3Scheme {
                 }
                 for (Vertex vertexEachEdge : edgeEachTri.getVertices()) {
                     vertexIndices.add(vertexEachEdge.getIndex());
-                    vertexIndices.add(this.triangleVertexMap.get(triangle.getIndex()));
-                    vertexIndices.add(this.triangleVertexMap.get(triangleThis.getIndex()));
+                    Integer vertex1 = this.triangleVertexMap.get(triangle.getIndex());
+                    Integer vertex2 = this.triangleVertexMap.get(triangleThis.getIndex());
+                    vertexIndices.add(vertex1);
+                    vertexIndices.add(vertex2);
+                    Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexEachEdge.getCoords(), verticesMap.get(vertex1), verticesMap.get(vertex2));
+                    if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                        Collections.swap(vertexIndices, 1, 2);
+                    }
                     faceMap.put(faceCount, vertexIndices);
                     vertexIndices = new ArrayList<>();
+                    faceCount += 1;
+                }
+            }
+            for (Edge edgeEachTri : edgesEachTri) {
+                if (!edgeSet.contains(edgeEachTri)) {
+                    List<Integer> vertexIndices = new ArrayList<>();
+                    vertexIndices.add(this.triangleVertexMap.get(triangle.getIndex()));
+                    vertexIndices.add(edgeEachTri.getA().getIndex());
+                    vertexIndices.add(edgeEachTri.getB().getIndex());
+                    Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(0)));
+                    if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                        Collections.swap(vertexIndices, 1, 2);
+                    }
+                    faceMap.put(faceCount, vertexIndices);
                     faceCount += 1;
                 }
             }
