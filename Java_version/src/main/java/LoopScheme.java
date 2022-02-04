@@ -83,7 +83,7 @@ public class LoopScheme {
      * @param vertex individual vertex
      * @return new coord of the vertex
      */
-    public Vector3d computeEven(final Vertex vertex) {
+    private Vector3d computeEven(final Vertex vertex) {
         //create the even vertices
         final int n = vertex.getNumVertices();
         final double alpha = getAlpha(n);

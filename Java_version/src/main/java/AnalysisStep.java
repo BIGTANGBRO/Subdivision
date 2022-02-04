@@ -52,8 +52,9 @@ public class AnalysisStep {
         List<Edge> edges = inputModel.getEdges();
         List<Vertex> vertices = inputModel.getVertices();
         Square3Scheme sScheme = new Square3Scheme(triangles, vertices, edges);
-        Map<Integer, Vector3d> vertexMap = sScheme.insertPoints();
-        this.vertexMap.putAll(vertexMap);
+        Map<Integer, Vector3d> vertexOddMap = sScheme.insertPoints();
+        this.vertexMap = sScheme.computeEven();
+        this.vertexMap.putAll(vertexOddMap);
         Map<Integer, List<Integer>> faceMap = sScheme.createTriangle(this.vertexMap);
         this.faceMap = faceMap;
     }
