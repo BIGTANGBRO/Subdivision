@@ -22,7 +22,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "sphere";
+        String modelName = "testModel2 v1";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing

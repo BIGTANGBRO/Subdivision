@@ -127,11 +127,13 @@ public class Square3Scheme {
         int index = this.vertices.size();
         final Map<Integer, Vector3d> vertexMap = new HashMap<Integer, Vector3d>();
         for (final Triangle triangleEach : this.triangles) {
-            if (triangleEach.isNearExtraordinary()) {
-                vertexMap.put(index, this.insertPointIrregular(triangleEach));
-            } else {
-                vertexMap.put(index, this.insertPointRegular(triangleEach));
-            }
+//            if (triangleEach.isNearExtraordinary()) {
+//                vertexMap.put(index, this.insertPointIrregular(triangleEach));
+//            } else {
+//                vertexMap.put(index, this.insertPointRegular(triangleEach));
+//            }
+            //same for regular and extraordinary
+            vertexMap.put(index, this.insertPointRegular(triangleEach));
             this.triangleVertexMap.put(triangleEach.getIndex(), index);
             index += 1;
         }
@@ -192,13 +194,14 @@ public class Square3Scheme {
         for (final Triangle triangle : this.triangles) {
             final List<Integer> triIndices = triangle.getTriangleIndices();
             final List<Edge> edgesEachTri = triangle.getEdges();
-            Vector3d faceNormal = triangle.getUnitNormal();
+
             //get the average facenormal here
+            double frac = 3d / 4d;
+            Vector3d faceNormal = MathUtils.dotVal(frac, triangle.getUnitNormal());
             for (final Integer triIndex : triIndices) {
                 final Triangle triangleNear = this.triangles.get(triIndex);
-                faceNormal = MathUtils.addVector(faceNormal, triangleNear.getUnitNormal());
+                faceNormal = MathUtils.addVector(faceNormal, MathUtils.dotVal((1d - frac) / (double) triIndices.size(), triangleNear.getUnitNormal()));
             }
-            faceNormal = MathUtils.dotVal(1d / (double) triIndices.size(), faceNormal);
 
             //each edge, 2 triangles created.
             for (final Edge edgeEachTri : edgesEachTri) {
@@ -220,8 +223,8 @@ public class Square3Scheme {
                     vertexIndices.add(edgeEachTri.getA().getIndex());
                     vertexIndices.add(edgeEachTri.getB().getIndex());
 
-                    final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(0)));
-                    if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                    final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
+                    if (Math.abs(MathUtils.getAngle(faceNormal, subFaceNormal)) >= 90) {
                         Collections.swap(vertexIndices, 1, 2);
                     }
                     faceMap.put(faceCount, vertexIndices);
@@ -230,16 +233,18 @@ public class Square3Scheme {
                     //normal case
                     for (final Vertex vertexEachEdge : edgeEachTri.getVertices()) {
                         //connect
-                        vertexIndices.add(vertexEachEdge.getIndex());
                         final Integer vertex1 = this.triangleVertexMap.get(triangle.getIndex());
                         final Integer vertex2 = this.triangleVertexMap.get(triangleThis.getIndex());
+                        vertexIndices.add(vertexEachEdge.getIndex());
                         vertexIndices.add(vertex1);
                         vertexIndices.add(vertex2);
 
-                        final Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexEachEdge.getCoords(), verticesMap.get(vertex1), verticesMap.get(vertex2));
-                        if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                        final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
+                        double angle = MathUtils.getAngle(faceNormal, subFaceNormal);
+                        if (Math.abs(angle) >= 90) {
                             Collections.swap(vertexIndices, 1, 2);
                         }
+
                         faceMap.put(faceCount, vertexIndices);
                         vertexIndices = new ArrayList<>();
                         faceCount += 1;
