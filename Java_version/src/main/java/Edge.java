@@ -21,7 +21,7 @@ public class Edge {
     }
 
     public boolean has(final Vertex v) {
-        return v == a || v == b;
+        return v.getIndex() == a.getIndex() || v.getIndex() == b.getIndex();
     }
 
     public List<Vertex> getVertices() {

@@ -196,7 +196,7 @@ public class Square3Scheme {
             final List<Edge> edgesEachTri = triangle.getEdges();
 
             //get the average facenormal here
-            double frac = 3d / 4d;
+            double frac = 2d / 3d;
             Vector3d faceNormal = MathUtils.dotVal(frac, triangle.getUnitNormal());
             for (final Integer triIndex : triIndices) {
                 final Triangle triangleNear = this.triangles.get(triIndex);

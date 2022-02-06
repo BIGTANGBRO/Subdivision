@@ -41,8 +41,8 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme3(inputModel);
-        //analysisStep.implementScheme1(analysisStep.createTheModel());
+        analysisStep.implementScheme2(inputModel);
+        //analysisStep.implementScheme2(analysisStep.createTheModel());
 
         //todo:
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());

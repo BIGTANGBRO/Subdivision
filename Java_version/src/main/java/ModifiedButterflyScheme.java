@@ -23,6 +23,13 @@ public class ModifiedButterflyScheme {
         this.edges = edges;
     }
 
+    /**
+     * Get the neighbour points in order
+     *
+     * @param vMain The main vertex
+     * @param vNear The neighbour vertex
+     * @return The list of vertices
+     */
     public List<Vertex> getNeighbourPtsInOrder(Vertex vMain, Vertex vNear) {
         List<Integer> trianglesIndexNear = vMain.getTriangleIndices();
         List<Triangle> trianglesNear = new ArrayList<>();
@@ -35,12 +42,13 @@ public class ModifiedButterflyScheme {
         List<Vertex> verticesNear = new ArrayList<>();
         verticesNear.add(vNear);
         for (Triangle triangle : trianglesNear) {
-            if (triangle.containVertices(vMain, vNear) && triangle.getRemainInDirection(vMain).get(0).equals(vNear)) {
+            if (triangle.containVertices(vMain, vNear) && triangle.getRemainInDirection(vMain).get(0).getIndex() == vNear.getIndex()) {
                 Vertex vRemain = triangle.getRemainInDirection(vMain).get(1);
                 verticesNear.add(vRemain);
                 break;
             }
         }
+
         //for some model with wrong topology, increase the robustness
         if (verticesNear.size() <= 1) {
             for (Triangle triangle : trianglesNear) {
@@ -57,8 +65,7 @@ public class ModifiedButterflyScheme {
                 break;
             }
             for (Triangle triangle : trianglesNear) {
-
-                if (triangle.containVertices(vOld, vMain)) {
+                if (triangle.containVertices(vMain, vOld)) {
                     Vertex vRemain = triangle.getRemain(vMain, vOld);
                     if (!verticesNear.contains(vRemain)) {
                         verticesNear.add(vRemain);
@@ -110,13 +117,20 @@ public class ModifiedButterflyScheme {
      * @return Coefficients
      */
     private double getCoeff(int j, int n) {
-        return (0.25 + Math.cos(2.0d * Math.PI * (double) j / (double) n) + 0.5 * Math.cos(4.0d * Math.PI * (double) j / (double) n)) / (double) n;
+        return (0.25d + Math.cos(2.0d * Math.PI * (double) j / (double) n) + 0.5 * Math.cos(4.0d * Math.PI * (double) j / (double) n)) / (double) n;
     }
 
     public double[] getCoeff(double w) {
         return new double[]{0.5d - w, 0.125d + 2d * w, -1d / 16d - w, w};
     }
 
+    /**
+     * Calculate the extraordinary coordinates
+     *
+     * @param vMain Main vertex
+     * @param vNear Near vertex
+     * @return The coordinate of the calculated vertex
+     */
     public Vector3d calcualeExtraordinary(Vertex vMain, Vertex vNear) {
         //n is the number of neighbours
         List<Vertex> vertexIndices = getNeighbourPtsInOrder(vMain, vNear);
@@ -185,9 +199,11 @@ public class ModifiedButterflyScheme {
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
         int index = this.vertices.size();
         for (Edge edge : edges) {
-
             Vertex v1 = edge.getA();
             Vertex v2 = edge.getB();
+//            if (v1.getIndex() == 273 || v1.getIndex() == 681){
+//                System.out.println("here");
+//            }
             Vector3d coord = computeOdd(v1, v2);
             vertexMap.put(index, coord);
             oddNodeMap.put(edge.getIndex(), index);
@@ -230,5 +246,4 @@ public class ModifiedButterflyScheme {
         }
         return faceMap;
     }
-
 }
