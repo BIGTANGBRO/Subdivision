@@ -52,24 +52,6 @@ public class ComparisonStep {
         return maxDistance;
     }
 
-    private int[] createHistogram(List<Double> vertexDistances, double[] tags) {
-        //sort the array
-        Collections.sort(vertexDistances);
-        int[] accumNum = new int[tags.length];
-        int start = 0;
-        for (int i = 0; i < tags.length; i++) {
-            for (int j = start; j < vertexDistances.size(); j++) {
-                if (vertexDistances.get(j) < tags[i]) {
-                    accumNum[i] += 1;
-                } else {
-                    start = j;
-                    break;
-                }
-            }
-        }
-        return accumNum;
-    }
-
     public List<Double> getMinDistanceDistribution(List<Vertex> vertices1, List<Vertex> vertices2) {
         List<Double> vertexDistances = new ArrayList<>(vertices1.size());
         for (Vertex vertex1 : vertices1) {
@@ -92,24 +74,13 @@ public class ComparisonStep {
         return Math.max(maxDA, maxDB);
     }
 
-    public void writeHistogram(List<Vertex> vertices1, List<Vertex> vertices2, int n) throws IOException {
-        List<Double> vertexDistances = getMinDistanceDistribution(vertices1, vertices2);
-        double minDistance = Collections.min(vertexDistances);
-        double maxDistance = Collections.max(vertexDistances);
-        double interval = (maxDistance - minDistance) / n;
-        double[] tags = new double[n];
-        for (int i = 1; i <= n; i++) {
-            tags[i - 1] = 0 + i * interval;
-        }
-        int[] accumNum = createHistogram(vertexDistances, tags);
-        String fileName = "C:\\Users\\tangj\\Downloads\\histo.dat";
-        BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (int i = 0; i < tags.length; i++) {
-            bw.write(accumNum[i] + " " + Double.toString(tags[i]) + "\n");
-        }
-        bw.close();
-    }
-
+    /**
+     * Output the data to plot the histogram
+     *
+     * @param vertices1 vertices from model1
+     * @param vertices2 vertices from model2
+     * @throws IOException Ioexception
+     */
     public void writeDistribution(List<Vertex> vertices1, List<Vertex> vertices2) throws IOException {
         List<Double> distribution1 = getMinDistanceDistribution(vertices1, vertices2);
         String fileName = "C:\\Users\\tangj\\Downloads\\distribution.dat";
@@ -118,6 +89,73 @@ public class ComparisonStep {
             bw.write(Double.toString(distance) + "\n");
         }
         bw.close();
+    }
+
+    public static List<Vector3d> getRoughness(List<Vertex> vertices) {
+        List<Vector3d> gls = new ArrayList<>();
+        for (Vertex vertex : vertices) {
+            List<Integer> indices = vertex.getVertexIndices();
+            Vector3d numerator = new Vector3d(0, 0, 0);
+            double denominator = 0d;
+            for (Integer index : indices) {
+                Vertex vNear = vertices.get(index);
+                Vector3d distanceVec = MathUtils.minusVector(vertex.getCoords(), vNear.getCoords());
+                double lapDistance = MathUtils.getSum(distanceVec) / MathUtils.getMod(distanceVec);
+                denominator = denominator + Math.pow(lapDistance, -1);
+                numerator = MathUtils.addVector(numerator, MathUtils.dotVal(Math.pow(lapDistance, -1), vNear.getCoords()));
+            }
+            Vector3d gl = MathUtils.minusVector(vertex.getCoords(), MathUtils.dotVal(Math.pow(denominator, -1), numerator));
+            gls.add(gl);
+        }
+        return gls;
+    }
+
+    /**
+     * Get the dihedral angle for each triangle face
+     *
+     * @param inputModel InputModel class
+     * @return The list of dihedral angles in this model
+     */
+    public static List<Double> computeDihedralAngle(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Vertex> vertices = inputModel.getVertices();
+        List<Double> dihedralAngles = new ArrayList<>();
+        for (Triangle triangle : triangles) {
+            List<Vertex> verticesTri = triangle.getVertices();
+
+            double numerator = 0d;
+            double denominator = 0d;
+
+            //In a single triangle, get the val for each vertex
+            for (Vertex v : verticesTri) {
+                List<Integer> triangleIndices = v.getTriangleIndices();
+                List<Triangle> trianglesNear = new ArrayList<>();
+                List<Double> angles = new ArrayList<>();
+                for (Integer triangleIndex : triangleIndices) {
+                    trianglesNear.add(triangles.get(triangleIndex));
+                }
+
+                List<Integer> vertexIndices = v.getVertexIndices();
+                //find the triangles share an edge
+                for (Integer vertexIndex : vertexIndices) {
+                    List<Vector3d> trianglesAnEdge = new ArrayList<>();
+                    for (Triangle triangleNear : trianglesNear) {
+                        if (triangleNear.containVertices(v, vertices.get(vertexIndex))) {
+                            trianglesAnEdge.add(triangleNear.getUnitNormal());
+                        }
+                    }
+                    double angle = MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1));
+                    angles.add(angle);
+                }
+                //calculate the average and variance
+                double average = MathUtils.getAverage(angles);
+                double variance = MathUtils.getVariance(angles, average);
+                numerator += (average * variance);
+                denominator += variance;
+            }
+            dihedralAngles.add(numerator / denominator);
+        }
+        return dihedralAngles;
     }
 
     private static Vector3d getNormalForVertex(Vertex vertex, List<Triangle> triangles) {
@@ -131,7 +169,12 @@ public class ComparisonStep {
         return MathUtils.dotVal(1d / (double) neighbours.size(), vNorm);
     }
 
-    //static method to get the normal vector for vertices
+    /**
+     * get the normal for each vertex
+     *
+     * @param inputModel inputmodel
+     * @return map contain the vertex index and normal values
+     */
     public static Map<Integer, Vector3d> getNormalForVertices(InputModel inputModel) {
         List<Vertex> vertices = inputModel.getVertices();
         List<Triangle> triangles = inputModel.getTriangles();

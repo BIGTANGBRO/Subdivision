@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  * @author tangshao
  */
@@ -62,6 +64,17 @@ public class MathUtils {
         return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
     }
 
+    public static double getMod(Vector3d vec) {
+        double x = vec.getXVal();
+        double y = vec.getYVal();
+        double z = vec.getZVal();
+        return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
+    }
+
+    public static double getSum(Vector3d vec) {
+        return vec.getXVal() + vec.getYVal() + vec.getZVal();
+    }
+
     public static Vector3d getUnitNormal(Vector3d coord1, Vector3d coord2, Vector3d coord3) {
         Vector3d vec1 = MathUtils.minusVector(coord1, coord2);
         Vector3d vec2 = MathUtils.minusVector(coord1, coord3);
@@ -72,5 +85,22 @@ public class MathUtils {
 
         double mod = MathUtils.getMod(x, y, z);
         return new Vector3d(x / mod, y / mod, z / mod);
+    }
+
+    public static double getAverage(List<Double> list) {
+        double sum = 0;
+        for (Double val : list) {
+            sum += val;
+        }
+        return sum / list.size();
+    }
+
+    public static double getVariance(List<Double> list, double average){
+        double sum = 0;
+        for (Double val : list) {
+            double diff = Math.pow((val - average),2);
+            sum += diff
+        }
+        return sum / list.size();
     }
 }
