@@ -99,7 +99,7 @@ public class MathUtils {
         double sum = 0;
         for (Double val : list) {
             double diff = Math.pow((val - average),2);
-            sum += diff
+            sum += diff;
         }
         return sum / list.size();
     }
