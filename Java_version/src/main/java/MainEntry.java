@@ -20,7 +20,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "sphere";
+        String modelName = "bun_test";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -41,7 +41,7 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme1(inputModel);
+        analysisStep.implementScheme3(inputModel);
         //analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("--------Calculate the normal for the vertex-------");

@@ -15,6 +15,7 @@ public class Square3Scheme {
     private List<Edge> edges;
     //store the odd vertex corresponding to each triangle
     private Map<Integer, Integer> triangleVertexMap;
+    private Map<Integer, Integer> edgeVertexMap;
 
     //constructor
     public Square3Scheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
@@ -22,6 +23,7 @@ public class Square3Scheme {
         this.vertices = vertices;
         this.edges = edges;
         this.triangleVertexMap = new HashMap<Integer, Integer>();
+        this.edgeVertexMap = new HashMap<Integer, Integer>();
     }
 
     //similar to that in modified butterfly
@@ -132,6 +134,41 @@ public class Square3Scheme {
 //            } else {
 //                vertexMap.put(index, this.insertPointRegular(triangleEach));
 //            }
+
+            //for the boundary case
+            if (triangleEach.getTriangleIndices().size() != 3) {
+                //add the edge point
+                List<Edge> edgesNoTri = new ArrayList<>();
+                List<Edge> edgesNear = triangleEach.getEdges();
+                for (Edge edgeNear : edgesNear) {
+                    if (edgeNear.getIndex() == 93){
+                        System.out.println("here");
+                    }
+
+                    Vertex v1 = edgeNear.getA();
+                    Vertex v2 = edgeNear.getB();
+                    int count = 0;
+                    for (Integer triangleIndex : triangleEach.getTriangleIndices()) {
+                        Triangle triangleNear = this.triangles.get(triangleIndex);
+                        if (triangleNear.containVertices(v1, v2)) {
+                            break;
+                        } else {
+                            count += 1;
+                        }
+                    }
+                    if (count == triangleEach.getTriangleIndices().size()) {
+                        edgesNoTri.add(edgeNear);
+                    }
+                }
+
+                for (Edge edgeNoTri : edgesNoTri) {
+                    Vector3d coordEdge = MathUtils.dotVal(0.5d, MathUtils.addVector(edgeNoTri.getA().getCoords(), edgeNoTri.getB().getCoords()));
+                    vertexMap.put(index, coordEdge);
+                    this.edgeVertexMap.put(edgeNoTri.getIndex(), index);
+                    index += 1;
+                }
+            }
+
             //same for regular and extraordinary
             vertexMap.put(index, this.insertPointRegular(triangleEach));
             this.triangleVertexMap.put(triangleEach.getIndex(), index);
@@ -218,17 +255,19 @@ public class Square3Scheme {
                 }
                 //if no triangle near is founded, it is the boundary case
                 if (triangleThis.getVertices().size() == 0) {
-                    //connect
-                    vertexIndices.add(this.triangleVertexMap.get(triangle.getIndex()));
-                    vertexIndices.add(edgeEachTri.getA().getIndex());
-                    vertexIndices.add(edgeEachTri.getB().getIndex());
+                    for (Vertex cornerV : edgeEachTri.getVertices()) {
+                        //connect
+                        vertexIndices.add(this.triangleVertexMap.get(triangle.getIndex()));
+                        vertexIndices.add(cornerV.getIndex());
+                        vertexIndices.add(this.edgeVertexMap.get(edgeEachTri.getIndex()));
 
-                    final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
-                    if (Math.abs(MathUtils.getAngle(faceNormal, subFaceNormal)) >= 90) {
-                        Collections.swap(vertexIndices, 1, 2);
+                        final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
+                        if (Math.abs(MathUtils.getAngle(faceNormal, subFaceNormal)) >= 90) {
+                            Collections.swap(vertexIndices, 1, 2);
+                        }
+                        faceMap.put(faceCount, vertexIndices);
+                        faceCount += 1;
                     }
-                    faceMap.put(faceCount, vertexIndices);
-                    faceCount += 1;
                 } else {
                     //normal case
                     for (final Vertex vertexEachEdge : edgeEachTri.getVertices()) {
