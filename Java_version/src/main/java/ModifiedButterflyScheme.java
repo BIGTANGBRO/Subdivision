@@ -14,6 +14,7 @@ public class ModifiedButterflyScheme {
     private List<Vertex> vertices;
     private List<Edge> edges;
     private Map<Integer, Integer> oddNodeMap;
+    private Map<Integer, List<Integer>> trianglesTrackMap;
     private double w = -1d / 16d;
 
     public ModifiedButterflyScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
@@ -21,6 +22,7 @@ public class ModifiedButterflyScheme {
         this.vertices = vertices;
         this.oddNodeMap = new HashMap<>();
         this.edges = edges;
+        this.trianglesTrackMap = new HashMap<>();
     }
 
     /**
@@ -215,6 +217,8 @@ public class ModifiedButterflyScheme {
     public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
         int faceCount = 0;
         Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        List<Integer> triangleIndexTracking = new ArrayList<>();
+
         for (final Triangle triangle : this.triangles) {
             final HashSet<Integer> oddVertexSet = new HashSet<>();
             Vector3d faceNormal = triangle.getUnitNormal();
@@ -231,7 +235,7 @@ public class ModifiedButterflyScheme {
                 if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
                     Collections.swap(vertexIndices, 1, 2);
                 }
-
+                triangleIndexTracking.add(faceCount);
                 faceMap.put(faceCount, vertexIndices);
                 faceCount += 1;
             }
@@ -241,7 +245,9 @@ public class ModifiedButterflyScheme {
             if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
                 Collections.swap(oddVertexArr, 1, 2);
             }
+            triangleIndexTracking.add(faceCount);
             faceMap.put(faceCount, oddVertexArr);
+            trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
             faceCount += 1;
         }
         return faceMap;

@@ -41,7 +41,7 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme3(inputModel);
+        analysisStep.implementScheme1(inputModel);
         //analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("--------Calculate the normal for the vertex-------");

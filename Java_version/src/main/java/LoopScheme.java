@@ -13,12 +13,14 @@ public class LoopScheme {
     private List<Vertex> vertices;
     private List<Edge> edges;
     private Map<Integer, Integer> oddNodeMap;
+    private Map<Integer, List<Integer>> trianglesTrackMap;
 
     public LoopScheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
         this.triangles = triangles;
         this.vertices = vertices;
         this.edges = edges;
         this.oddNodeMap = new HashMap<>();
+        this.trianglesTrackMap = new HashMap<>();
     }
 
     /**
@@ -129,6 +131,9 @@ public class LoopScheme {
         final Map<Integer, List<Integer>> faceMap = new HashMap<>();
         //iterate over the original triangles
         for (final Triangle triangle : this.triangles) {
+            //for track map
+            List<Integer> triangleIndexTracking = new ArrayList<>();
+
             final HashSet<Integer> oddVertexSet = new HashSet<>();
             //set the face topology
             Vector3d faceNormal = triangle.getUnitNormal();
@@ -146,6 +151,7 @@ public class LoopScheme {
                     Collections.swap(vertexIndices, 1, 2);
                 }
                 faceMap.put(faceCount, vertexIndices);
+                triangleIndexTracking.add(faceCount);
                 faceCount += 1;
             }
             //connect the new created odd vertices to form a surface
@@ -155,7 +161,9 @@ public class LoopScheme {
                 Collections.swap(oddVertexArr, 1, 2);
             }
             faceMap.put(faceCount, oddVertexArr);
+            triangleIndexTracking.add(faceCount);
             faceCount += 1;
+            trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
         }
         return faceMap;
     }

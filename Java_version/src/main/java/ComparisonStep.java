@@ -201,4 +201,8 @@ public class ComparisonStep {
         }
         return normMap;
     }
+
+    public static void getCurvature(){
+
+    }
 }

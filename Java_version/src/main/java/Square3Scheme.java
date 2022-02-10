@@ -15,6 +15,7 @@ public class Square3Scheme {
     private List<Edge> edges;
     //store the odd vertex corresponding to each triangle
     private Map<Integer, Integer> triangleVertexMap;
+    private Map<Integer, List<Integer>> trianglesTrackMap;
 
     //constructor
     public Square3Scheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
@@ -22,6 +23,7 @@ public class Square3Scheme {
         this.vertices = vertices;
         this.edges = edges;
         this.triangleVertexMap = new HashMap<Integer, Integer>();
+        this.trianglesTrackMap = new HashMap<Integer, List<Integer>>();
     }
 
     //similar to that in modified butterfly
@@ -194,6 +196,7 @@ public class Square3Scheme {
         for (final Triangle triangle : this.triangles) {
             final List<Integer> triIndices = triangle.getTriangleIndices();
             final List<Edge> edgesEachTri = triangle.getEdges();
+            List<Integer> triangleIndexTracking = new ArrayList<>();
 
             //get the average facenormal here
             double frac = 2d / 3d;
@@ -228,6 +231,7 @@ public class Square3Scheme {
                         Collections.swap(vertexIndices, 1, 2);
                     }
                     faceMap.put(faceCount, vertexIndices);
+                    triangleIndexTracking.add(faceCount);
                     faceCount += 1;
                 } else {
                     //normal case
@@ -246,11 +250,13 @@ public class Square3Scheme {
                         }
 
                         faceMap.put(faceCount, vertexIndices);
+                        triangleIndexTracking.add(faceCount);
                         vertexIndices = new ArrayList<>();
                         faceCount += 1;
                     }
                 }
             }
+            this.trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
         }
         return faceMap;
     }
