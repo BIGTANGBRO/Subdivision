@@ -59,6 +59,16 @@ public class Triangle {
         return null;
     }
 
+    public List<Vertex> getRemain(Vertex v1) {
+        List<Vertex> verticesRemain = new ArrayList<>();
+        for (Vertex v : this.vertices) {
+            if (v.getIndex() != v1.getIndex()) {
+                verticesRemain.add(v);
+            }
+        }
+        return verticesRemain;
+    }
+
     public List<Vertex> getRemainInDirection(final Vertex v1) {
         int indexRemain = this.vertices.indexOf(v1);
         List<Vertex> verticesRemain = new ArrayList<>(2);

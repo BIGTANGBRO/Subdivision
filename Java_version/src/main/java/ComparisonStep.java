@@ -202,7 +202,73 @@ public class ComparisonStep {
         return normMap;
     }
 
-    public static void getCurvature(){
+    /**
+     * Get the guassian curvature for each vertex
+     *
+     * @param inputModel Completed inputModel
+     * @return List of gaussian curvature
+     */
+    public List<Double> getGaussianCurvature(InputModel inputModel) {
+        List<Vertex> vertices = inputModel.getVertices();
+        List<Edge> edges = inputModel.getEdges();
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Double> ks = new ArrayList<>();
+        for (Vertex v : vertices) {
+            List<Integer> triangleIndices = v.getTriangleIndices();
+            List<Triangle> trianglesNear = new ArrayList<>();
+            for (int i = 0; i < triangleIndices.size(); i++) {
+                trianglesNear.add(triangles.get(i));
+            }
+            List<Double> angles = new ArrayList<>();
+            double angleSum = 0d;
+            for (Triangle triangleNear : trianglesNear) {
+                List<Vertex> verticesRemain = triangleNear.getRemain(v);
+                double angle = Math.abs(MathUtils.getAngle(MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords()), MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords())));
+                angleSum += Math.toRadians(angle);
+            }
+            double k = 2 * Math.PI - angleSum;
+            ks.add(k);
+        }
+        return ks;
+    }
 
+    public List<Double> getMeanCurvature(InputModel inputModel) {
+        List<Vertex> vertices = inputModel.getVertices();
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Double> hs = new ArrayList<>();
+        for (Vertex v : vertices) {
+            //data initialization
+            List<Integer> triangleIndices = v.getTriangleIndices();
+            List<Triangle> trianglesNear = new ArrayList<>();
+            for (int i = 0; i < triangleIndices.size(); i++) {
+                trianglesNear.add(triangles.get(i));
+            }
+
+            //get the pair of the triangles with same edge
+            Map<Integer, List<Triangle>> diTriangles = new HashMap<>();
+            int index = 0;
+            for (Integer vertexNear : v.getVertexIndices()) {
+                List<Triangle> trianglePair = new ArrayList<>();
+                Vertex vNear = vertices.get(vertexNear);
+                for (Triangle triangleNear : trianglesNear) {
+                    if (triangleNear.containVertices(v, vNear)) {
+                        trianglePair.add(triangleNear);
+                    }
+                }
+                diTriangles.put(index, trianglePair);
+                index += 1;
+            }
+
+            //curvature calculation
+            double h = 0;
+            List<Integer> verticesNear = v.getVertexIndices();
+            for (Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
+                double angle = Math.abs(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
+                double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
+                h += 1d / 4d * length * Math.toRadians(angle);
+            }
+            hs.add(h);
+        }
+        return hs;
     }
 }
