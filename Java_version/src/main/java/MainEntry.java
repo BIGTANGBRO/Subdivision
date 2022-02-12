@@ -13,6 +13,9 @@ public class MainEntry {
         //write the haus
         ComparisonStep.writeHausorffDistribution(inputModel2.getVertices(), inputModel1.getVertices());
         ComparisonStep.writeAngle(inputModel2);
+        ComparisonStep.writeCurvature1(inputModel2);
+        ComparisonStep.writeCurvature2(inputModel2);
+
     }
 
     public static void main(String[] args) throws IOException {

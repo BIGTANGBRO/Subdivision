@@ -59,9 +59,9 @@ public class Triangle {
         return null;
     }
 
-    public List<Vertex> getRemain(Vertex v1) {
-        List<Vertex> verticesRemain = new ArrayList<>();
-        for (Vertex v : this.vertices) {
+    public List<Vertex> getRemain(final Vertex v1) {
+        final List<Vertex> verticesRemain = new ArrayList<>();
+        for (final Vertex v : this.vertices) {
             if (v.getIndex() != v1.getIndex()) {
                 verticesRemain.add(v);
             }
@@ -70,8 +70,8 @@ public class Triangle {
     }
 
     public List<Vertex> getRemainInDirection(final Vertex v1) {
-        int indexRemain = this.vertices.indexOf(v1);
-        List<Vertex> verticesRemain = new ArrayList<>(2);
+        final int indexRemain = this.vertices.indexOf(v1);
+        final List<Vertex> verticesRemain = new ArrayList<>(2);
         switch (indexRemain) {
             case 0:
                 verticesRemain.add(this.vertices.get(1));
@@ -106,7 +106,7 @@ public class Triangle {
     }
 
     public boolean isNearExtraordinary() {
-        for (Vertex v : this.vertices) {
+        for (final Vertex v : this.vertices) {
             if (!v.isRegular()) {
                 return true;
             }
@@ -115,18 +115,18 @@ public class Triangle {
     }
 
     public Vector3d getUnitNormal() {
-        Vector3d coord1 = this.vertices.get(0).getCoords();
-        Vector3d coord2 = this.vertices.get(1).getCoords();
-        Vector3d coord3 = this.vertices.get(2).getCoords();
+        final Vector3d coord1 = this.vertices.get(0).getCoords();
+        final Vector3d coord2 = this.vertices.get(1).getCoords();
+        final Vector3d coord3 = this.vertices.get(2).getCoords();
 
-        Vector3d vec1 = MathUtils.minusVector(coord1, coord2);
-        Vector3d vec2 = MathUtils.minusVector(coord1, coord3);
+        final Vector3d vec1 = MathUtils.minusVector(coord1, coord2);
+        final Vector3d vec2 = MathUtils.minusVector(coord1, coord3);
 
-        double x = vec1.getYVal() * vec2.getZVal() - vec1.getZVal() * vec2.getYVal();
-        double y = vec1.getZVal() * vec2.getXVal() - vec1.getXVal() * vec2.getZVal();
-        double z = vec1.getXVal() * vec2.getYVal() - vec1.getYVal() * vec2.getXVal();
+        final double x = vec1.getYVal() * vec2.getZVal() - vec1.getZVal() * vec2.getYVal();
+        final double y = vec1.getZVal() * vec2.getXVal() - vec1.getXVal() * vec2.getZVal();
+        final double z = vec1.getXVal() * vec2.getYVal() - vec1.getYVal() * vec2.getXVal();
 
-        double mod = MathUtils.getMod(x, y, z);
+        final double mod = MathUtils.getMod(x, y, z);
         return new Vector3d(x / mod, y / mod, z / mod);
     }
 }

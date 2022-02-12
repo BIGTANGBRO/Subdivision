@@ -87,7 +87,7 @@ public class ComparisonStep {
      */
     public static void writeHausorffDistribution(final List<Vertex> vertices1, final List<Vertex> vertices2) throws IOException {
         final List<Double> distribution1 = getMinDistanceDistribution(vertices1, vertices2);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution.dat";
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_hausorff.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double distance : distribution1) {
             bw.write(Double.toString(distance) + "\n");
@@ -208,49 +208,48 @@ public class ComparisonStep {
      * @param inputModel Completed inputModel
      * @return List of gaussian curvature
      */
-    public List<Double> getGaussianCurvature(InputModel inputModel) {
-        List<Vertex> vertices = inputModel.getVertices();
-        List<Edge> edges = inputModel.getEdges();
-        List<Triangle> triangles = inputModel.getTriangles();
-        List<Double> ks = new ArrayList<>();
-        for (Vertex v : vertices) {
-            List<Integer> triangleIndices = v.getTriangleIndices();
-            List<Triangle> trianglesNear = new ArrayList<>();
-            for (int i = 0; i < triangleIndices.size(); i++) {
+    public static List<Double> getGaussianCurvature(final InputModel inputModel) {
+        final List<Vertex> vertices = inputModel.getVertices();
+        final List<Triangle> triangles = inputModel.getTriangles();
+        final List<Double> ks = new ArrayList<>();
+        for (final Vertex v : vertices) {
+            final List<Integer> triangleIndices = v.getTriangleIndices();
+            final List<Triangle> trianglesNear = new ArrayList<>();
+            for (final Integer i : triangleIndices) {
                 trianglesNear.add(triangles.get(i));
             }
-            List<Double> angles = new ArrayList<>();
+
             double angleSum = 0d;
-            for (Triangle triangleNear : trianglesNear) {
-                List<Vertex> verticesRemain = triangleNear.getRemain(v);
-                double angle = Math.abs(MathUtils.getAngle(MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords()), MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords())));
+            for (final Triangle triangleNear : trianglesNear) {
+                final List<Vertex> verticesRemain = triangleNear.getRemain(v);
+                final double angle = Math.abs(MathUtils.getAngle(MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords()), MathUtils.minusVector(verticesRemain.get(1).getCoords(), v.getCoords())));
                 angleSum += Math.toRadians(angle);
             }
-            double k = 2 * Math.PI - angleSum;
+            final double k = 2 * Math.PI - angleSum;
             ks.add(k);
         }
         return ks;
     }
 
-    public List<Double> getMeanCurvature(InputModel inputModel) {
-        List<Vertex> vertices = inputModel.getVertices();
-        List<Triangle> triangles = inputModel.getTriangles();
-        List<Double> hs = new ArrayList<>();
-        for (Vertex v : vertices) {
+    public static List<Double> getMeanCurvature(final InputModel inputModel) {
+        final List<Vertex> vertices = inputModel.getVertices();
+        final List<Triangle> triangles = inputModel.getTriangles();
+        final List<Double> hs = new ArrayList<>();
+        for (final Vertex v : vertices) {
             //data initialization
-            List<Integer> triangleIndices = v.getTriangleIndices();
-            List<Triangle> trianglesNear = new ArrayList<>();
-            for (int i = 0; i < triangleIndices.size(); i++) {
+            final List<Integer> triangleIndices = v.getTriangleIndices();
+            final List<Triangle> trianglesNear = new ArrayList<>();
+            for (final Integer i : triangleIndices) {
                 trianglesNear.add(triangles.get(i));
             }
 
             //get the pair of the triangles with same edge
-            Map<Integer, List<Triangle>> diTriangles = new HashMap<>();
+            final Map<Integer, List<Triangle>> diTriangles = new HashMap<>();
             int index = 0;
-            for (Integer vertexNear : v.getVertexIndices()) {
-                List<Triangle> trianglePair = new ArrayList<>();
-                Vertex vNear = vertices.get(vertexNear);
-                for (Triangle triangleNear : trianglesNear) {
+            for (final Integer vertexNear : v.getVertexIndices()) {
+                final List<Triangle> trianglePair = new ArrayList<>();
+                final Vertex vNear = vertices.get(vertexNear);
+                for (final Triangle triangleNear : trianglesNear) {
                     if (triangleNear.containVertices(v, vNear)) {
                         trianglePair.add(triangleNear);
                     }
@@ -261,14 +260,34 @@ public class ComparisonStep {
 
             //curvature calculation
             double h = 0;
-            List<Integer> verticesNear = v.getVertexIndices();
-            for (Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
-                double angle = Math.abs(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
-                double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
+            final List<Integer> verticesNear = v.getVertexIndices();
+            for (final Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
+                final double angle = Math.abs(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
+                final double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
                 h += 1d / 4d * length * Math.toRadians(angle);
             }
             hs.add(h);
         }
         return hs;
+    }
+
+    public static void writeCurvature1(final InputModel inputModel) throws IOException {
+        final List<Double> distribution1 = getGaussianCurvature(inputModel);
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_gaussian.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double distance : distribution1) {
+            bw.write(Double.toString(distance) + "\n");
+        }
+        bw.close();
+    }
+
+    public static void writeCurvature2(final InputModel inputModel) throws IOException {
+        final List<Double> distribution1 = getMeanCurvature(inputModel);
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_mean.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double distance : distribution1) {
+            bw.write(Double.toString(distance) + "\n");
+        }
+        bw.close();
     }
 }
