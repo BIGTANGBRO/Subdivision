@@ -232,7 +232,7 @@ public class ModifiedButterflyScheme {
                     vertexIndices.add(newVertexIndex);
                 }
                 Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
-                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                     Collections.swap(vertexIndices, 1, 2);
                 }
                 triangleIndexTracking.add(faceCount);
@@ -242,7 +242,7 @@ public class ModifiedButterflyScheme {
             //connect the new created odd vertices to form a surface
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
             Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(oddVertexArr.get(0)), vertexMap.get(oddVertexArr.get(1)), vertexMap.get(oddVertexArr.get(2)));
-            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90 || MathUtils.getAngle(faceNormal, subFaceNormal) < 0) {
+            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                 Collections.swap(oddVertexArr, 1, 2);
             }
             triangleIndexTracking.add(faceCount);
