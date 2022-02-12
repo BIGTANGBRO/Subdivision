@@ -11,8 +11,10 @@ import java.util.*;
 public class MainEntry {
     public static void compare(InputModel inputModel1, InputModel inputModel2) throws IOException {
         //write the haus
-        ComparisonStep.writeHausorffDistribution(inputModel2.getVertices(), inputModel1.getVertices());
-        ComparisonStep.writeAngle(inputModel2);
+        //ComparisonStep.writeHausorffDistribution(inputModel2.getVertices(), inputModel1.getVertices());
+        //ComparisonStep.writeAngle(inputModel2);
+        List<Double> vals = ComparisonStep.getGaussianCurvature(inputModel2);
+        System.out.println("here");
     }
 
     public static void main(String[] args) throws IOException {

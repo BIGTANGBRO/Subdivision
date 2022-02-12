@@ -86,7 +86,6 @@ public class Triangle {
         return verticesRemain;
     }
 
-
     public void addEdge(final Edge edge) {
         this.edges.add(edge);
     }
@@ -128,5 +127,21 @@ public class Triangle {
 
         double mod = MathUtils.getMod(x, y, z);
         return new Vector3d(x / mod, y / mod, z / mod);
+    }
+
+    public Vertex findCommon(Triangle triangleOther, Vertex vMain) {
+        List<Edge> edgesOther = triangleOther.getEdges();
+        for (Edge edge : edgesOther) {
+            for (Edge edge2 : this.edges) {
+                if (edge2.getIndex() == edge.getIndex()) {
+                    if (edge.getA() == vMain) {
+                        return edge.getB();
+                    } else {
+                        return edge.getA();
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

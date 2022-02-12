@@ -202,24 +202,100 @@ public class ComparisonStep {
         return normMap;
     }
 
+    private static List<Triangle> getNeighbourTriangleInOrder(Vertex v, List<Triangle> triangles, List<Vertex> vertices) {
+        List<Vertex> verticesNear = getNeighbourPtsInOrder(v, triangles, vertices);
+        List<Triangle> trianglesNear = new ArrayList<>();
+        List<Integer> triangleIndices = v.getTriangleIndices();
+
+        for (int i = 0; i < triangleIndices.size(); i++) {
+            int index = triangleIndices.get(i);
+            trianglesNear.add(triangles.get(index));
+        }
+
+        List<Triangle> trianglesInOrder = new ArrayList<>();
+        for (int i = 0; i < verticesNear.size() - 1; i++) {
+            Vertex v1 = verticesNear.get(i);
+            Vertex v2 = verticesNear.get(i + 1);
+            for (Triangle triangle : trianglesNear) {
+                if (triangle.containVertices(v1, v2)) {
+                    trianglesInOrder.add(triangle);
+                    break;
+                }
+            }
+        }
+        for (Triangle triangle : trianglesNear) {
+            if (triangle.containVertices(verticesNear.get(verticesNear.size() - 1), verticesNear.get(0))) {
+                trianglesInOrder.add(triangle);
+                break;
+            }
+        }
+        return trianglesInOrder;
+    }
+
+    private static List<Vertex> getNeighbourPtsInOrder(Vertex vMain, List<Triangle> triangles, List<Vertex> vertices) {
+        List<Integer> trianglesIndexNear = vMain.getTriangleIndices();
+        List<Triangle> trianglesNear = new ArrayList<>();
+        for (Integer triIndex : trianglesIndexNear) {
+            trianglesNear.add(triangles.get(triIndex));
+        }
+        int iterN = 0;
+        int maxN = trianglesNear.size() * vMain.getNumVertices() * 2;
+        Vertex vNear = vertices.get(vMain.getVertexIndices().get(0));
+
+        List<Vertex> verticesNear = new ArrayList<>();
+        verticesNear.add(vNear);
+        for (Triangle triangle : trianglesNear) {
+            if (triangle.containVertices(vMain, vNear) && triangle.getRemainInDirection(vMain).get(0).getIndex() == vNear.getIndex()) {
+                Vertex vRemain = triangle.getRemainInDirection(vMain).get(1);
+                verticesNear.add(vRemain);
+                break;
+            }
+        }
+
+        //for some model with wrong topology, increase the robustness
+        if (verticesNear.size() <= 1) {
+            for (Triangle triangle : trianglesNear) {
+                if (triangle.containVertices(vMain, vNear)) {
+                    verticesNear.add(triangle.getRemain(vMain, vNear));
+                    break;
+                }
+            }
+        }
+
+        Vertex vOld = verticesNear.get(1);
+        while (verticesNear.size() != vMain.getNumVertices()) {
+            if (iterN > maxN) {
+                break;
+            }
+            for (Triangle triangle : trianglesNear) {
+                if (triangle.containVertices(vMain, vOld)) {
+                    Vertex vRemain = triangle.getRemain(vMain, vOld);
+                    if (!verticesNear.contains(vRemain)) {
+                        verticesNear.add(vRemain);
+                        vOld = vRemain;
+                    }
+                }
+                iterN += 1;
+            }
+            iterN += 1;
+        }
+        return verticesNear;
+    }
+
     /**
      * Get the guassian curvature for each vertex
      *
      * @param inputModel Completed inputModel
      * @return List of gaussian curvature
      */
-    public List<Double> getGaussianCurvature(InputModel inputModel) {
+    public static List<Double> getGaussianCurvature(InputModel inputModel) {
         List<Vertex> vertices = inputModel.getVertices();
-        List<Edge> edges = inputModel.getEdges();
         List<Triangle> triangles = inputModel.getTriangles();
         List<Double> ks = new ArrayList<>();
         for (Vertex v : vertices) {
-            List<Integer> triangleIndices = v.getTriangleIndices();
-            List<Triangle> trianglesNear = new ArrayList<>();
-            for (int i = 0; i < triangleIndices.size(); i++) {
-                trianglesNear.add(triangles.get(i));
-            }
-            List<Double> angles = new ArrayList<>();
+            //get the neighbouring triangles in order
+            List<Triangle> trianglesNear = getNeighbourTriangleInOrder(v, triangles, vertices);
+
             double angleSum = 0d;
             for (Triangle triangleNear : trianglesNear) {
                 List<Vertex> verticesRemain = triangleNear.getRemain(v);
@@ -232,40 +308,42 @@ public class ComparisonStep {
         return ks;
     }
 
-    public List<Double> getMeanCurvature(InputModel inputModel) {
+    /**
+     * Get the mean curvature of the model
+     *
+     * @param inputModel Input model1
+     * @return List of the mean curvature
+     */
+    public static List<Double> getMeanCurvature(InputModel inputModel) {
         List<Vertex> vertices = inputModel.getVertices();
         List<Triangle> triangles = inputModel.getTriangles();
         List<Double> hs = new ArrayList<>();
         for (Vertex v : vertices) {
-            //data initialization
-            List<Integer> triangleIndices = v.getTriangleIndices();
-            List<Triangle> trianglesNear = new ArrayList<>();
-            for (int i = 0; i < triangleIndices.size(); i++) {
-                trianglesNear.add(triangles.get(i));
-            }
-
+            //data initialization, both data structures are in the order
+            List<Triangle> trianglesNear = getNeighbourTriangleInOrder(v, triangles, vertices);
             //get the pair of the triangles with same edge
-            Map<Integer, List<Triangle>> diTriangles = new HashMap<>();
-            int index = 0;
-            for (Integer vertexNear : v.getVertexIndices()) {
-                List<Triangle> trianglePair = new ArrayList<>();
-                Vertex vNear = vertices.get(vertexNear);
-                for (Triangle triangleNear : trianglesNear) {
-                    if (triangleNear.containVertices(v, vNear)) {
-                        trianglePair.add(triangleNear);
-                    }
-                }
-                diTriangles.put(index, trianglePair);
-                index += 1;
-            }
+            Map<Vertex, List<Triangle>> diTriangles = new HashMap<>();
 
-            //curvature calculation
+            for (int i = 0; i < trianglesNear.size() - 1; i++) {
+                List<Triangle> trianglePair = new ArrayList<>();
+                trianglePair.add(trianglesNear.get(i));
+                trianglePair.add(trianglesNear.get(i + 1));
+                Vertex vEdge = trianglesNear.get(0).findCommon(trianglesNear.get(i + 1), v);
+                diTriangles.put(vEdge, trianglePair);
+            }
+            List<Triangle> trianglePair = new ArrayList<>();
+            trianglePair.add(trianglesNear.get(trianglesNear.size() - 1));
+            trianglePair.add(trianglesNear.get(0));
+            Vertex vEdge = trianglesNear.get(trianglesNear.size() - 1).findCommon(trianglesNear.get(0), v);
+            diTriangles.put(vEdge, trianglePair);
+
+            //start the calculation
             double h = 0;
-            List<Integer> verticesNear = v.getVertexIndices();
-            for (Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
-                double angle = Math.abs(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
-                double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
-                h += 1d / 4d * length * Math.toRadians(angle);
+            for (Vertex vNode : diTriangles.keySet()) {
+                List<Triangle> trianglesDi = diTriangles.get(vNode);
+                double distance = MathUtils.getMod(MathUtils.minusVector(vNode.getCoords(), v.getCoords()));
+                double angle = Math.toRadians(MathUtils.getAngle(trianglesDi.get(0).getUnitNormal(), trianglesDi.get(1).getUnitNormal()));
+                h += 1d / 4d * angle * distance;
             }
             hs.add(h);
         }
