@@ -57,7 +57,6 @@ public class PeterReifScheme {
             final HashSet<Integer> oddVertexSet = new HashSet<>();
             //set the face topology
             Vector3d faceNormal = triangle.getUnitNormal();
-
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
                 final List<Integer> vertexIndices = new ArrayList<>(3);
@@ -75,9 +74,6 @@ public class PeterReifScheme {
                 faceMap.put(faceCount, vertexIndices);
                 triangleIndexTracking.add(faceCount);
                 faceCount += 1;
-                if (faceCount == 6945) {
-                    System.out.println("Here");
-                }
             }
             //connect the new created odd vertices to form a surface
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
