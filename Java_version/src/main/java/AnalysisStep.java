@@ -24,6 +24,17 @@ public class AnalysisStep {
         this.vertexMap = vertexMap;
     }
 
+    public void implementSchemeGeo(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = pScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
+    }
+
     public void implementScheme1(InputModel inputModel) {
         List<Triangle> triangles = inputModel.getTriangles();
         List<Edge> edges = inputModel.getEdges();

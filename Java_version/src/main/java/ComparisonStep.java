@@ -149,7 +149,7 @@ public class ComparisonStep {
                             trianglesAnEdge.add(triangleNear.getUnitNormal());
                         }
                     }
-                    final double angle = MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1));
+                    final double angle = Math.PI - Math.abs(MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1)));
                     angles.add(angle);
                 }
                 //calculate the average and variance

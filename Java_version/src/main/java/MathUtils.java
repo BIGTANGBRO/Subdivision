@@ -57,7 +57,13 @@ public class MathUtils {
         double aDotb = v1.getXVal() * v2.getXVal() + v1.getYVal() * v2.getYVal() + v1.getZVal() * v2.getZVal();
         double modA = Math.pow((Math.pow(v1.getXVal(), 2) + Math.pow(v1.getYVal(), 2) + Math.pow(v1.getZVal(), 2)), 0.5);
         double modB = Math.pow((Math.pow(v2.getXVal(), 2) + Math.pow(v2.getYVal(), 2) + Math.pow(v2.getZVal(), 2)), 0.5);
-        return Math.toDegrees(Math.acos(aDotb / (modA * modB)));
+        double val = aDotb / (modA * modB);
+        if (val >= 1.0) {
+            val = 1.0;
+        } else if (val <= -1.0) {
+            val = -1.0;
+        }
+        return Math.toDegrees(Math.acos(val));
     }
 
     public static double getMod(double x, double y, double z) {
@@ -95,10 +101,10 @@ public class MathUtils {
         return sum / list.size();
     }
 
-    public static double getVariance(List<Double> list, double average){
+    public static double getVariance(List<Double> list, double average) {
         double sum = 0;
         for (Double val : list) {
-            double diff = Math.pow((val - average),2);
+            double diff = Math.pow((val - average), 2);
             sum += diff;
         }
         return sum / list.size();

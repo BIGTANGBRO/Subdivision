@@ -26,14 +26,13 @@ public class PeterReifScheme {
     }
 
     public Vector3d computeOdd(Vertex v1, Vertex v2) {
-        List<Vertex> vertices = new ArrayList<>(2);
         Vector3d coord = MathUtils.dotVal(0.5, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
         return coord;
     }
 
     public Map<Integer, Vector3d> computeOdd() {
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        int index = vertices.size();
+        int index = this.vertices.size();
         for (Edge edge : edges) {
             Vertex v1 = edge.getA();
             Vertex v2 = edge.getB();
@@ -58,6 +57,7 @@ public class PeterReifScheme {
             final HashSet<Integer> oddVertexSet = new HashSet<>();
             //set the face topology
             Vector3d faceNormal = triangle.getUnitNormal();
+
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
                 final List<Integer> vertexIndices = new ArrayList<>(3);
@@ -68,12 +68,16 @@ public class PeterReifScheme {
                     vertexIndices.add(newVertexIndex);
                 }
                 Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                double angle = MathUtils.getAngle(faceNormal, subFaceNormal);
                 if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                     Collections.swap(vertexIndices, 1, 2);
                 }
                 faceMap.put(faceCount, vertexIndices);
                 triangleIndexTracking.add(faceCount);
                 faceCount += 1;
+                if (faceCount == 6945) {
+                    System.out.println("Here");
+                }
             }
             //connect the new created odd vertices to form a surface
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);

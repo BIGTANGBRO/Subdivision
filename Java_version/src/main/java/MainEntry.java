@@ -15,7 +15,8 @@ public class MainEntry {
         ComparisonStep.writeAngle(inputModel2);
         ComparisonStep.writeCurvature1(inputModel2);
         ComparisonStep.writeCurvature2(inputModel2);
-
+        double distance = ComparisonStep.getHausorffDistance(inputModel1.getVertices(), inputModel2.getVertices());
+        System.out.println("The maximum hausorff distance is" + distance);
     }
 
     public static void main(String[] args) throws IOException {
@@ -44,8 +45,10 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme1(inputModel);
+        analysisStep.implementSchemeGeo(inputModel);
         //analysisStep.implementScheme2(analysisStep.createTheModel());
+        //analysisStep.implementScheme1(analysisStep.createTheModel());
+
 
         System.out.println("--------Calculate the normal for the vertex-------");
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
