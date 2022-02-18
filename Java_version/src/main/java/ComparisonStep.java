@@ -116,7 +116,7 @@ public class ComparisonStep {
     }
 
     /**
-     * Get the dihedral angle for each triangle face
+     * Get the dihedral angle for each triangle face in degrees
      *
      * @param inputModel InputModel class
      * @return The list of dihedral angles in this model
@@ -149,7 +149,7 @@ public class ComparisonStep {
                             trianglesAnEdge.add(triangleNear.getUnitNormal());
                         }
                     }
-                    final double angle = Math.PI - Math.toRadians(MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1)));
+                    final double angle = 180d - MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1));
                     angles.add(angle);
                 }
                 //calculate the average and variance
