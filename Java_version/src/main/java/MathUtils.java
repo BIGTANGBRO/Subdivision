@@ -53,6 +53,13 @@ public class MathUtils {
         return new Vector3d(xVal, yVal, zVal);
     }
 
+    /**
+     * Get the angle between 2 vectors in degrees
+     *
+     * @param v1 vector1
+     * @param v2 vector2
+     * @return Degree in between
+     */
     public static double getAngle(Vector3d v1, Vector3d v2) {
         double aDotb = v1.getXVal() * v2.getXVal() + v1.getYVal() * v2.getYVal() + v1.getZVal() * v2.getZVal();
         double modA = Math.pow((Math.pow(v1.getXVal(), 2) + Math.pow(v1.getYVal(), 2) + Math.pow(v1.getZVal(), 2)), 0.5);

@@ -45,9 +45,9 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementSchemeGeo(inputModel);
-        //analysisStep.implementScheme2(analysisStep.createTheModel());
-        //analysisStep.implementScheme1(analysisStep.createTheModel());
+        analysisStep.implementScheme1(inputModel);
+        analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme3(analysisStep.createTheModel());
 
 
         System.out.println("--------Calculate the normal for the vertex-------");
@@ -60,6 +60,7 @@ public class MainEntry {
 
         //write the file
         outputModel.writePLYNormal(modelName + "_refined");
+        //outputModel.writePLY(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 
         //print out the running time

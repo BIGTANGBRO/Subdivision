@@ -227,7 +227,7 @@ public class Square3Scheme {
                     vertexIndices.add(edgeEachTri.getB().getIndex());
 
                     final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
-                    if (Math.abs(MathUtils.getAngle(faceNormal, subFaceNormal)) >= 90) {
+                    if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                         Collections.swap(vertexIndices, 1, 2);
                     }
                     faceMap.put(faceCount, vertexIndices);
@@ -244,8 +244,7 @@ public class Square3Scheme {
                         vertexIndices.add(vertex2);
 
                         final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
-                        double angle = MathUtils.getAngle(faceNormal, subFaceNormal);
-                        if (Math.abs(angle) >= 90) {
+                        if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                             Collections.swap(vertexIndices, 1, 2);
                         }
 

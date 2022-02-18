@@ -149,7 +149,7 @@ public class ComparisonStep {
                             trianglesAnEdge.add(triangleNear.getUnitNormal());
                         }
                     }
-                    final double angle = Math.PI - Math.abs(MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1)));
+                    final double angle = Math.PI - Math.toRadians(MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1)));
                     angles.add(angle);
                 }
                 //calculate the average and variance
@@ -222,8 +222,9 @@ public class ComparisonStep {
             double angleSum = 0d;
             for (final Triangle triangleNear : trianglesNear) {
                 final List<Vertex> verticesRemain = triangleNear.getRemain(v);
-                final double angle = Math.abs(MathUtils.getAngle(MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords()), MathUtils.minusVector(verticesRemain.get(1).getCoords(), v.getCoords())));
-                angleSum += Math.toRadians(angle);
+                //from degree to radians
+                final double angle = Math.toRadians(MathUtils.getAngle(MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords()), MathUtils.minusVector(verticesRemain.get(1).getCoords(), v.getCoords())));
+                angleSum += angle;
             }
             final double k = 2 * Math.PI - angleSum;
             ks.add(k);
@@ -262,7 +263,8 @@ public class ComparisonStep {
             double h = 0;
             final List<Integer> verticesNear = v.getVertexIndices();
             for (final Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
-                final double angle = Math.PI - Math.abs(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
+                //from degrees to radians
+                final double angle = Math.PI - Math.toRadians(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
                 final double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
                 h += 1d / 4d * length * Math.toRadians(angle);
             }

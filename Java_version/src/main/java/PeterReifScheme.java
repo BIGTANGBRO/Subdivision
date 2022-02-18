@@ -67,7 +67,6 @@ public class PeterReifScheme {
                     vertexIndices.add(newVertexIndex);
                 }
                 Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
-                double angle = MathUtils.getAngle(faceNormal, subFaceNormal);
                 if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                     Collections.swap(vertexIndices, 1, 2);
                 }
