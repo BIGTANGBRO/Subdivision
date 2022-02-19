@@ -1,6 +1,7 @@
 import org.smurn.jply.PlyReaderFile;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -19,7 +20,37 @@ public class MainEntry {
         System.out.println("The maximum hausorff distance is" + distance);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void compareExistedModel() throws IOException {
+        System.out.println("--------COMPARISON PROCEDURE EXECUTING-------");
+        String modelName = "cow_refined";
+        String fileName = "C:\\Users\\tangj\\Downloads\\CowData\\231\\" + modelName + ".ply";
+
+        //Variables initializing
+        InputStream in = new FileInputStream(fileName);
+        PlyReaderFile reader = new PlyReaderFile(in);
+        int numFaces = reader.getElementCount("face");
+        int numVertices = reader.getElementCount("vertex");
+        Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
+        Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
+        //read the detail
+        ReadPLY.read(reader, vertices, faces);
+        System.out.println("--------Input model read successfully-------");
+        System.out.println("Info of the model");
+        System.out.println("Number of elements:" + numFaces);
+        System.out.println("Number of vertices:" + numVertices);
+
+        AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
+        InputModel inputModel = analysisStep.createTheModel();
+
+        //No operation on this model, evaluate the features itself.
+        System.out.println("--------Writing out the features-------");
+        ComparisonStep.writeAngle(inputModel);
+        ComparisonStep.writeCurvature1(inputModel);
+        ComparisonStep.writeCurvature2(inputModel);
+    }
+
+    public static void workFlow() throws IOException {
+        System.out.println("--------NORMAL PROCEDURE EXECUTING-------");
         //set the current timeMills
         long startTime = System.currentTimeMillis();
 
@@ -41,19 +72,17 @@ public class MainEntry {
         System.out.println("Number of elements:" + numFaces);
         System.out.println("Number of vertices:" + numVertices);
 
-
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel);
-        analysisStep.implementScheme2(analysisStep.createTheModel());
         analysisStep.implementScheme3(analysisStep.createTheModel());
+        analysisStep.implementScheme2(analysisStep.createTheModel());
 
-
+        System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("--------Calculate the normal for the vertex-------");
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
         OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap(), normalMap);
-        System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("Info of the new model:");
         System.out.println("Number of elements:" + outputModel.getFaceMap().size());
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
@@ -71,5 +100,10 @@ public class MainEntry {
         System.out.println("-------Start doing the comparison-------");
         compare(inputModel, analysisStep.createTheModel());
         System.out.println("-------The whole process finished-------");
+    }
+
+    public static void main(String[] args) throws IOException {
+        //workFlow();
+        compareExistedModel();
     }
 }

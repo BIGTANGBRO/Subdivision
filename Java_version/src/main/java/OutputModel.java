@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * The outputModel class is used to write the information in the specfic files
+ *
  * @author: tangshao
  * @Date: 20/01/2022
  */
@@ -33,7 +34,7 @@ public class OutputModel {
     public void writePLY(final String name) throws IOException {
         final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        bw.write("ply \nformat ascii 1.0\ncomment zipper output\n");
+        bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
         bw.write("element face " + faceMap.size() + "\n");
@@ -61,7 +62,7 @@ public class OutputModel {
     public void writePLYNormal(final String name) throws IOException {
         final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        bw.write("ply \nformat ascii 1.0\ncomment zipper output\n");
+        bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
         bw.write("property float nx\nproperty float ny\nproperty float nz\n");
