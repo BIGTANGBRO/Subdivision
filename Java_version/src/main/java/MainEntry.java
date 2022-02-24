@@ -89,7 +89,7 @@ public class MainEntry {
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
-        outputModel.writePLYNormal(modelName + "_refined");
+        outputModel.writePLYNormal(modelName + "_refined2");
         //outputModel.writePLY(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 
