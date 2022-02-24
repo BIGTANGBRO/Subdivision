@@ -23,6 +23,32 @@ public class LoopScheme {
         this.trianglesTrackMap = new HashMap<>();
     }
 
+    public Vector3d computeOdd2(final Vertex v1, final Vertex v2) {
+        final List<Vertex> lateralVertices = new ArrayList<>(2);
+        int triangleCount = 0;
+        for (final Triangle triangle : triangles) {
+            if (triangle.containVertices(v1, v2)) {
+                //serach for vLeft and vRight
+                final Vertex v = triangle.getRemain(v1, v2);
+                lateralVertices.add(v);
+                triangleCount += 1;
+            }
+        }
+
+        if (triangleCount == 1) {
+            return MathUtils.dotVal(Constant.ONEOVERTWO, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
+        }
+
+        final Vector3d coord1 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(lateralVertices.get(0).getCoords(), lateralVertices.get(1).getCoords()));
+        if (v1.getNumTriangles() > 7) {
+            Vector3d coord2 = MathUtils.addVector(MathUtils.dotVal(1d / 4d, v2.getCoords()), MathUtils.dotVal(1d / 2d, v1.getCoords()));
+            return MathUtils.addVector(coord2, coord1);
+        } else {
+            Vector3d coord2 = MathUtils.addVector(MathUtils.dotVal(1d / 4d, v1.getCoords()), MathUtils.dotVal(1d / 2d, v2.getCoords()));
+            return MathUtils.addVector(coord2, coord1);
+        }
+    }
+
     /**
      * Compute the odd vertex
      *
@@ -30,14 +56,14 @@ public class LoopScheme {
      * @param v2 second vertex
      * @return The coordinate of the vertex
      */
-    public Vector3d computeOdd(final Vertex v1, final Vertex v2) {
-        final List<Vertex> vertices = new ArrayList<>(2);
+    public Vector3d computeOddNormal(final Vertex v1, final Vertex v2) {
+        final List<Vertex> lateralVertices = new ArrayList<>(2);
         int triangleCount = 0;
         for (final Triangle triangle : triangles) {
             if (triangle.containVertices(v1, v2)) {
                 //serach for vLeft and vRight
                 final Vertex v = triangle.getRemain(v1, v2);
-                vertices.add(v);
+                lateralVertices.add(v);
                 triangleCount += 1;
             }
         }
@@ -45,7 +71,7 @@ public class LoopScheme {
             return MathUtils.dotVal(Constant.ONEOVERTWO, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
         }
         final Vector3d coord1 = MathUtils.dotVal(Constant.THREEOVEREIGHT, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
-        final Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(vertices.get(0).getCoords(), vertices.get(1).getCoords()));
+        final Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(lateralVertices.get(0).getCoords(), lateralVertices.get(1).getCoords()));
         return MathUtils.addVector(coord1, coord2);
     }
 
@@ -62,7 +88,12 @@ public class LoopScheme {
             //each odd node corresponds to an edge
             final Vertex v1 = edge.getA();
             final Vertex v2 = edge.getB();
-            final Vector3d coord = computeOdd(v1, v2);
+            Vector3d coord = new Vector3d(0, 0, 0);
+            if (v1.getNumTriangles() > 7 || v2.getNumTriangles() > 7) {
+                coord = computeOdd2(v1, v2);
+            } else {
+                coord = computeOddNormal(v1, v2);
+            }
             //the index starts from numCoords
             vertexMap.put(index, coord);
             //edge point index corresponds to the edge index
@@ -77,6 +108,14 @@ public class LoopScheme {
             return 3.0d / 16.0d;
         }
         return 1.0d / n * (5.0d / 8.0d - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Math.PI / n)), 2));
+    }
+
+    private double getAlpha2(int n) {
+        if (n == 3) {
+            return 3d / 16d;
+        } else {
+            return 3d / (double) 8d;
+        }
     }
 
     /**

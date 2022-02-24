@@ -22,8 +22,8 @@ public class MainEntry {
 
     public static void compareExistedModel() throws IOException {
         System.out.println("--------COMPARISON PROCEDURE EXECUTING-------");
-        String modelName = "cow_refined";
-        String fileName = "C:\\Users\\tangj\\Downloads\\CowData\\231\\" + modelName + ".ply";
+        String modelName = "sphere";
+        String fileName = "C:\\Users\\tangj\\Downloads\\CowData\\333\\" + modelName + ".ply";
 
         //Variables initializing
         InputStream in = new FileInputStream(fileName);
@@ -47,6 +47,7 @@ public class MainEntry {
         ComparisonStep.writeAngle(inputModel);
         ComparisonStep.writeCurvature1(inputModel);
         ComparisonStep.writeCurvature2(inputModel);
+        System.out.println("-------The whole process finished-------");
     }
 
     public static void workFlow() throws IOException {
@@ -55,7 +56,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "cow";
+        String modelName = "sphere";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -76,8 +77,8 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
         analysisStep.implementScheme1(inputModel);
-        analysisStep.implementScheme3(analysisStep.createTheModel());
-        analysisStep.implementScheme2(analysisStep.createTheModel());
+        //analysisStep.implementScheme2(analysisStep.createTheModel());
+        //analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("--------Calculate the normal for the vertex-------");
@@ -103,7 +104,7 @@ public class MainEntry {
     }
 
     public static void main(String[] args) throws IOException {
-        //workFlow();
-        compareExistedModel();
+        workFlow();
+        //compareExistedModel();
     }
 }
