@@ -16,6 +16,12 @@ public class MainEntry {
         ComparisonStep.writeAngle(inputModel2);
         ComparisonStep.writeCurvature1(inputModel2);
         ComparisonStep.writeCurvature2(inputModel2);
+
+        ComparisonStepSeparate.writeHausorffDistribution(inputModel2.getVertices(), inputModel1.getVertices());
+        ComparisonStepSeparate.writeAngle(inputModel2);
+        ComparisonStepSeparate.writeCurvature1(inputModel2);
+        ComparisonStepSeparate.writeCurvature2(inputModel2);
+
         double distance = ComparisonStep.getHausorffDistance(inputModel1.getVertices(), inputModel2.getVertices());
         System.out.println("The maximum hausorff distance is" + distance);
     }
@@ -76,8 +82,8 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme1(inputModel);
-        //analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme3(inputModel);
+        analysisStep.implementScheme3(analysisStep.createTheModel());
         //analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
@@ -89,7 +95,7 @@ public class MainEntry {
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
-        outputModel.writePLYNormal(modelName + "_refined2");
+        outputModel.writePLYNormal(modelName + "_refined");
         //outputModel.writePLY(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 

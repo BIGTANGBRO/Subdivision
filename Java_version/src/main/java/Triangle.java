@@ -105,6 +105,20 @@ public class Triangle {
         return this.triangleIndices.size();
     }
 
+    public double getArea() {
+        final Vector3d coord1 = this.vertices.get(0).getCoords();
+        final Vector3d coord2 = this.vertices.get(1).getCoords();
+        final Vector3d coord3 = this.vertices.get(2).getCoords();
+        Vector3d v1 = MathUtils.minusVector(coord1, coord2);
+        Vector3d v2 = MathUtils.minusVector(coord1, coord3);
+
+        double sideA = MathUtils.getMod(v1);
+        double sideB = MathUtils.getMod(v2);
+
+        double angle = MathUtils.getAngle(v1, v2);
+        return 0.5d * sideA * sideB * Math.sin(Math.toRadians(angle));
+    }
+
     public boolean isNearExtraordinary() {
         for (final Vertex v : this.vertices) {
             if (!v.isRegular()) {

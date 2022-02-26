@@ -219,6 +219,11 @@ public class ComparisonStep {
                 trianglesNear.add(triangles.get(i));
             }
 
+            double area = 0d;
+            for (Triangle triangle : trianglesNear) {
+                area += triangle.getArea();
+            }
+
             double angleSum = 0d;
             for (final Triangle triangleNear : trianglesNear) {
                 final List<Vertex> verticesRemain = triangleNear.getRemain(v);
@@ -226,7 +231,8 @@ public class ComparisonStep {
                 final double angle = Math.toRadians(MathUtils.getAngle(MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords()), MathUtils.minusVector(verticesRemain.get(1).getCoords(), v.getCoords())));
                 angleSum += angle;
             }
-            final double k = 2 * Math.PI - angleSum;
+            double k = 2 * Math.PI - angleSum;
+            k = 3 * k / area;
             ks.add(k);
         }
         return ks;
@@ -259,6 +265,11 @@ public class ComparisonStep {
                 index += 1;
             }
 
+            double area = 0d;
+            for (Triangle triangle : trianglesNear) {
+                area += triangle.getArea();
+            }
+
             //curvature calculation
             double h = 0;
             final List<Integer> verticesNear = v.getVertexIndices();
@@ -268,6 +279,7 @@ public class ComparisonStep {
                 final double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
                 h += 1d / 4d * length * angle;
             }
+            h = 3d * h / area;
             hs.add(h);
         }
         return hs;
