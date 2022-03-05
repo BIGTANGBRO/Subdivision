@@ -17,19 +17,19 @@ public class ComparisonStep {
         return pow(127.0d, 2) - pow(x, 2) - pow(y, 2);
     }
 
-    public static double getSphereError(final Map<Integer, Vector3d> vertices) {
+    public static List<Double> getSphereError(List<Vertex> vertices) {
         //get the data from vertices;
-        double error = 0.0d;
-        for (final Map.Entry<Integer, Vector3d> entry : vertices.entrySet()) {
-            final Vector3d coord = entry.getValue();
+        List<Double> error = new ArrayList<>();
+        for (Vertex v : vertices) {
+            final Vector3d coord = v.getCoords();
             final double x = coord.getXVal();
             final double y = coord.getYVal();
             final double zRef = Math.sqrt(getSphereZSqure(x, y));
             final double z = coord.getZVal();
             final double diff = Math.abs(Math.abs(z) - Math.abs(zRef));
-            error += diff;
+            error.add(diff);
         }
-        return error / (double) vertices.size();
+        return error;
     }
 
     //function to calculate the hausorff error
@@ -283,6 +283,16 @@ public class ComparisonStep {
             hs.add(h);
         }
         return hs;
+    }
+
+    public static void writeSphereDiff(final InputModel inputModel) throws IOException {
+        final List<Double> distribution1 = getSphereError(inputModel.getVertices());
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_sphere_error.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double distance : distribution1) {
+            bw.write(Double.toString(distance) + "\n");
+        }
+        bw.close();
     }
 
     public static void writeCurvature1(final InputModel inputModel) throws IOException {

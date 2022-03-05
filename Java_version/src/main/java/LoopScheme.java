@@ -9,11 +9,11 @@ import java.util.*;
 @Getter
 @Setter
 public class LoopScheme {
-    private List<Triangle> triangles;
-    private List<Vertex> vertices;
-    private List<Edge> edges;
-    private Map<Integer, Integer> oddNodeMap;
-    private Map<Integer, List<Integer>> trianglesTrackMap;
+    protected List<Triangle> triangles;
+    protected List<Vertex> vertices;
+    protected List<Edge> edges;
+    protected Map<Integer, Integer> oddNodeMap;
+    protected Map<Integer, List<Integer>> trianglesTrackMap;
 
     public LoopScheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
         this.triangles = triangles;
@@ -103,14 +103,14 @@ public class LoopScheme {
         return vertexMap;
     }
 
-    private double getAlpha(final int n) {
+    protected double getAlpha(final int n) {
         if (n == 3) {
             return 3.0d / 16.0d;
         }
         return 1.0d / n * (5.0d / 8.0d - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Math.PI / n)), 2));
     }
 
-    private double getAlpha2(int n) {
+    protected double getAlpha2(int n) {
         if (n == 3) {
             return 3d / 16d;
         } else {
@@ -124,7 +124,7 @@ public class LoopScheme {
      * @param vertex individual vertex
      * @return new coord of the vertex
      */
-    private Vector3d computeEven(final Vertex vertex) {
+    protected Vector3d computeEven(final Vertex vertex) {
         //create the even vertices
         final int n = vertex.getNumVertices();
         final double alpha = getAlpha(n);

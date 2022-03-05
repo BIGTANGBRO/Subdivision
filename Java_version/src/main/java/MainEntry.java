@@ -12,12 +12,11 @@ import java.util.*;
 public class MainEntry {
     public static void compare(InputModel inputModel1, InputModel inputModel2) throws IOException {
         //write the haus
-        ComparisonStep.writeHausorffDistribution(inputModel2.getVertices(), inputModel1.getVertices());
         ComparisonStep.writeAngle(inputModel2);
         ComparisonStep.writeCurvature1(inputModel2);
         ComparisonStep.writeCurvature2(inputModel2);
+        ComparisonStep.writeSphereDiff(inputModel2);
 
-        ComparisonStepSeparate.writeHausorffDistribution(inputModel2.getVertices(), inputModel1.getVertices());
         ComparisonStepSeparate.writeAngle(inputModel2);
         ComparisonStepSeparate.writeCurvature1(inputModel2);
         ComparisonStepSeparate.writeCurvature2(inputModel2);
