@@ -10,12 +10,12 @@ import java.util.*;
 @Getter
 @Setter
 public class ModifiedButterflyScheme {
-    private List<Triangle> triangles;
-    private List<Vertex> vertices;
-    private List<Edge> edges;
-    private Map<Integer, Integer> oddNodeMap;
-    private Map<Integer, List<Integer>> trianglesTrackMap;
-    private double w = -1d / 16d;
+    protected List<Triangle> triangles;
+    protected List<Vertex> vertices;
+    protected List<Edge> edges;
+    protected Map<Integer, Integer> oddNodeMap;
+    protected Map<Integer, List<Integer>> trianglesTrackMap;
+    protected double w = -1d / 16d;
 
     public ModifiedButterflyScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
@@ -118,7 +118,7 @@ public class ModifiedButterflyScheme {
      * @param n number of points
      * @return Coefficients
      */
-    private double getCoeff(int j, int n) {
+    protected double getCoeff(int j, int n) {
         return (0.25d + Math.cos(2.0d * Math.PI * (double) j / (double) n) + 0.5 * Math.cos(4.0d * Math.PI * (double) j / (double) n)) / (double) n;
     }
 

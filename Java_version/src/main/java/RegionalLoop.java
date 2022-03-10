@@ -4,6 +4,8 @@ import lombok.Setter;
 import java.util.*;
 
 /**
+ * Region mesh for loop subdivision
+ *
  * @author: tangshao
  * @Date: 05/03/2022
  */
@@ -14,31 +16,70 @@ public class RegionalLoop extends LoopScheme {
         super(triangles, vertices, edges);
     }
 
+    /**
+     * Compute the odd points based on triangle
+     *
+     * @return Map with index and coordinates
+     */
     public Map<Integer, Vector3d> computeOdd() {
-        final Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
         int index = this.vertices.size();
-        //iteration about the edges
-        for (final Edge edge : edges) {
-            //each odd node corresponds to an edge
-            final Vertex v1 = edge.getA();
-            final Vertex v2 = edge.getB();
-            Vector3d coord = new Vector3d(0, 0, 0);
-            if (v1.getNumTriangles() > 7 || v2.getNumTriangles() > 7) {
-                coord = computeOdd2(v1, v2);
-            } else {
-                coord = computeOddNormal(v1, v2);
+        Set<Edge> edgesCount = new HashSet<>();
+        //iterate over the triangle;
+        for (Triangle triangle : this.triangles) {
+            //get the edges for each triangle
+            List<Edge> edgesTri = triangle.getEdges();
+
+            for (Edge edge : edgesTri) {
+                if (edgesCount.contains(edge)) {
+                    continue;
+                } else {
+                    final Vertex v1 = edge.getA();
+                    final Vertex v2 = edge.getB();
+                    edgesCount.add(edge);
+                    Vector3d coord = new Vector3d(0, 0, 0);
+                    if (v1.getNumTriangles() > 7 || v2.getNumTriangles() > 7) {
+                        coord = computeOdd2(v1, v2);
+                    } else {
+                        coord = computeOddNormal(v1, v2);
+                    }
+                    //the index starts from numCoords
+                    vertexMap.put(index, coord);
+                    //edge point index corresponds to the edge index
+                    oddNodeMap.put(edge.getIndex(), index);
+                    index += 1;
+                }
             }
-            //the index starts from numCoords
-            vertexMap.put(index, coord);
-            //edge point index corresponds to the edge index
-            oddNodeMap.put(edge.getIndex(), index);
-            index += 1;
         }
         return vertexMap;
     }
 
+//    public Map<Integer, Vector3d> computeEven() {
+//        final Map<Integer, Vector3d> vertexMap = new HashMap<>();
+//        for (int index = 0; index < vertices.size(); index++) {
+//            final Vector3d coord = computeEven(vertices.get(index));
+//            vertexMap.put(index, coord);
+//        }
+//        return vertexMap;
+//    }
+
     public Map<Integer, Vector3d> computeEven() {
         final Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        Set<Vertex> verticesSet = new HashSet<>();
+        for (Triangle triangle : this.triangles) {
+            List<Vertex> verticesTri = triangle.getVertices();
+            for (Vertex vEach : verticesTri) {
+                if (verticesSet.contains(vEach)) {
+                    continue;
+                } else {
+                    verticesSet.add(vEach);
+                }
+                final Vector3d coord = computeEven(vEach);
+                vertexMap.put(vEach.getIndex(), coord);
+            }
+        }
+
+
         for (int index = 0; index < vertices.size(); index++) {
             final Vector3d coord = computeEven(vertices.get(index));
             vertexMap.put(index, coord);

@@ -10,12 +10,12 @@ import java.util.*;
 @Getter
 @Setter
 public class Square3Scheme {
-    private List<Triangle> triangles;
-    private List<Vertex> vertices;
-    private List<Edge> edges;
+    protected List<Triangle> triangles;
+    protected List<Vertex> vertices;
+    protected List<Edge> edges;
     //store the odd vertex corresponding to each triangle
-    private Map<Integer, Integer> triangleVertexMap;
-    private Map<Integer, List<Integer>> trianglesTrackMap;
+    protected Map<Integer, Integer> triangleVertexMap;
+    protected Map<Integer, List<Integer>> trianglesTrackMap;
 
     //constructor
     public Square3Scheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
@@ -65,7 +65,7 @@ public class Square3Scheme {
         return verticesNear;
     }
 
-    private double getCoeff(final int n, final int j) {
+    protected double getCoeff(final int n, final int j) {
         return (1d / 9d + 2d / 3d * Math.cos(2 * Math.PI * (double) j / (double) n) + 2d / 9d * Math.cos(4 * Math.PI * (double) j / (double) n)) / (double) n;
     }
 
@@ -75,7 +75,7 @@ public class Square3Scheme {
      * @param triangleEach The triangle
      * @return new vertex's coordinate
      */
-    private Vector3d insertPointIrregular(final Triangle triangleEach) {
+    protected Vector3d insertPointIrregular(final Triangle triangleEach) {
         //Map<Integer, Vector3d> stencils = new HashMap<>();
         final List<Vector3d> coords = new ArrayList<>();
         for (final Vertex v : triangleEach.getVertices()) {
@@ -114,7 +114,7 @@ public class Square3Scheme {
         return MathUtils.dotVal(1d / (double) nExtra, coordNewVertex);
     }
 
-    private Vector3d insertPointRegular(final Triangle triangleEach) {
+    protected Vector3d insertPointRegular(final Triangle triangleEach) {
         Vector3d coord = new Vector3d(0, 0, 0);
         for (final Vertex v : triangleEach.getVertices()) {
             coord = MathUtils.addVector(coord, v.getCoords());
@@ -142,7 +142,7 @@ public class Square3Scheme {
         return vertexMap;
     }
 
-    private double getCoeffEven(final int n) {
+    protected double getCoeffEven(final int n) {
         return (4d - 2d * Math.cos(Math.PI * 2d / (double) n)) / (9d * (double) n);
     }
 
@@ -152,7 +152,7 @@ public class Square3Scheme {
      * @param vertex the original vertex
      * @return the new vertex's coordinate
      */
-    private Vector3d computeEven(final Vertex vertex) {
+    protected Vector3d computeEven(final Vertex vertex) {
         final int n = vertex.getNumVertices();
         final double beta = getCoeffEven(n);
         final List<Integer> neighbourVertices = vertex.getVertexIndices();
