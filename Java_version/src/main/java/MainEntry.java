@@ -15,7 +15,7 @@ public class MainEntry {
         ComparisonStep.writeAngle(inputModel2);
         ComparisonStep.writeCurvature1(inputModel2);
         ComparisonStep.writeCurvature2(inputModel2);
-        ComparisonStep.writeSphereDiff(inputModel2);
+        //ComparisonStep.writeSphereDiff(inputModel2);
 
         ComparisonStepSeparate.writeAngle(inputModel2);
         ComparisonStepSeparate.writeCurvature1(inputModel2);
@@ -25,10 +25,9 @@ public class MainEntry {
         System.out.println("The maximum hausorff distance is" + distance);
     }
 
-    public static void compareExistedModel() throws IOException {
+    public static void compareExistedModel(String modelName) throws IOException {
         System.out.println("--------COMPARISON PROCEDURE EXECUTING-------");
-        String modelName = "sphere";
-        String fileName = "C:\\Users\\tangj\\Downloads\\CowData\\333\\" + modelName + ".ply";
+        String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
         InputStream in = new FileInputStream(fileName);
@@ -81,8 +80,8 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme3(inputModel);
-        analysisStep.implementScheme3(analysisStep.createTheModel());
+        analysisStep.implementScheme1Regional(inputModel);
+        //analysisStep.implementScheme3(analysisStep.createTheModel());
         //analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
@@ -104,7 +103,7 @@ public class MainEntry {
 
         //comparison
         System.out.println("-------Start doing the comparison-------");
-        compare(inputModel, analysisStep.createTheModel());
+        //compare(inputModel, analysisStep.createTheModel());
         System.out.println("-------The whole process finished-------");
     }
 

@@ -101,10 +101,6 @@ public class Triangle {
         return edges;
     }
 
-    public int getNumNeighbours() {
-        return this.triangleIndices.size();
-    }
-
     public double getArea() {
         final Vector3d coord1 = this.vertices.get(0).getCoords();
         final Vector3d coord2 = this.vertices.get(1).getCoords();

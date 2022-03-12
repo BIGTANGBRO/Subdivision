@@ -1,11 +1,6 @@
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.LinkOption;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +40,23 @@ public class AnalysisStep {
         this.vertexMap.putAll(vertexOddMap);
         Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle(this.vertexMap);
         this.faceMap = faceMap;
+    }
+
+    public void implementScheme1Regional(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalLoop regionalLoop = new RegionalLoop(triangles, vertices, edges);
+        regionalLoop.applyThreshold();
+        Map<Integer, Vector3d> vertexOddMap = regionalLoop.computeOdd();
+        Map<Integer, Vector3d> vertexEvenMap = regionalLoop.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, Vector3d> extraMap = regionalLoop.specialCase(this.vertexMap.size());
+        this.vertexMap.putAll(extraMap);
+
+        faceMap = regionalLoop.createTriangle(this.vertexMap);
+        faceMap.putAll(regionalLoop.createOriginalTriangles());
     }
 
     public void implementScheme2(final InputModel inputModel) {

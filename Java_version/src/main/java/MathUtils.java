@@ -32,13 +32,6 @@ public class MathUtils {
         return new Vector3d(xVal, yVal, zVal);
     }
 
-    public static Vector3d addVector(final Vector3d v1, final Vector3d v2, final Vector3d v3, final Vector3d v4) {
-        final double xVal = v1.getXVal() + v2.getXVal() + v3.getXVal() + v4.getXVal();
-        final double yVal = v1.getYVal() + v2.getYVal() + v3.getYVal() + v4.getYVal();
-        final double zVal = v1.getZVal() + v2.getZVal() + v3.getZVal() + v4.getZVal();
-        return new Vector3d(xVal, yVal, zVal);
-    }
-
     public static Vector3d dotVal(final double val, final Vector3d vector3d) {
         final double xVal = vector3d.getXVal() * val;
         final double yVal = vector3d.getYVal() * val;
@@ -72,6 +65,23 @@ public class MathUtils {
         }
         return Math.toDegrees(Math.acos(val));
     }
+
+    public static double getAngle(Vector3d v1, Vector3d v2, Vector3d v3) {
+        Vector3d edge1 = MathUtils.minusVector(v2, v1);
+        Vector3d edge2 = MathUtils.minusVector(v3, v1);
+
+        double aDotb = edge1.getXVal() * edge2.getXVal() + edge1.getYVal() * edge2.getYVal() + edge1.getZVal() * edge2.getZVal();
+        double modA = Math.pow((Math.pow(edge1.getXVal(), 2) + Math.pow(edge1.getYVal(), 2) + Math.pow(edge1.getZVal(), 2)), 0.5);
+        double modB = Math.pow((Math.pow(edge2.getXVal(), 2) + Math.pow(edge2.getYVal(), 2) + Math.pow(edge2.getZVal(), 2)), 0.5);
+        double val = aDotb / (modA * modB);
+        if (val >= 1.0) {
+            val = 1.0;
+        } else if (val <= -1.0) {
+            val = -1.0;
+        }
+        return Math.toDegrees(Math.acos(val));
+    }
+
 
     public static double getMod(double x, double y, double z) {
         return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
