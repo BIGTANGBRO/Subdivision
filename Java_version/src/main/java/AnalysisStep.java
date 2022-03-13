@@ -49,13 +49,14 @@ public class AnalysisStep {
         RegionalLoop regionalLoop = new RegionalLoop(triangles, vertices, edges);
         regionalLoop.applyThreshold();
 
+        //calculate the vertices
         Map<Integer, Vector3d> vertexOddMap = regionalLoop.computeOdd();
         Map<Integer, Vector3d> vertexEvenMap = regionalLoop.computeEven();
         this.vertexMap.putAll(vertexEvenMap);
         this.vertexMap.putAll(vertexOddMap);
 
+        //connect the triangles
         faceMap = regionalLoop.createTriangle(this.vertexMap);
-        faceMap.putAll(regionalLoop.createOriginalTriangles());
     }
 
     public void implementScheme2(final InputModel inputModel) {

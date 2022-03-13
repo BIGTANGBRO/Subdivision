@@ -16,12 +16,16 @@ public class RegionalLoop extends LoopScheme {
     private List<Triangle> trianglesSubdivide;
     private List<Triangle> trianglesNotSubdivide;
     private Set<Edge> edgesCount;
+    private List<Edge> edgesNeedConnect;
+    private Map<Edge, Triangle> trianglesNearSubMap;
 
     public RegionalLoop(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
         super(triangles, vertices, edges);
         this.trianglesSubdivide = new ArrayList<>();
         this.edgesCount = new HashSet<>();
-        trianglesNotSubdivide = new ArrayList<>();
+        this.edgesNeedConnect = new ArrayList();
+        this.trianglesNearSubMap = new HashMap<>();
+        this.trianglesNotSubdivide = new ArrayList<>();
     }
 
     public void applyThreshold() {
@@ -31,7 +35,7 @@ public class RegionalLoop extends LoopScheme {
             for (Vertex vEach : verticesTri) {
                 List<Vertex> verticesRemain = triangle.getRemain(vEach);
                 double angle = MathUtils.getAngle(vEach.getCoords(), verticesRemain.get(0).getCoords(), verticesRemain.get(1).getCoords());
-                if (angle < 40d) {
+                if (angle < 20d) {
                     isSubdivide = false;
                 }
             }
@@ -80,6 +84,7 @@ public class RegionalLoop extends LoopScheme {
         return vertexMap;
     }
 
+
     public Map<Integer, Vector3d> computeEven() {
         final Map<Integer, Vector3d> vertexMap = new HashMap<>();
         Set<Vertex> verticesSet = new HashSet<>();
@@ -102,7 +107,38 @@ public class RegionalLoop extends LoopScheme {
         return vertexMap;
     }
 
-    public Map<Integer, List<Integer>> createOriginalTriangles() {
+    private void getSlitEdges() {
+        for (Triangle triangle : this.trianglesNotSubdivide) {
+            List<Edge> edgesTri = triangle.getEdges();
+            for (Edge edge : edgesTri) {
+                if (this.edgesCount.contains(edge)) {
+                    edgesNeedConnect.add(edge);
+                    this.trianglesNearSubMap.put(edge, triangle);
+                }
+            }
+        }
+    }
+
+    private Map<Integer, List<Integer>> createConnectTriangles(int index, Map<Integer, Vector3d> vertexMap) {
+        Map<Integer, List<Integer>> faceMapConnect = new HashMap<>();
+        for (Edge edge : this.edgesNeedConnect) {
+            List<Integer> vertexIndices = new ArrayList<>();
+            vertexIndices.add(edge.getA().getIndex());
+            vertexIndices.add(edge.getB().getIndex());
+            vertexIndices.add(this.oddNodeMap.get(edge.getIndex()));
+            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+            Vector3d faceNormal = this.trianglesNearSubMap.get(edge).getUnitNormal();
+            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
+                Collections.swap(vertexIndices, 1, 2);
+            }
+
+            faceMapConnect.put(index, vertexIndices);
+            index += 1;
+        }
+        return faceMapConnect;
+    }
+
+    private Map<Integer, List<Integer>> createOriginalTriangles() {
         Map<Integer, List<Integer>> faceMapOld = new HashMap<>();
         //set the start index
         int index = this.trianglesSubdivide.size() * 4;
@@ -128,6 +164,7 @@ public class RegionalLoop extends LoopScheme {
             //for track map
             List<Integer> triangleIndexTracking = new ArrayList<>();
             final HashSet<Integer> oddVertexSet = new HashSet<>();
+
             //set the face topology
             Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
@@ -158,6 +195,11 @@ public class RegionalLoop extends LoopScheme {
             faceCount += 1;
             trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
         }
+        faceMap.putAll(createOriginalTriangles());
+
+        getSlitEdges();
+        Map<Integer, List<Integer>> connectTriMap = createConnectTriangles(faceMap.size(), vertexMap);
+        faceMap.putAll(connectTriMap);
         return faceMap;
     }
 }
