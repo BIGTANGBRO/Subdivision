@@ -48,12 +48,11 @@ public class AnalysisStep {
         List<Vertex> vertices = inputModel.getVertices();
         RegionalLoop regionalLoop = new RegionalLoop(triangles, vertices, edges);
         regionalLoop.applyThreshold();
+
         Map<Integer, Vector3d> vertexOddMap = regionalLoop.computeOdd();
         Map<Integer, Vector3d> vertexEvenMap = regionalLoop.computeEven();
         this.vertexMap.putAll(vertexEvenMap);
         this.vertexMap.putAll(vertexOddMap);
-        Map<Integer, Vector3d> extraMap = regionalLoop.specialCase(this.vertexMap.size());
-        this.vertexMap.putAll(extraMap);
 
         faceMap = regionalLoop.createTriangle(this.vertexMap);
         faceMap.putAll(regionalLoop.createOriginalTriangles());

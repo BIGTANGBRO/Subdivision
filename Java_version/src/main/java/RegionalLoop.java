@@ -14,14 +14,12 @@ import java.util.*;
 public class RegionalLoop extends LoopScheme {
 
     private List<Triangle> trianglesSubdivide;
-    private List<Triangle> trianglesNotSubdivideAll;
-    private Set<Edge> edgesCount;
     private List<Triangle> trianglesNotSubdivide;
+    private Set<Edge> edgesCount;
 
     public RegionalLoop(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
         super(triangles, vertices, edges);
         this.trianglesSubdivide = new ArrayList<>();
-        this.trianglesNotSubdivideAll = new ArrayList<>();
         this.edgesCount = new HashSet<>();
         trianglesNotSubdivide = new ArrayList<>();
     }
@@ -40,7 +38,7 @@ public class RegionalLoop extends LoopScheme {
             if (isSubdivide) {
                 this.trianglesSubdivide.add(triangle);
             } else {
-                this.trianglesNotSubdivideAll.add(triangle);
+                this.trianglesNotSubdivide.add(triangle);
             }
         }
     }
@@ -102,36 +100,6 @@ public class RegionalLoop extends LoopScheme {
             vertexMap.put(index, coord);
         }
         return vertexMap;
-    }
-
-    public Map<Integer, Vector3d> specialCase(int indexStart) {
-        int index = indexStart;
-        Map<Integer, Vector3d> vertexSpecialMap = new HashMap<>();
-        for (Triangle triangle : this.trianglesNotSubdivideAll) {
-            List<Edge> edgesTri = triangle.getEdges();
-            boolean isNearSubdivide = false;
-            for (Edge edge : edgesTri) {
-                if (this.edgesCount.contains(edge)) {
-                    isNearSubdivide = true;
-                    this.trianglesSubdivide.add(triangle);
-                    break;
-                }
-            }
-            if (isNearSubdivide) {
-                for (Edge edge : edgesTri) {
-                    if (!this.edgesCount.contains(edge)) {
-                        Vector3d coord = MathUtils.addVector(edge.getA().getCoords(), edge.getB().getCoords());
-                        coord = MathUtils.dotVal(1d / 2d, coord);
-                        vertexSpecialMap.put(index, coord);
-                        this.oddNodeMap.put(edge.getIndex(), index);
-                        index += 1;
-                    }
-                }
-            } else {
-                trianglesNotSubdivide.add(triangle);
-            }
-        }
-        return vertexSpecialMap;
     }
 
     public Map<Integer, List<Integer>> createOriginalTriangles() {
