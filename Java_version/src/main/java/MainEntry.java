@@ -80,35 +80,30 @@ public class MainEntry {
         //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme1Regional(inputModel);
-        //analysisStep.implementScheme3(analysisStep.createTheModel());
-        //analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme1(inputModel);
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("--------Calculate the normal for the vertex-------");
-        Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(analysisStep.createTheModel());
+        InputModel newModel = analysisStep.createTheModel();
+        Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(newModel);
         OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap(), normalMap);
         System.out.println("Info of the new model:");
         System.out.println("Number of elements:" + outputModel.getFaceMap().size());
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
-        outputModel.writePLYNormal(modelName + "_refined");
-        //outputModel.writePLY(modelName + "_refined");
+        outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
+        outputModel.writePLYNormal(modelName + "_refined2");
         long endTime = System.currentTimeMillis();
 
-        //print out the running time
         System.out.println("-------File written successfully-------");
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
-
-        //comparison
         System.out.println("-------Start doing the comparison-------");
-        //compare(inputModel, analysisStep.createTheModel());
+        //compare(inputModel, newModel);
         System.out.println("-------The whole process finished-------");
     }
 
     public static void main(String[] args) throws IOException {
         workFlow();
-        //compareExistedModel();
     }
 }

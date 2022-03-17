@@ -56,7 +56,7 @@ public class AnalysisStep {
         this.vertexMap.putAll(vertexOddMap);
 
         //connect the triangles
-        faceMap = regionalLoop.createTriangle(this.vertexMap);
+        this.faceMap = regionalLoop.createTriangle(this.vertexMap);
     }
 
     public void implementScheme2(final InputModel inputModel) {

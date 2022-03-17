@@ -92,4 +92,39 @@ public class OutputModel {
         }
         bw.close();
     }
+
+    public void writePLYCurvature(final String name, Map<Integer, Double> gaussian, Map<Integer, Double> mean) throws IOException {
+        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
+        bw.write("element vertex " + vertexMap.size() + "\n");
+        bw.write("property float x\nproperty float y\nproperty float z\n");
+        bw.write("property float curvature1\nproperty float curvature2\n");
+        bw.write("element face " + faceMap.size() + "\n");
+        bw.write("property list uchar int vertex_indices float\n");
+        bw.write("end_header\n");
+        for (int i = 0; i < vertexMap.size(); i++) {
+            final Vector3d coord = vertexMap.get(i);
+            final Double curvatureGaussian = gaussian.get(i);
+            final Double curvatureMean = mean.get(i);
+
+            bw.write(Double.toString(coord.getXVal()) + " ");
+            bw.write(Double.toString(coord.getYVal()) + " ");
+            bw.write(Double.toString(coord.getZVal()) + " ");
+            //todo:write the normal values
+            bw.write(Double.toString(curvatureGaussian) + " ");
+            bw.write(Double.toString(curvatureMean) + " ");
+            bw.write("\n");
+        }
+
+        for (int iFace = 0; iFace < faceMap.size(); iFace++) {
+            final List<Integer> vertexIndices = faceMap.get(iFace);
+            bw.write(3 + " ");
+            for (int iVertex = 0; iVertex < 3; iVertex++) {
+                bw.write(vertexIndices.get(iVertex) + " ");
+            }
+            bw.write("\n");
+        }
+        bw.close();
+    }
 }

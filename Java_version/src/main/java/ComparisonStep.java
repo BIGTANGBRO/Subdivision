@@ -208,10 +208,10 @@ public class ComparisonStep {
      * @param inputModel Completed inputModel
      * @return List of gaussian curvature
      */
-    public static List<Double> getGaussianCurvature(final InputModel inputModel) {
+    public static Map<Integer, Double> getGaussianCurvature(final InputModel inputModel) {
         final List<Vertex> vertices = inputModel.getVertices();
         final List<Triangle> triangles = inputModel.getTriangles();
-        final List<Double> ks = new ArrayList<>();
+        Map<Integer, Double> ks = new HashMap<>();
         for (final Vertex v : vertices) {
             final List<Integer> triangleIndices = v.getTriangleIndices();
             final List<Triangle> trianglesNear = new ArrayList<>();
@@ -233,15 +233,15 @@ public class ComparisonStep {
             }
             double k = 2 * Math.PI - angleSum;
             k = 3 * k / area;
-            ks.add(k);
+            ks.put(v.getIndex(), k);
         }
         return ks;
     }
 
-    public static List<Double> getMeanCurvature(final InputModel inputModel) {
+    public static Map<Integer, Double> getMeanCurvature(final InputModel inputModel) {
         final List<Vertex> vertices = inputModel.getVertices();
         final List<Triangle> triangles = inputModel.getTriangles();
-        final List<Double> hs = new ArrayList<>();
+        final Map<Integer, Double> hs = new HashMap<>();
         for (final Vertex v : vertices) {
             //data initialization
             final List<Integer> triangleIndices = v.getTriangleIndices();
@@ -280,7 +280,7 @@ public class ComparisonStep {
                 h += 1d / 4d * length * angle;
             }
             h = 3d * h / area;
-            hs.add(h);
+            hs.put(v.getIndex(), h);
         }
         return hs;
     }
@@ -296,20 +296,20 @@ public class ComparisonStep {
     }
 
     public static void writeCurvature1(final InputModel inputModel) throws IOException {
-        final List<Double> distribution1 = getGaussianCurvature(inputModel);
+        final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_gaussian.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1) {
+        for (final Double distance : distribution1.values()) {
             bw.write(Double.toString(distance) + "\n");
         }
         bw.close();
     }
 
     public static void writeCurvature2(final InputModel inputModel) throws IOException {
-        final List<Double> distribution1 = getMeanCurvature(inputModel);
+        final Map<Integer, Double> distribution1 = getMeanCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_mean.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1) {
+        for (final Double distance : distribution1.values()) {
             bw.write(Double.toString(distance) + "\n");
         }
         bw.close();
