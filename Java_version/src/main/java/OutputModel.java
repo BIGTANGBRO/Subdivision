@@ -1,11 +1,16 @@
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static java.lang.Math.abs;
 
 /**
  * The outputModel class is used to write the information in the specfic files
@@ -99,21 +104,26 @@ public class OutputModel {
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
-        bw.write("property float curvature1\nproperty float curvature2\n");
+        bw.write("property uchar red\nproperty float green\nproperty float blue\n");
         bw.write("element face " + faceMap.size() + "\n");
         bw.write("property list uchar int vertex_indices float\n");
         bw.write("end_header\n");
+
+        double maxMean = Collections.max(mean.values());
+        double maxGaussian = Collections.max(gaussian.values());
+
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
-            final Double curvatureGaussian = gaussian.get(i);
-            final Double curvatureMean = mean.get(i);
+            final int curvatureMean = (int) (abs(mean.get(i)) / maxMean * 255);
 
             bw.write(Double.toString(coord.getXVal()) + " ");
             bw.write(Double.toString(coord.getYVal()) + " ");
             bw.write(Double.toString(coord.getZVal()) + " ");
             //todo:write the normal values
-            bw.write(Double.toString(curvatureGaussian) + " ");
-            bw.write(Double.toString(curvatureMean) + " ");
+            bw.write(Integer.toString(0) + " ");
+            bw.write(Integer.toString(curvatureMean) + " ");
+            bw.write(Integer.toString(0) + " ");
+
             bw.write("\n");
         }
 

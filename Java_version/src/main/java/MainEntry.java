@@ -93,7 +93,7 @@ public class MainEntry {
 
         //write the file
         outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
-        outputModel.writePLYNormal(modelName + "_refined2");
+        //outputModel.writePLYNormal(modelName + "_refined2");
         long endTime = System.currentTimeMillis();
 
         System.out.println("-------File written successfully-------");
