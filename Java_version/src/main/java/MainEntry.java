@@ -70,18 +70,18 @@ public class MainEntry {
         int numVertices = reader.getElementCount("vertex");
         Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
         Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
-        //read the detail
+        //read the detail and Creation
         ReadPLY.read(reader, vertices, faces);
         System.out.println("--------Input model read successfully-------");
         System.out.println("Info of the old model");
         System.out.println("Number of elements:" + numFaces);
         System.out.println("Number of vertices:" + numVertices);
-
-        //start implementing the algorithms on the data structure
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
-        analysisStep.implementScheme1(inputModel);
 
+        analysisStep.implementScheme2Regional(inputModel);
+
+        //Post_process
         System.out.println("-------Subdivision scheme implemented successfully-------");
         System.out.println("--------Calculate the normal for the vertex-------");
         InputModel newModel = analysisStep.createTheModel();
@@ -92,8 +92,8 @@ public class MainEntry {
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
-        outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
-        //outputModel.writePLYNormal(modelName + "_refined2");
+        //outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
+        outputModel.writePLYNormal(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 
         System.out.println("-------File written successfully-------");

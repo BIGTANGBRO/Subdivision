@@ -4,14 +4,13 @@ import lombok.Setter;
 import java.util.*;
 
 /**
- * Region mesh for loop subdivision
- *
  * @author: tangshao
- * @Date: 05/03/2022
+ * @Date: 21/03/2022
  */
+
 @Getter
 @Setter
-public class RegionalLoop extends LoopScheme {
+public class RegionalButterfly extends ModifiedButterflyScheme {
 
     private List<Triangle> trianglesSubdivide;
     private List<Triangle> trianglesNotSubdivide;
@@ -19,7 +18,7 @@ public class RegionalLoop extends LoopScheme {
     private List<Edge> edgesNeedConnect;
     private Map<Edge, Triangle> trianglesNearSubMap;
 
-    public RegionalLoop(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
+    public RegionalButterfly(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         super(triangles, vertices, edges);
         this.trianglesSubdivide = new ArrayList<>();
         this.edgesCount = new HashSet<>();
@@ -47,11 +46,6 @@ public class RegionalLoop extends LoopScheme {
         }
     }
 
-    /**
-     * Compute the odd points based on triangle
-     *
-     * @return Map with index and coordinates
-     */
     public Map<Integer, Vector3d> computeOdd() {
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
         int index = this.vertices.size();
@@ -67,42 +61,14 @@ public class RegionalLoop extends LoopScheme {
                 }
                 final Vertex v1 = edge.getA();
                 final Vertex v2 = edge.getB();
-                Vector3d coord = new Vector3d(0, 0, 0);
-                if (v1.getNumTriangles() > 7 || v2.getNumTriangles() > 7) {
-                    coord = computeOdd2(v1, v2);
-                } else {
-                    coord = computeOddNormal(v1, v2);
-                }
+                Vector3d coord = computeOdd(v1, v2);
+
                 //the index starts from numCoords
                 vertexMap.put(index, coord);
                 //edge point index corresponds to the edge index
                 this.oddNodeMap.put(edge.getIndex(), index);
                 index += 1;
-
             }
-        }
-        return vertexMap;
-    }
-
-
-    public Map<Integer, Vector3d> computeEven() {
-        final Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        Set<Vertex> verticesSet = new HashSet<>();
-        for (Triangle triangle : this.trianglesSubdivide) {
-            List<Vertex> verticesTri = triangle.getVertices();
-            for (Vertex vEach : verticesTri) {
-                if (verticesSet.contains(vEach)) {
-                    continue;
-                } else {
-                    verticesSet.add(vEach);
-                }
-                final Vector3d coord = computeEven(vEach);
-                vertexMap.put(vEach.getIndex(), coord);
-            }
-        }
-        for (int index = 0; index < vertices.size(); index++) {
-            final Vector3d coord = computeEven(vertices.get(index));
-            vertexMap.put(index, coord);
         }
         return vertexMap;
     }
@@ -155,14 +121,11 @@ public class RegionalLoop extends LoopScheme {
     }
 
     public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
-        //connect the vertices
-        //vertexMap is from computeOdd
         int faceCount = 0;
-        final Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        Map<Integer, List<Integer>> faceMap = new HashMap<>();
 
         //iterate over the original triangles
         for (final Triangle triangle : this.trianglesSubdivide) {
-            //for track map
             final HashSet<Integer> oddVertexSet = new HashSet<>();
 
             //set the face topology
@@ -193,7 +156,6 @@ public class RegionalLoop extends LoopScheme {
             faceCount += 1;
         }
         faceMap.putAll(createOriginalTriangles());
-
         this.getSplitEdges();
         Map<Integer, List<Integer>> connectTriMap = createConnectTriangles(faceMap.size(), vertexMap);
         faceMap.putAll(connectTriMap);

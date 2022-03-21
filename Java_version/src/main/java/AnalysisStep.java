@@ -66,8 +66,18 @@ public class AnalysisStep {
         ModifiedButterflyScheme mScheme = new ModifiedButterflyScheme(triangles, vertices, edges);
         Map<Integer, Vector3d> vertexOddMap = mScheme.computeOdd();
         this.vertexMap.putAll(vertexOddMap);
-        Map<Integer, List<Integer>> faceMap = mScheme.createTriangle(this.vertexMap);
-        this.faceMap = faceMap;
+        this.faceMap = mScheme.createTriangle(this.vertexMap);
+    }
+
+    public void implementScheme2Regional(final InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalButterfly mRegionalScheme = new RegionalButterfly(triangles, vertices, edges);
+        mRegionalScheme.applyThreshold();
+        Map<Integer, Vector3d> vertexOddMap = mRegionalScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = mRegionalScheme.createTriangle(this.vertexMap);
     }
 
     public void implementScheme3(InputModel inputModel) {
