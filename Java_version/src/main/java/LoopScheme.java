@@ -181,7 +181,7 @@ public class LoopScheme {
                 final List<Integer> vertexIndices = new ArrayList<>(3);
                 vertexIndices.add(vertex.getIndex());
                 for (final Edge edge : connectedEdges) {
-                    final int newVertexIndex = oddNodeMap.get(edge.getIndex());
+                    final int newVertexIndex = this.oddNodeMap.get(edge.getIndex());
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }

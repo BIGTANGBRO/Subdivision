@@ -79,7 +79,7 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme2Regional(inputModel);
+        analysisStep.implementScheme1Regional(inputModel);
 
         //Post_process
         System.out.println("-------Subdivision scheme implemented successfully-------");
