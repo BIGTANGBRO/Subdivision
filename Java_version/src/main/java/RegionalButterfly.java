@@ -14,17 +14,17 @@ public class RegionalButterfly extends ModifiedButterflyScheme {
 
     private List<Triangle> trianglesSubdivide;
     private List<Triangle> trianglesNotSubdivide;
+    private List<Triangle> trianglesConnect;
+    private Map<Triangle, Integer> trianglesNearSubMap;
     private Set<Edge> edgesCount;
-    private List<Edge> edgesNeedConnect;
-    private Map<Edge, Triangle> trianglesNearSubMap;
 
     public RegionalButterfly(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         super(triangles, vertices, edges);
         this.trianglesSubdivide = new ArrayList<>();
         this.edgesCount = new HashSet<>();
-        this.edgesNeedConnect = new ArrayList();
-        this.trianglesNearSubMap = new HashMap<>();
         this.trianglesNotSubdivide = new ArrayList<>();
+        this.trianglesConnect = new ArrayList<>();
+        this.trianglesNearSubMap = new HashMap<>();
     }
 
     public void applyThreshold() {
@@ -73,35 +73,23 @@ public class RegionalButterfly extends ModifiedButterflyScheme {
         return vertexMap;
     }
 
-    private void getSplitEdges() {
+    private void getTrianglesNearSubdivide() {
         for (Triangle triangle : this.trianglesNotSubdivide) {
-            List<Edge> edgesTri = triangle.getEdges();
-            for (Edge edge : edgesTri) {
-                if (this.edgesCount.contains(edge)) {
-                    edgesNeedConnect.add(edge);
-                    this.trianglesNearSubMap.put(edge, triangle);
+            List<Edge> edges = triangle.getEdges();
+            int count = 0;
+            for (Edge edge : edges) {
+                if (edgesCount.contains(edge)) {
+                    count += 1;
                 }
             }
-        }
-    }
-
-    private Map<Integer, List<Integer>> createConnectTriangles(int index, Map<Integer, Vector3d> vertexMap) {
-        Map<Integer, List<Integer>> faceMapConnect = new HashMap<>();
-        for (Edge edge : this.edgesNeedConnect) {
-            List<Integer> vertexIndices = new ArrayList<>();
-            vertexIndices.add(edge.getA().getIndex());
-            vertexIndices.add(edge.getB().getIndex());
-            vertexIndices.add(this.oddNodeMap.get(edge.getIndex()));
-            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
-            Vector3d faceNormal = this.trianglesNearSubMap.get(edge).getUnitNormal();
-            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
-                Collections.swap(vertexIndices, 1, 2);
+            if (count == 3) {
+                this.trianglesSubdivide.add(triangle);
+            } else if (count == 1 || count == 2) {
+                this.trianglesNearSubMap.put(triangle, count);
+            } else {
+                this.trianglesConnect.add(triangle);
             }
-
-            faceMapConnect.put(index, vertexIndices);
-            index += 1;
         }
-        return faceMapConnect;
     }
 
     private Map<Integer, List<Integer>> createOriginalTriangles() {
@@ -109,7 +97,7 @@ public class RegionalButterfly extends ModifiedButterflyScheme {
         //set the start index
         int index = this.trianglesSubdivide.size() * 4;
 
-        for (Triangle triangle : this.trianglesNotSubdivide) {
+        for (Triangle triangle : this.trianglesConnect) {
             List<Integer> vertexIndices = new ArrayList<>();
             for (Vertex vEach : triangle.getVertices()) {
                 vertexIndices.add(vEach.getIndex());
@@ -120,7 +108,95 @@ public class RegionalButterfly extends ModifiedButterflyScheme {
         return faceMapOld;
     }
 
+    private Map<Integer, List<Integer>> createBoundaryTriangles(int index, Map<Integer, Vector3d> vertexMap) {
+        final Map<Integer, List<Integer>> faceMap = new HashMap<>();
+
+        for (Triangle triangle : this.trianglesNearSubMap.keySet()) {
+            int count = this.trianglesNearSubMap.get(triangle);
+            List<Edge> edges = triangle.getEdges();
+            Vector3d faceNormal = triangle.getUnitNormal();
+            if (count == 1) {
+                for (Edge edge : edges) {
+                    if (oddNodeMap.containsKey(edge.getIndex())) {
+                        int newVertexIndex = oddNodeMap.get(edge.getIndex());
+                        int oppoVertexIndex = triangle.getRemain(edge.getA(), edge.getB()).getIndex();
+                        for (Vertex v : edge.getVertices()) {
+                            List<Integer> vertexIndices = new ArrayList<>();
+                            vertexIndices.add(newVertexIndex);
+                            vertexIndices.add(oppoVertexIndex);
+                            vertexIndices.add(v.getIndex());
+                            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
+                                Collections.swap(vertexIndices, 1, 2);
+                            }
+                            faceMap.put(index, vertexIndices);
+                            index += 1;
+                        }
+                        break;
+                    }
+                }
+            } else {
+                //count == 2;
+                List<Integer> vertexIndices = new ArrayList<>();
+                List<Edge> edgesHasPoint = new ArrayList<>(2);
+                for (Edge edge : edges) {
+                    if (oddNodeMap.containsKey(edge.getIndex())) {
+                        edgesHasPoint.add(edge);
+                    }
+                }
+                List<Vertex> verticesRemain = new ArrayList<>();
+                //first point creation
+                for (Vertex v : triangle.getVertices()) {
+                    if (edgesHasPoint.get(0).has(v) && edgesHasPoint.get(1).has(v)) {
+                        vertexIndices.add(v.getIndex());
+                    } else {
+                        verticesRemain.add(v);
+                    }
+                }
+                vertexIndices.add(oddNodeMap.get(edgesHasPoint.get(0).getIndex()));
+                vertexIndices.add(oddNodeMap.get(edgesHasPoint.get(1).getIndex()));
+                Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
+                    Collections.swap(vertexIndices, 1, 2);
+                }
+                faceMap.put(index, vertexIndices);
+                index += 1;
+
+                //second triangle
+                vertexIndices = new ArrayList<>();
+                vertexIndices.add(verticesRemain.get(0).getIndex());
+                vertexIndices.add(oddNodeMap.get(edgesHasPoint.get(0).getIndex()));
+                vertexIndices.add(oddNodeMap.get(edgesHasPoint.get(1).getIndex()));
+                subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
+                    Collections.swap(vertexIndices, 1, 2);
+                }
+                faceMap.put(index, vertexIndices);
+                index += 1;
+
+                //third point
+                vertexIndices = new ArrayList<>();
+                vertexIndices.add(verticesRemain.get(1).getIndex());
+                vertexIndices.add(verticesRemain.get(0).getIndex());
+                for (Edge edge : edgesHasPoint) {
+                    if (edge.has(verticesRemain.get(1))) {
+                        vertexIndices.add(oddNodeMap.get(edge.getIndex()));
+                        break;
+                    }
+                }
+                subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
+                    Collections.swap(vertexIndices, 1, 2);
+                }
+                faceMap.put(index, vertexIndices);
+                index += 1;
+            }
+        }
+        return faceMap;
+    }
+
     public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
+        this.getTrianglesNearSubdivide();
         int faceCount = 0;
         Map<Integer, List<Integer>> faceMap = new HashMap<>();
 
@@ -156,9 +232,9 @@ public class RegionalButterfly extends ModifiedButterflyScheme {
             faceCount += 1;
         }
         faceMap.putAll(createOriginalTriangles());
-        this.getSplitEdges();
-        Map<Integer, List<Integer>> connectTriMap = createConnectTriangles(faceMap.size(), vertexMap);
-        faceMap.putAll(connectTriMap);
+        int indexStart = faceMap.size();
+        faceMap.putAll(this.createBoundaryTriangles(indexStart, vertexMap));
+
         return faceMap;
     }
 }

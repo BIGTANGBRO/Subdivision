@@ -268,7 +268,6 @@ public class RegionalLoop extends LoopScheme {
             faceMap.put(faceCount, oddVertexArr);
             faceCount += 1;
         }
-
         faceMap.putAll(createOriginalTriangles());
         int indexStart = faceMap.size();
         faceMap.putAll(this.createBoundaryTriangles(indexStart, vertexMap));
