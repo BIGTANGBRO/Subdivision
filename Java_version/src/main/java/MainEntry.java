@@ -60,7 +60,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "cow";
+        String modelName = "Remesher v1";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -79,7 +79,7 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme2Regional(inputModel);
+        analysisStep.implementScheme1(inputModel);
 
         //Post_process
         System.out.println("-------Subdivision scheme implemented successfully-------");
@@ -92,8 +92,8 @@ public class MainEntry {
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
-        //outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
-        outputModel.writePLYNormal(modelName + "_refined");
+        outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
+        //outputModel.writePLYNormal(modelName + "_refined");
         long endTime = System.currentTimeMillis();
 
         System.out.println("-------File written successfully-------");
