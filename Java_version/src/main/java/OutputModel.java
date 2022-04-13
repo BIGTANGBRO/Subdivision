@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.max;
 
 /**
  * The outputModel class is used to write the information in the specfic files
@@ -114,16 +115,19 @@ public class OutputModel {
 
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
-            final int curvatureMean = (int) (abs(mean.get(i)) / maxMean * 255);
-            final int curvatureGaussian = (int) (abs(gaussian.get(i)) / maxGaussian * 255);
+            double curvatureMean = abs(mean.get(i)) / maxMean * 255d;
+            double curvatureGaussian = abs(gaussian.get(i)) / maxGaussian * 255d;
 
+            if (curvatureGaussian <= 1d) {
+                curvatureGaussian = 1d;
+            }
 
             bw.write(Double.toString(coord.getXVal()) + " ");
             bw.write(Double.toString(coord.getYVal()) + " ");
             bw.write(Double.toString(coord.getZVal()) + " ");
-            //todo:write the normal values
-            bw.write(Integer.toString(curvatureGaussian) + " ");
-            bw.write(Integer.toString(curvatureMean) + " ");
+            //properties
+            bw.write(Double.toString(curvatureGaussian) + " ");
+            bw.write(Double.toString(curvatureMean) + " ");
             bw.write(Integer.toString(0) + " ");
             bw.write("\n");
         }
