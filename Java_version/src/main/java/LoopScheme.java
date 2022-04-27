@@ -178,13 +178,15 @@ public class LoopScheme {
             Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
-                final List<Integer> vertexIndices = new ArrayList<>(3);
+                List<Integer> vertexIndices = new ArrayList<>(3);
+
                 vertexIndices.add(vertex.getIndex());
                 for (final Edge edge : connectedEdges) {
-                    final int newVertexIndex = this.oddNodeMap.get(edge.getIndex());
+                    int newVertexIndex = this.oddNodeMap.get(edge.getIndex());
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
+
                 Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
                 if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                     Collections.swap(vertexIndices, 1, 2);

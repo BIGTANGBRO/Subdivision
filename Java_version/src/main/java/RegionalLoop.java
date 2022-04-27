@@ -35,7 +35,7 @@ public class RegionalLoop extends LoopScheme {
             for (Vertex vEach : verticesTri) {
                 List<Vertex> verticesRemain = triangle.getRemain(vEach);
                 double angle = MathUtils.getAngle(vEach.getCoords(), verticesRemain.get(0).getCoords(), verticesRemain.get(1).getCoords());
-                if (angle < 20d) {
+                if (angle < 15d) {
                     isSubdivide = false;
                 }
             }

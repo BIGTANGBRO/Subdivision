@@ -86,16 +86,14 @@ public class ModifiedButterflyScheme {
         List<Vertex> vertex1 = getNeighbourPtsInOrder(v1, v2);
         List<Vertex> vertex2 = getNeighbourPtsInOrder(v2, v1);
         Map<String, List<Vertex>> stencils = new HashMap<>();
-        List<Vertex> aList = new ArrayList<>();
-        List<Vertex> bList = new ArrayList<>();
-        List<Vertex> cList = new ArrayList<>();
-        List<Vertex> dList = new ArrayList<>();
+        List<Vertex> aList = new ArrayList<>(2);
+        List<Vertex> bList = new ArrayList<>(2);
+        List<Vertex> cList = new ArrayList<>(4);
+        List<Vertex> dList = new ArrayList<>(2);
         aList.add(v1);
         aList.add(v2);
         bList.add(vertex1.get(1));
         bList.add(vertex1.get(5));
-        bList.add(vertex2.get(1));
-        bList.add(vertex2.get(5));
 
         cList.add(vertex1.get(2));
         cList.add(vertex1.get(4));
