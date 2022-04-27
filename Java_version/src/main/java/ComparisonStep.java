@@ -17,7 +17,7 @@ public class ComparisonStep {
         return pow(127.0d, 2) - pow(x, 2) - pow(y, 2);
     }
 
-    public static List<Double> getSphereError(List<Vertex> vertices) {
+    public static List<Double> getSphereError1(List<Vertex> vertices) {
         //get the data from vertices;
         List<Double> error = new ArrayList<>();
         for (Vertex v : vertices) {
@@ -286,10 +286,10 @@ public class ComparisonStep {
     }
 
     public static void writeSphereDiff(final InputModel inputModel) throws IOException {
-        final List<Double> distribution1 = getSphereError(inputModel.getVertices());
+        final List<Double> distributionError1 = getSphereError1(inputModel.getVertices());
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_sphere_error.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1) {
+        for (final Double distance : distributionError1) {
             bw.write(Double.toString(distance) + "\n");
         }
         bw.close();

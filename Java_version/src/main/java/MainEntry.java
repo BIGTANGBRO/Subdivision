@@ -24,6 +24,10 @@ public class MainEntry {
         System.out.println("--------Extraordinary properties are written successfully-------");
     }
 
+    public static void compareSphere(InputModel inputModel) throws IOException {
+        ComparisonStep.writeSphereDiff(inputModel);
+    }
+
     public static void vertexCompareHausorff(InputModel inputModel1, InputModel inputModel2) {
         double distance = ComparisonStep.getHausorffDistance(inputModel1.getVertices(), inputModel2.getVertices());
         System.out.println("The maximum hausorff distance is" + distance);
