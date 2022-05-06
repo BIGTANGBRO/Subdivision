@@ -62,7 +62,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "tetra";
+        String modelName = "cow";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -81,10 +81,9 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme2(inputModel);
-        analysisStep.implementScheme2(analysisStep.createTheModel());
-        analysisStep.implementScheme2(analysisStep.createTheModel());
-        analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme3Regional(inputModel);
+        //analysisStep.implementScheme2(analysisStep.createTheModel());
+        //analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();

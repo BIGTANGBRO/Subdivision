@@ -15,7 +15,6 @@ public class Square3Scheme {
     protected List<Edge> edges;
     //store the odd vertex corresponding to each triangle
     protected Map<Integer, Integer> triangleVertexMap;
-    protected Map<Integer, List<Integer>> trianglesTrackMap;
 
     //constructor
     public Square3Scheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
@@ -23,7 +22,6 @@ public class Square3Scheme {
         this.vertices = vertices;
         this.edges = edges;
         this.triangleVertexMap = new HashMap<Integer, Integer>();
-        this.trianglesTrackMap = new HashMap<Integer, List<Integer>>();
     }
 
     //similar to that in modified butterfly
@@ -255,7 +253,6 @@ public class Square3Scheme {
                     }
                 }
             }
-            this.trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
         }
         return faceMap;
     }

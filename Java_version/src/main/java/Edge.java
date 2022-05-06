@@ -14,6 +14,9 @@ public class Edge {
     private Vertex a;
     private Vertex b;
 
+    public Edge() {
+    }
+
     Edge(final Vertex a, final Vertex b, final int index) {
         this.a = a;
         this.b = b;

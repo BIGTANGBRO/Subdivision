@@ -15,7 +15,7 @@ public class ModifiedButterflyScheme {
     protected List<Edge> edges;
     protected Map<Integer, Integer> oddNodeMap;
     protected Map<Integer, List<Integer>> trianglesTrackMap;
-    protected double w = -1d / 16d;
+    protected double w = 0d;//or -1/16
 
     public ModifiedButterflyScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;

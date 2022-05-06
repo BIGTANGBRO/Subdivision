@@ -92,6 +92,23 @@ public class AnalysisStep {
         this.faceMap = faceMap;
     }
 
+    public void implementScheme3Regional(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalSquare3 regionalSquare = new RegionalSquare3(triangles, vertices, edges);
+        regionalSquare.applyThreshold();
+
+        //calculate the vertices
+        Map<Integer, Vector3d> vertexOddMap = regionalSquare.insertPoints();
+        Map<Integer, Vector3d> vertexEvenMap = regionalSquare.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
+
+        //connect the triangles
+        this.faceMap = regionalSquare.createTriangle(this.vertexMap);
+    }
+
     public InputModel createTheModel() {
         return new InputModel(this.vertexMap, this.faceMap);
     }
