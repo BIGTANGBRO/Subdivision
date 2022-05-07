@@ -12,7 +12,6 @@ import java.util.*;
 public class RegionalSquare3 extends Square3Scheme {
     private List<Triangle> trianglesSubdivide;
     private List<Triangle> trianglesNotSubdivide;
-    private Map<Integer, Vertex> verticesNeedReplace;
     private Map<Triangle, Integer> trianglesNearSubMap;
     private List<Triangle> trianglesConnect;
     private Set<Edge> edgesNotFlip;
@@ -22,7 +21,6 @@ public class RegionalSquare3 extends Square3Scheme {
         super(triangles, vertices, edges);
         this.trianglesNotSubdivide = new ArrayList<>();
         this.trianglesSubdivide = new ArrayList<>();
-        this.verticesNeedReplace = new HashMap<>();
         this.trianglesConnect = new ArrayList<>();
         this.trianglesNearSubMap = new HashMap<>();
         this.edgesNotFlip = new HashSet<>();
@@ -41,10 +39,7 @@ public class RegionalSquare3 extends Square3Scheme {
             }
             if (isSubdivide) {
                 this.trianglesSubdivide.add(triangle);
-                List<Vertex> verticesInTri = triangle.getVertices();
-                for (Vertex v : verticesInTri) {
-                    this.verticesNeedReplace.put(v.getIndex(), v);
-                }
+
             } else {
                 this.trianglesNotSubdivide.add(triangle);
             }
@@ -92,17 +87,23 @@ public class RegionalSquare3 extends Square3Scheme {
 
     public Map<Integer, Vector3d> computeEven() {
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        for (Integer vertexIndex : this.verticesNeedReplace.keySet()) {
-            Vector3d coord = computeEven(this.verticesNeedReplace.get(vertexIndex));
-            vertexMap.put(vertexIndex, coord);
+        Set<Integer> vReplace = new HashSet<>();
+        for (Triangle triangleEach : this.trianglesSubdivide) {
+            for (Vertex v : triangleEach.getVertices()) {
+                if (!vReplace.contains(v.getIndex())) {
+                    vReplace.add(v.getIndex());
+                    Vector3d coord = computeEven(v);
+                    vertexMap.put(v.getIndex(), coord);
+                }
+            }
         }
         return vertexMap;
     }
 
-    private Map<Integer, List<Integer>> createOriginalTriangles() {
+    private Map<Integer, List<Integer>> createOriginalTriangles(int indexStart) {
         Map<Integer, List<Integer>> faceMapOld = new HashMap<>();
         //set the start index
-        int index = this.trianglesSubdivide.size() * 4;
+        int index = indexStart;
 
         for (Triangle triangle : this.trianglesConnect) {
             List<Integer> vertexIndices = new ArrayList<>();
@@ -278,7 +279,7 @@ public class RegionalSquare3 extends Square3Scheme {
                 }
             }
         }
-        faceMap.putAll(createOriginalTriangles());
+        faceMap.putAll(createOriginalTriangles(faceMap.size()));
         int indexStart = faceMap.size();
         faceMap.putAll(this.createBoundaryTriangles(indexStart, verticesMap));
 
