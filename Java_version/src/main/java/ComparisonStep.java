@@ -24,7 +24,7 @@ public class ComparisonStep {
             final Vector3d coord = v.getCoords();
             final double x = coord.getXVal();
             final double y = coord.getYVal();
-            final double zRef = Math.sqrt(getSphereZSqure(x, y));
+            final double zRef = Math.sqrt(Math.abs(getSphereZSqure(x, y)));
             final double z = coord.getZVal();
             final double diff = Math.abs(Math.abs(z) - Math.abs(zRef));
             error.add(diff);

@@ -61,7 +61,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "cow";
+        String modelName = "sphere";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -80,8 +80,9 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme3Regional(inputModel);
-        analysisStep.implementScheme3Regional(analysisStep.createTheModel());
+        analysisStep.implementScheme2(inputModel);
+        analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();
@@ -98,6 +99,7 @@ public class MainEntry {
         outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
         long endTime = System.currentTimeMillis();
 
+        ComparisonStep.writeSphereDiff(newModel);
         accessQuality(newModel);
         accessQualityOnExtra(newModel);
 
@@ -107,5 +109,9 @@ public class MainEntry {
 
     public static void main(String[] args) throws IOException {
         workFlow();
+        //InputModel model = readTheModel("sphere");
+        //ComparisonStep.writeSphereDiff(model);
+        //accessQuality(model);
+        //accessQualityOnExtra(model);
     }
 }
