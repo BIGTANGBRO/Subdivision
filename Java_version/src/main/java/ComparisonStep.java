@@ -275,6 +275,9 @@ public class ComparisonStep {
             final List<Integer> verticesNear = v.getVertexIndices();
             for (final Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
                 //from degrees to radians, dihedral angle calculation
+                if (entry.getValue().size() < 2){
+                    continue;
+                }
                 final double angle = Math.PI - Math.toRadians(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
                 final double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
                 h += 1d / 4d * length * angle;
@@ -295,7 +298,7 @@ public class ComparisonStep {
         bw.close();
     }
 
-    public static void writeCurvature1(final InputModel inputModel) throws IOException {
+    public static void writeCurvatureGaussian(final InputModel inputModel) throws IOException {
         final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_gaussian.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
@@ -305,7 +308,7 @@ public class ComparisonStep {
         bw.close();
     }
 
-    public static void writeCurvature2(final InputModel inputModel) throws IOException {
+    public static void writeCurvatureMean(final InputModel inputModel) throws IOException {
         final Map<Integer, Double> distribution1 = getMeanCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_mean.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));

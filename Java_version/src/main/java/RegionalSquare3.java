@@ -26,6 +26,9 @@ public class RegionalSquare3 extends Square3Scheme {
         this.edgesNotFlip = new HashSet<>();
     }
 
+    /**
+     * Select which triangle to subdivide
+     */
     public void applyThreshold() {
         for (Triangle triangle : this.triangles) {
             boolean isSubdivide = true;
@@ -44,9 +47,13 @@ public class RegionalSquare3 extends Square3Scheme {
                 this.trianglesNotSubdivide.add(triangle);
             }
         }
+        //add the boundary case to the triangle categories
         this.getTrianglesNearSubdivide();
     }
 
+    /**
+     * Find the triangles which are near the subdivision triangles
+     */
     private void getTrianglesNearSubdivide() {
         for (Triangle triangle : this.trianglesNotSubdivide) {
             List<Integer> triIndices = triangle.getTriangleIndices();
@@ -61,24 +68,25 @@ public class RegionalSquare3 extends Square3Scheme {
                 this.trianglesSubdivide.add(triangle);
             } else if (count == 1 || count == 2) {
                 this.trianglesNearSubMap.put(triangle, count);
+                this.edgesNotFlip.addAll(triangle.getEdges());
             } else {
                 this.trianglesConnect.add(triangle);
+                this.edgesNotFlip.addAll(triangle.getEdges());
             }
-        }
-        for (Triangle triangle : trianglesConnect) {
-            this.edgesNotFlip.addAll(triangle.getEdges());
-        }
-
-        for (Triangle triangle : this.trianglesNearSubMap.keySet()) {
-            this.edgesNotFlip.addAll(triangle.getEdges());
         }
     }
 
+    /**
+     * Insert the odd points
+     *
+     * @return Map with vertex indices and coordinates
+     */
     public Map<Integer, Vector3d> insertPoints() {
         int index = this.vertices.size();
         Map<Integer, Vector3d> vertexMap = new HashMap<>();
         for (Triangle triangleEach : this.trianglesSubdivide) {
             vertexMap.put(index, this.insertPointRegular(triangleEach));
+            //Each new point corresponds to a triangle
             this.triangleVertexMap.put(triangleEach.getIndex(), index);
             index += 1;
         }
@@ -104,7 +112,6 @@ public class RegionalSquare3 extends Square3Scheme {
         Map<Integer, List<Integer>> faceMapOld = new HashMap<>();
         //set the start index
         int index = indexStart;
-
         for (Triangle triangle : this.trianglesConnect) {
             List<Integer> vertexIndices = new ArrayList<>();
             for (Vertex vEach : triangle.getVertices()) {
@@ -121,20 +128,22 @@ public class RegionalSquare3 extends Square3Scheme {
         for (Triangle triangle : this.trianglesNearSubMap.keySet()) {
             List<Integer> trianglesNear = triangle.getTriangleIndices();
             Vector3d faceNormal = triangle.getUnitNormal();
+            //decide the case for the boundary triangle
             int count = this.trianglesNearSubMap.get(triangle);
             if (count == 1) {
                 for (Integer triangleIndex : trianglesNear) {
                     Triangle triangleWithPoint = this.triangles.get(triangleIndex);
+                    //find the one that will be subdivided
                     if (this.trianglesSubdivide.contains(triangleWithPoint)) {
                         int newVertexIndex = this.triangleVertexMap.get(triangleIndex);
                         int oppoVertexIndex = 0;
                         List<Vertex> verticesEachTri = triangle.getVertices();
                         List<Vertex> sideVertices = new ArrayList<>();
                         for (Vertex v : verticesEachTri) {
-                            if (!triangleWithPoint.containVertex(v)) {
-                                oppoVertexIndex = v.getIndex();
-                            } else {
+                            if (triangleWithPoint.containVertex(v)) {
                                 sideVertices.add(v);
+                            } else {
+                                oppoVertexIndex = v.getIndex();
                             }
                         }
 
@@ -156,7 +165,7 @@ public class RegionalSquare3 extends Square3Scheme {
             } else {
                 //count == 2
                 List<Integer> vertexIndices = new ArrayList<>();
-                List<Edge> edges = triangle.getEdges();
+                List<Edge> edgesEachTri = triangle.getEdges();
                 List<Edge> edgesNear = new ArrayList<>(2);
                 List<Triangle> trianglesWithPoint = new ArrayList<>(2);
 
@@ -164,7 +173,7 @@ public class RegionalSquare3 extends Square3Scheme {
                     Triangle triangleWithPoint = this.triangles.get(triangleIndex);
                     if (this.trianglesSubdivide.contains(triangleWithPoint)) {
                         trianglesWithPoint.add(triangleWithPoint);
-                        for (Edge edge : edges) {
+                        for (Edge edge : edgesEachTri) {
                             if (triangleWithPoint.getEdges().contains(edge)) {
                                 edgesNear.add(edge);
                             }
@@ -173,16 +182,18 @@ public class RegionalSquare3 extends Square3Scheme {
                 }
 
                 int commonVertexIndex = 0;
-                for (Vertex v : trianglesWithPoint.get(0).getVertices()) {
-                    if (trianglesWithPoint.get(1).containVertex(v)) {
+                for (Vertex v: edgesNear.get(0).getVertices()){
+                    if (edgesNear.get(1).has(v)){
                         commonVertexIndex = v.getIndex();
                     }
                 }
+
                 int triPoint1 = this.triangleVertexMap.get(trianglesWithPoint.get(0).getIndex());
                 int triPoint2 = this.triangleVertexMap.get(trianglesWithPoint.get(1).getIndex());
                 int edgePoint1 = edgesNear.get(0).getOtherVertex(this.vertices.get(commonVertexIndex)).getIndex();
                 int edgePoint2 = edgesNear.get(1).getOtherVertex(this.vertices.get(commonVertexIndex)).getIndex();
 
+                //divided into 3 triangles in each scenario
                 vertexIndices.add(triPoint1);
                 vertexIndices.add(commonVertexIndex);
                 vertexIndices.add(triPoint2);
@@ -245,14 +256,12 @@ public class RegionalSquare3 extends Square3Scheme {
 
             //each edge, 2 triangles created.
             for (final Edge edgeEachTri : edgesEachTri) {
-                if (this.edgesNotFlip.contains(edgeEachTri)) {
+                if (this.edgesNotFlip.contains(edgeEachTri) || edgeSet.contains(edgeEachTri)) {
                     continue;
                 }
                 List<Integer> vertexIndices = new ArrayList<>();
                 Triangle triangleThis = new Triangle();
-                if (edgeSet.contains(edgeEachTri)) {
-                    continue;
-                }
+
                 for (final Integer triIndex : triIndices) {
                     if (this.triangles.get(triIndex).containVertices(edgeEachTri.getA(), edgeEachTri.getB())) {
                         edgeSet.add(edgeEachTri);
@@ -267,7 +276,6 @@ public class RegionalSquare3 extends Square3Scheme {
                     vertexIndices.add(vertexEachEdge.getIndex());
                     vertexIndices.add(vertex1);
                     vertexIndices.add(vertex2);
-
                     final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
                     if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                         Collections.swap(vertexIndices, 1, 2);
@@ -279,9 +287,10 @@ public class RegionalSquare3 extends Square3Scheme {
                 }
             }
         }
-        faceMap.putAll(createOriginalTriangles(faceMap.size()));
-        int indexStart = faceMap.size();
-        faceMap.putAll(this.createBoundaryTriangles(indexStart, verticesMap));
+        int indexStart1 = faceMap.size();
+        faceMap.putAll(createOriginalTriangles(indexStart1));
+        int indexStart2 = faceMap.size();
+        faceMap.putAll(this.createBoundaryTriangles(indexStart2, verticesMap));
 
         return faceMap;
     }

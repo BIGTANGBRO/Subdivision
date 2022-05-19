@@ -1,7 +1,6 @@
 import org.smurn.jply.PlyReaderFile;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -10,14 +9,14 @@ import java.util.*;
  * @author tangshao
  */
 public class MainEntry {
-    public static void assessQuality(InputModel inputModel) throws IOException {
+    public static void accessQuality(InputModel inputModel) throws IOException {
         ComparisonStep.writeAngle(inputModel);
-        ComparisonStep.writeCurvature1(inputModel);
-        ComparisonStep.writeCurvature2(inputModel);
+        ComparisonStep.writeCurvatureGaussian(inputModel);
+        ComparisonStep.writeCurvatureMean(inputModel);
         System.out.println("--------Properties are written successfully-------");
     }
 
-    public static void assessQualityOnExtra(InputModel inputModel) throws IOException {
+    public static void accessQualityOnExtra(InputModel inputModel) throws IOException {
         ComparisonStepSeparate.writeAngle(inputModel);
         ComparisonStepSeparate.writeCurvature1(inputModel);
         ComparisonStepSeparate.writeCurvature2(inputModel);
@@ -62,7 +61,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "tetra";
+        String modelName = "cow";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -81,13 +80,12 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme3(inputModel);
-        analysisStep.implementScheme3(analysisStep.createTheModel());
-        analysisStep.implementScheme3(analysisStep.createTheModel());
-        analysisStep.implementScheme3(analysisStep.createTheModel());
+        analysisStep.implementScheme3Regional(inputModel);
+        analysisStep.implementScheme3Regional(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();
+
         //normal calculation
         Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(newModel);
         OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap(), normalMap);
@@ -96,8 +94,12 @@ public class MainEntry {
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
+        //outputModel.writePLY(modelName + "_refined");
         outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
         long endTime = System.currentTimeMillis();
+
+        accessQuality(newModel);
+        accessQualityOnExtra(newModel);
 
         System.out.println("-------Process finished-------");
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");

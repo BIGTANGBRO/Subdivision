@@ -126,11 +126,8 @@ public class RegionalLoop extends LoopScheme {
     }
 
 
-    private Map<Integer, List<Integer>> createOriginalTriangles() {
+    private Map<Integer, List<Integer>> createOriginalTriangles(int index) {
         Map<Integer, List<Integer>> faceMapOld = new HashMap<>();
-        //set the start index
-        int index = this.trianglesSubdivide.size() * 4;
-
         for (Triangle triangle : this.trianglesConnect) {
             List<Integer> vertexIndices = new ArrayList<>();
             for (Vertex vEach : triangle.getVertices()) {
@@ -268,9 +265,10 @@ public class RegionalLoop extends LoopScheme {
             faceMap.put(faceCount, oddVertexArr);
             faceCount += 1;
         }
-        faceMap.putAll(createOriginalTriangles());
-        int indexStart = faceMap.size();
-        faceMap.putAll(this.createBoundaryTriangles(indexStart, vertexMap));
+        int indexStart1 = faceMap.size();
+        faceMap.putAll(createOriginalTriangles(indexStart1));
+        int indexStart2 = faceMap.size();
+        faceMap.putAll(this.createBoundaryTriangles(indexStart2, vertexMap));
 
         return faceMap;
     }

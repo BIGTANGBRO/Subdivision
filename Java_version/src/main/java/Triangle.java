@@ -43,7 +43,12 @@ public class Triangle {
     }
 
     public boolean containVertex(final Vertex vertex) {
-        return this.vertices.contains(vertex);
+        for (Vertex v : this.vertices) {
+            if (v.getIndex() == vertex.getIndex()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean containVertices(final Vertex v1, final Vertex v2) {
@@ -119,6 +124,18 @@ public class Triangle {
         for (final Vertex v : this.vertices) {
             if (!v.isRegular()) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDuplicate() {
+        List<Vertex> vAll = new ArrayList<>();
+        for (Vertex v : this.vertices) {
+            if (vAll.contains(v)) {
+                return true;
+            } else {
+                vAll.add(v);
             }
         }
         return false;
