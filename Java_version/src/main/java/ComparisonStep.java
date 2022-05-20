@@ -116,6 +116,41 @@ public class ComparisonStep {
     }
 
     /**
+     * Get the dihedral angle for each edge
+     *
+     * @param inputModel InputModel class
+     * @return The list of dihedral angles in this model
+     */
+    private static List<Double> computeDihedralAngleEdge(final InputModel inputModel) {
+        final List<Triangle> triangles = inputModel.getTriangles();
+        final List<Vertex> vertices = inputModel.getVertices();
+        List<Edge> edges = inputModel.getEdges();
+        final List<Double> dihedralAngles = new ArrayList<>();
+        List<Edge> edgesCalculated = new ArrayList<>();
+
+        for (Triangle triangle : triangles) {
+            List<Edge> edgesEachTri = triangle.getEdges();
+            List<Integer> trianglesEachTri = triangle.getTriangleIndices();
+            for (Edge edge : edgesEachTri) {
+                if (edgesCalculated.contains(edge)) {
+                    continue;
+                } else {
+                    edgesCalculated.add(edge);
+                    for (Integer triIndex : trianglesEachTri) {
+                        Triangle triangleEachTri = triangles.get(triIndex);
+                        if (triangleEachTri.containVertices(edge.getA(), edge.getB())) {
+                            double angle = 180 - MathUtils.getAngle(triangle.getUnitNormal(), triangleEachTri.getUnitNormal());
+                            dihedralAngles.add(angle);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return dihedralAngles;
+    }
+
+    /**
      * Get the dihedral angle for each triangle face in degrees
      *
      * @param inputModel InputModel class
@@ -163,6 +198,16 @@ public class ComparisonStep {
         return dihedralAngles;
     }
 
+    public static void writeAngleEdge(final InputModel inputModel) throws IOException {
+        final List<Double> dAngles = computeDihedralAngleEdge(inputModel);
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngleEdge.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double angle : dAngles) {
+            bw.write(Double.toString(angle) + "\n");
+        }
+        bw.close();
+    }
+
     public static void writeAngle(final InputModel inputModel) throws IOException {
         final List<Double> dAngles = computeDihedralAngle(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngle.dat";
@@ -172,6 +217,7 @@ public class ComparisonStep {
         }
         bw.close();
     }
+
 
     //For normal calculation
     private static Vector3d getNormalForVertex(final Vertex vertex, final List<Triangle> triangles) {
@@ -275,7 +321,7 @@ public class ComparisonStep {
             final List<Integer> verticesNear = v.getVertexIndices();
             for (final Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
                 //from degrees to radians, dihedral angle calculation
-                if (entry.getValue().size() < 2){
+                if (entry.getValue().size() < 2) {
                     continue;
                 }
                 final double angle = Math.PI - Math.toRadians(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));

@@ -32,12 +32,11 @@ public class MainEntry {
         System.out.println("The maximum hausorff distance is" + distance);
     }
 
-    public static InputModel readTheModel(String modelName) throws IOException {
+    public static InputModel readTheModel(String filePath) throws IOException {
         System.out.println("--------COMPARISON PROCEDURE EXECUTING-------");
-        String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
-        InputStream in = new FileInputStream(fileName);
+        InputStream in = new FileInputStream(filePath);
         PlyReaderFile reader = new PlyReaderFile(in);
         int numFaces = reader.getElementCount("face");
         int numVertices = reader.getElementCount("vertex");
@@ -61,7 +60,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "sphere";
+        String modelName = "cow";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
@@ -80,9 +79,9 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme2(inputModel);
-        analysisStep.implementScheme2(analysisStep.createTheModel());
-        analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme1(inputModel);
+        analysisStep.implementScheme1(analysisStep.createTheModel());
+        analysisStep.implementScheme1(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();
@@ -96,22 +95,21 @@ public class MainEntry {
 
         //write the file
         //outputModel.writePLY(modelName + "_refined");
-        outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
+        outputModel.writePLYNormal(modelName + "_refined");
+        //outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
         long endTime = System.currentTimeMillis();
 
-        ComparisonStep.writeSphereDiff(newModel);
-        accessQuality(newModel);
-        accessQualityOnExtra(newModel);
+        //ComparisonStep.writeSphereDiff(newModel);
+        //accessQuality(newModel);
+        //accessQualityOnExtra(newModel);
 
         System.out.println("-------Process finished-------");
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
     }
 
     public static void main(String[] args) throws IOException {
-        workFlow();
-        //InputModel model = readTheModel("sphere");
-        //ComparisonStep.writeSphereDiff(model);
-        //accessQuality(model);
-        //accessQualityOnExtra(model);
+        //workFlow();
+        InputModel model = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\1\\cow_refined.ply");
+        ComparisonStep.writeAngleEdge(model);
     }
 }
