@@ -10,14 +10,14 @@ import java.util.*;
  */
 public class MainEntry {
     public static void accessQuality(InputModel inputModel) throws IOException {
-        ComparisonStep.writeAngle(inputModel);
+        //ComparisonStep.writeAngle(inputModel);
         ComparisonStep.writeCurvatureGaussian(inputModel);
         ComparisonStep.writeCurvatureMean(inputModel);
         System.out.println("--------Properties are written successfully-------");
     }
 
     public static void accessQualityOnExtra(InputModel inputModel) throws IOException {
-        ComparisonStepSeparate.writeAngle(inputModel);
+        //ComparisonStepSeparate.writeAngle(inputModel);
         ComparisonStepSeparate.writeCurvature1(inputModel);
         ComparisonStepSeparate.writeCurvature2(inputModel);
         System.out.println("--------Extraordinary properties are written successfully-------");
@@ -80,8 +80,8 @@ public class MainEntry {
         InputModel inputModel = analysisStep.createTheModel();
 
         analysisStep.implementScheme1(inputModel);
-        analysisStep.implementScheme1(analysisStep.createTheModel());
-        analysisStep.implementScheme1(analysisStep.createTheModel());
+        //analysisStep.implementScheme1(analysisStep.createTheModel());
+        //analysisStep.implementScheme1(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();
@@ -95,23 +95,19 @@ public class MainEntry {
 
         //write the file
         //outputModel.writePLY(modelName + "_refined");
-        outputModel.writePLYNormal(modelName + "_refined");
-        //outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
+        //outputModel.writePLYNormal(modelName + "_refined");
+        outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
         long endTime = System.currentTimeMillis();
 
         //ComparisonStep.writeSphereDiff(newModel);
-        //accessQuality(newModel);
-        //accessQualityOnExtra(newModel);
+        accessQuality(newModel);
+        accessQualityOnExtra(newModel);
 
         System.out.println("-------Process finished-------");
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
     }
 
     public static void main(String[] args) throws IOException {
-        //workFlow();
-        InputModel model = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\111\\cow_refined.ply");
-        ComparisonStep.writeCurvatureMean(model);
-        ComparisonStep.writeCurvatureGaussian(model);
-
+        workFlow();
     }
 }

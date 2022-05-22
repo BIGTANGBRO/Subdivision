@@ -325,7 +325,7 @@ public class ComparisonStep {
                 if (entry.getValue().size() < 2) {
                     continue;
                 }
-                final double angle = Math.PI - Math.toRadians(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
+                final double angle = Math.toRadians(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
                 final double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
                 h += 1d / 4d * length * angle;
             }
