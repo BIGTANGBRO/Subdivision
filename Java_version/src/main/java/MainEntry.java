@@ -81,8 +81,8 @@ public class MainEntry {
         InputModel inputModel = analysisStep.createTheModel();
 
         analysisStep.implementScheme2(inputModel);
-        //analysisStep.implementScheme2(analysisStep.createTheModel());
-        //analysisStep.implementScheme1(analysisStep.createTheModel());
+        analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme2(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();
@@ -95,14 +95,11 @@ public class MainEntry {
         System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
 
         //write the file
-        //outputModel.writePLY(modelName + "_refined");
-        //outputModel.writePLYNormal(modelName + "_refined");
         outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
         outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(newModel));
 
         long endTime = System.currentTimeMillis();
 
-        //ComparisonStep.writeSphereDiff(newModel);
         accessQuality(newModel);
         accessQualityOnExtra(newModel);
 

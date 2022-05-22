@@ -18,10 +18,10 @@ public class ComparisonStep {
         return pow(127.0d, 2) - pow(x, 2) - pow(y, 2);
     }
 
-    public static List<Double> getSphereError1(List<Vertex> vertices) {
+    public static List<Double> getSphereError1(final List<Vertex> vertices) {
         //get the data from vertices;
-        List<Double> error = new ArrayList<>();
-        for (Vertex v : vertices) {
+        final List<Double> error = new ArrayList<>();
+        for (final Vertex v : vertices) {
             final Vector3d coord = v.getCoords();
             final double x = coord.getXVal();
             final double y = coord.getYVal();
@@ -96,26 +96,6 @@ public class ComparisonStep {
         bw.close();
     }
 
-    //laplacian of vertex for roughness
-    public static List<Vector3d> getRoughness(final List<Vertex> vertices) {
-        final List<Vector3d> gls = new ArrayList<>();
-        for (final Vertex vertex : vertices) {
-            final List<Integer> indices = vertex.getVertexIndices();
-            Vector3d numerator = new Vector3d(0, 0, 0);
-            double denominator = 0d;
-            for (final Integer index : indices) {
-                final Vertex vNear = vertices.get(index);
-                final Vector3d distanceVec = MathUtils.minusVector(vertex.getCoords(), vNear.getCoords());
-                final double lapDistance = MathUtils.getSum(distanceVec) / MathUtils.getMod(distanceVec);
-                denominator = denominator + Math.pow(lapDistance, -1);
-                numerator = MathUtils.addVector(numerator, MathUtils.dotVal(Math.pow(lapDistance, -1), vNear.getCoords()));
-            }
-            final Vector3d gl = MathUtils.minusVector(vertex.getCoords(), MathUtils.dotVal(Math.pow(denominator, -1), numerator));
-            gls.add(gl);
-        }
-        return gls;
-    }
-
     /**
      * Get the dihedral angle for each edge
      *
@@ -125,22 +105,22 @@ public class ComparisonStep {
     private static List<Double> computeDihedralAngleEdge(final InputModel inputModel) {
         final List<Triangle> triangles = inputModel.getTriangles();
         final List<Vertex> vertices = inputModel.getVertices();
-        List<Edge> edges = inputModel.getEdges();
+        final List<Edge> edges = inputModel.getEdges();
         final List<Double> dihedralAngles = new ArrayList<>();
-        List<Edge> edgesCalculated = new ArrayList<>();
+        final List<Edge> edgesCalculated = new ArrayList<>();
 
-        for (Triangle triangle : triangles) {
-            List<Edge> edgesEachTri = triangle.getEdges();
-            List<Integer> trianglesEachTri = triangle.getTriangleIndices();
-            for (Edge edge : edgesEachTri) {
+        for (final Triangle triangle : triangles) {
+            final List<Edge> edgesEachTri = triangle.getEdges();
+            final List<Integer> trianglesEachTri = triangle.getTriangleIndices();
+            for (final Edge edge : edgesEachTri) {
                 if (edgesCalculated.contains(edge)) {
                     continue;
                 } else {
                     edgesCalculated.add(edge);
-                    for (Integer triIndex : trianglesEachTri) {
-                        Triangle triangleEachTri = triangles.get(triIndex);
+                    for (final Integer triIndex : trianglesEachTri) {
+                        final Triangle triangleEachTri = triangles.get(triIndex);
                         if (triangleEachTri.containVertices(edge.getA(), edge.getB())) {
-                            double angle = 180 - MathUtils.getAngle(triangle.getUnitNormal(), triangleEachTri.getUnitNormal());
+                            final double angle = 180 - MathUtils.getAngle(triangle.getUnitNormal(), triangleEachTri.getUnitNormal());
                             dihedralAngles.add(angle);
                             break;
                         }
@@ -258,7 +238,7 @@ public class ComparisonStep {
     public static Map<Integer, Double> getGaussianCurvature(final InputModel inputModel) {
         final List<Vertex> vertices = inputModel.getVertices();
         final List<Triangle> triangles = inputModel.getTriangles();
-        Map<Integer, Double> ks = new HashMap<>();
+        final Map<Integer, Double> ks = new HashMap<>();
         for (final Vertex v : vertices) {
             final List<Integer> triangleIndices = v.getTriangleIndices();
             final List<Triangle> trianglesNear = new ArrayList<>();
@@ -267,7 +247,7 @@ public class ComparisonStep {
             }
 
             double area = 0d;
-            for (Triangle triangle : trianglesNear) {
+            for (final Triangle triangle : trianglesNear) {
                 area += triangle.getArea();
             }
 
@@ -313,7 +293,7 @@ public class ComparisonStep {
             }
 
             double area = 0d;
-            for (Triangle triangle : trianglesNear) {
+            for (final Triangle triangle : trianglesNear) {
                 area += triangle.getArea();
             }
 
@@ -335,14 +315,14 @@ public class ComparisonStep {
         return hs;
     }
 
-    public static Map<Integer, List<Double>> getPrincipalCurvature(InputModel inputModel) {
+    public static Map<Integer, List<Double>> getPrincipalCurvature(final InputModel inputModel) {
         final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
         final Map<Integer, Double> distribution2 = getMeanCurvature(inputModel);
-        Map<Integer, List<Double>> principalCurvatures = new HashMap<>();
+        final Map<Integer, List<Double>> principalCurvatures = new HashMap<>();
         for (int i = 0; i < inputModel.getVertices().size(); i++) {
-            List<Double> pCurvetures = new ArrayList<>();
-            double k1 = distribution2.get(i) + Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
-            double k2 = distribution2.get(i) - Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
+            final List<Double> pCurvetures = new ArrayList<>();
+            final double k1 = distribution2.get(i) + Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
+            final double k2 = distribution2.get(i) - Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
             pCurvetures.add(k1);
             pCurvetures.add(k2);
             principalCurvatures.put(i, pCurvetures);
@@ -383,15 +363,24 @@ public class ComparisonStep {
         bw.close();
     }
 
-    public static void writeCurvaturePrincipal(InputModel inputModel) throws IOException {
+    public static void writeCurvaturePrincipal(final InputModel inputModel) throws IOException {
         final Map<Integer, List<Double>> distribution = getPrincipalCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_principal.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (int i = 0; i < inputModel.getVertices().size(); i++) {
-            double k1 = distribution.get(i).get(0);
-            double k2 = distribution.get(i).get(1);
+            final double k1 = distribution.get(i).get(0);
+            final double k2 = distribution.get(i).get(1);
             bw.write(Double.toString(k1) + " " + Double.toString(k2) + "\n");
         }
         bw.close();
+    }
+
+    public static double getAverageH(final InputModel inputModel) {
+        final List<Edge> edges = inputModel.getEdges();
+        double sum = 0d;
+        for (final Edge edge : edges) {
+            sum += edge.getLength();
+        }
+        return sum / (double) edges.size();
     }
 }

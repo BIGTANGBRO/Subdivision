@@ -28,7 +28,7 @@ public class Edge {
     }
 
     public List<Vertex> getVertices() {
-        List<Vertex> vertices = new ArrayList<>();
+        final List<Vertex> vertices = new ArrayList<>();
         vertices.add(a);
         vertices.add(b);
         return vertices;
@@ -42,18 +42,22 @@ public class Edge {
         }
     }
 
+    public double getLength() {
+        return MathUtils.getMod(MathUtils.minusVector(this.a.getCoords(), this.b.getCoords()));
+    }
+
     @Override
     public int hashCode() {
         return this.a.hashCode() + this.b.hashCode();
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj instanceof Edge) {
-            Edge edge = (Edge) obj;
+            final Edge edge = (Edge) obj;
             return (this.a.getIndex() == edge.a.getIndex() && this.b.getIndex() == edge.b.getIndex()) || (this.b.getIndex() == edge.a.getIndex() && this.a.getIndex() == edge.b.getIndex());
         }
         return false;
