@@ -109,7 +109,9 @@ public class MainEntry {
 
     public static void main(String[] args) throws IOException {
         //workFlow();
-        InputModel model = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\1\\cow_refined.ply");
-        ComparisonStep.writeAngleEdge(model);
+        InputModel model = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\111\\cow_refined.ply");
+        ComparisonStep.writeCurvatureMean(model);
+        ComparisonStep.writeCurvatureGaussian(model);
+
     }
 }

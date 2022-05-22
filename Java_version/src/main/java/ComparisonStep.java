@@ -3,6 +3,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
 /**
@@ -348,8 +349,8 @@ public class ComparisonStep {
         final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_gaussian.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1.values()) {
-            bw.write(Double.toString(distance) + "\n");
+        for (int i = 0; i < inputModel.getVertices().size(); i++) {
+            bw.write(Double.toString(distribution1.get(i)) + "\n");
         }
         bw.close();
     }
@@ -358,8 +359,25 @@ public class ComparisonStep {
         final Map<Integer, Double> distribution1 = getMeanCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_mean.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1.values()) {
-            bw.write(Double.toString(distance) + "\n");
+        //for (final Double distance : distribution1.values()) {
+        //    bw.write(Double.toString(distance) + "\n");
+        //}
+        for (int i = 0; i < inputModel.getVertices().size(); i++) {
+            bw.write(Double.toString(distribution1.get(i)) + "\n");
+        }
+        bw.close();
+    }
+
+    public static void writeCurvaturePrincipal(InputModel inputModel) throws IOException {
+        final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
+        final Map<Integer, Double> distribution2 = getMeanCurvature(inputModel);
+
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_principal.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (int i = 0; i < inputModel.getVertices().size(); i++) {
+            double k1 = distribution2.get(i) + Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
+            double k2 = distribution2.get(i) - Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
+            bw.write(Double.toString(k1) + " " + Double.toString(k2) + "\n");
         }
         bw.close();
     }
