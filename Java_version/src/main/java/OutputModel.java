@@ -110,23 +110,23 @@ public class OutputModel {
         bw.write("property list uchar int vertex_indices float\n");
         bw.write("end_header\n");
 
-        double maxMean = Collections.max(mean.values());
-        double maxGaussian = Collections.max(gaussian.values());
+        //double maxMean = Collections.max(mean.values());
+        //double maxGaussian = Collections.max(gaussian.values());
 
-        maxMean = 1000d;
-        maxGaussian = 1000d;
+        double maxMean = 700d;
+        double maxGaussian = 700d;
 
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
+
             double curvatureMean = 0d;
             double curvatureGaussian = 0d;
-            if (abs(mean.get(i)) >= 1000d) {
+            if (abs(mean.get(i)) >= 700d) {
                 curvatureMean = 255d;
             } else {
                 curvatureMean = abs(mean.get(i)) / maxMean * 255d;
             }
-
-            if (abs(gaussian.get(i)) >= 1000d) {
+            if (abs(gaussian.get(i)) >= 700d) {
                 curvatureGaussian = 255d;
             } else {
                 curvatureGaussian = abs(gaussian.get(i)) / maxGaussian * 255d;
@@ -136,12 +136,78 @@ public class OutputModel {
                 curvatureGaussian = 1d;
             }
 
+            if (curvatureMean <= 1d) {
+                curvatureMean = 1d;
+            }
+
             bw.write(Double.toString(coord.getXVal()) + " ");
             bw.write(Double.toString(coord.getYVal()) + " ");
             bw.write(Double.toString(coord.getZVal()) + " ");
             //properties
             bw.write(Double.toString(curvatureGaussian) + " ");
             bw.write(Double.toString(curvatureMean) + " ");
+            bw.write(Integer.toString(0) + " ");
+            bw.write("\n");
+        }
+
+        for (int iFace = 0; iFace < faceMap.size(); iFace++) {
+            final List<Integer> vertexIndices = faceMap.get(iFace);
+            bw.write(3 + " ");
+            for (int iVertex = 0; iVertex < 3; iVertex++) {
+                bw.write(vertexIndices.get(iVertex) + " ");
+            }
+            bw.write("\n");
+        }
+        bw.close();
+    }
+
+    public void writePLYCurvature2(final String name, Map<Integer, List<Double>> principalCurvature) throws IOException {
+        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
+        bw.write("element vertex " + vertexMap.size() + "\n");
+        bw.write("property float x\nproperty float y\nproperty float z\n");
+        bw.write("property uchar red\nproperty float green\nproperty float blue\n");
+        bw.write("element face " + faceMap.size() + "\n");
+        bw.write("property list uchar int vertex_indices float\n");
+        bw.write("end_header\n");
+
+        //double maxMean = Collections.max(mean.values());
+        //double maxGaussian = Collections.max(gaussian.values());
+
+        double maxk1 = 150d;
+        double maxk2 = 20d;
+
+        for (int i = 0; i < vertexMap.size(); i++) {
+            final Vector3d coord = vertexMap.get(i);
+
+            double k1 = 0d;
+            double k2 = 0d;
+            if (abs(principalCurvature.get(i).get(0)) >= maxk1) {
+                k1 = 255d;
+            } else {
+                k1 = abs(principalCurvature.get(i).get(0)) / maxk1 * 255d;
+            }
+            if (abs(principalCurvature.get(i).get(1)) >= maxk2) {
+                k2 = 255d;
+            } else {
+                k2 = abs(principalCurvature.get(i).get(1)) / maxk2 * 255d;
+            }
+
+            if (k1 <= 1d) {
+                k1 = 1d;
+            }
+
+            if (k2 <= 1d) {
+                k2 = 1d;
+            }
+
+            bw.write(Double.toString(coord.getXVal()) + " ");
+            bw.write(Double.toString(coord.getYVal()) + " ");
+            bw.write(Double.toString(coord.getZVal()) + " ");
+            //properties
+            bw.write(Double.toString(k1) + " ");
+            bw.write(Double.toString(k2) + " ");
             bw.write(Integer.toString(0) + " ");
             bw.write("\n");
         }

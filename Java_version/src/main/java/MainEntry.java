@@ -13,6 +13,7 @@ public class MainEntry {
         //ComparisonStep.writeAngle(inputModel);
         ComparisonStep.writeCurvatureGaussian(inputModel);
         ComparisonStep.writeCurvatureMean(inputModel);
+        ComparisonStep.writeCurvaturePrincipal(inputModel);
         System.out.println("--------Properties are written successfully-------");
     }
 
@@ -79,8 +80,8 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme1(inputModel);
-        //analysisStep.implementScheme1(analysisStep.createTheModel());
+        analysisStep.implementScheme2(inputModel);
+        //analysisStep.implementScheme2(analysisStep.createTheModel());
         //analysisStep.implementScheme1(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
@@ -97,6 +98,8 @@ public class MainEntry {
         //outputModel.writePLY(modelName + "_refined");
         //outputModel.writePLYNormal(modelName + "_refined");
         outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
+        outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(newModel));
+
         long endTime = System.currentTimeMillis();
 
         //ComparisonStep.writeSphereDiff(newModel);

@@ -335,6 +335,21 @@ public class ComparisonStep {
         return hs;
     }
 
+    public static Map<Integer, List<Double>> getPrincipalCurvature(InputModel inputModel) {
+        final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
+        final Map<Integer, Double> distribution2 = getMeanCurvature(inputModel);
+        Map<Integer, List<Double>> principalCurvatures = new HashMap<>();
+        for (int i = 0; i < inputModel.getVertices().size(); i++) {
+            List<Double> pCurvetures = new ArrayList<>();
+            double k1 = distribution2.get(i) + Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
+            double k2 = distribution2.get(i) - Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
+            pCurvetures.add(k1);
+            pCurvetures.add(k2);
+            principalCurvatures.put(i, pCurvetures);
+        }
+        return principalCurvatures;
+    }
+
     public static void writeSphereDiff(final InputModel inputModel) throws IOException {
         final List<Double> distributionError1 = getSphereError1(inputModel.getVertices());
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_sphere_error.dat";
@@ -369,14 +384,12 @@ public class ComparisonStep {
     }
 
     public static void writeCurvaturePrincipal(InputModel inputModel) throws IOException {
-        final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
-        final Map<Integer, Double> distribution2 = getMeanCurvature(inputModel);
-
+        final Map<Integer, List<Double>> distribution = getPrincipalCurvature(inputModel);
         final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_principal.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (int i = 0; i < inputModel.getVertices().size(); i++) {
-            double k1 = distribution2.get(i) + Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
-            double k2 = distribution2.get(i) - Math.sqrt(abs(distribution2.get(i) * distribution2.get(i) - distribution1.get(i)));
+            double k1 = distribution.get(i).get(0);
+            double k2 = distribution.get(i).get(1);
             bw.write(Double.toString(k1) + " " + Double.toString(k2) + "\n");
         }
         bw.close();
