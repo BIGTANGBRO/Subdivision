@@ -36,7 +36,7 @@ public class RegionalSquare3 extends Square3Scheme {
             for (Vertex vEach : verticesTri) {
                 List<Vertex> verticesRemain = triangle.getRemain(vEach);
                 double angle = MathUtils.getAngle(vEach.getCoords(), verticesRemain.get(0).getCoords(), verticesRemain.get(1).getCoords());
-                if (angle < 15d) {
+                if (angle < 30d) {
                     isSubdivide = false;
                 }
             }

@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author tangshao
@@ -34,8 +35,6 @@ public class MainEntry {
     }
 
     public static InputModel readTheModel(String filePath) throws IOException {
-        System.out.println("--------COMPARISON PROCEDURE EXECUTING-------");
-
         //Variables initializing
         InputStream in = new FileInputStream(filePath);
         PlyReaderFile reader = new PlyReaderFile(in);
@@ -52,6 +51,25 @@ public class MainEntry {
 
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         return analysisStep.createTheModel();
+    }
+
+    public static OutputModel getOutputModel(String filePath) throws IOException {
+        //Variables initializing
+        InputStream in = new FileInputStream(filePath);
+        PlyReaderFile reader = new PlyReaderFile(in);
+        int numFaces = reader.getElementCount("face");
+        int numVertices = reader.getElementCount("vertex");
+        Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
+        Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
+        //read the detail
+        ReadPLY.read(reader, vertices, faces);
+        System.out.println("--------File read from computer successfully-------");
+        System.out.println("Info of the model");
+        System.out.println("Number of elements:" + numFaces);
+        System.out.println("Number of vertices:" + numVertices);
+
+        OutputModel outputModel = new OutputModel(vertices, faces);
+        return outputModel;
     }
 
     //subdivision workflow
@@ -80,9 +98,9 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme2(inputModel);
-        analysisStep.implementScheme2(analysisStep.createTheModel());
-        analysisStep.implementScheme2(analysisStep.createTheModel());
+        analysisStep.implementScheme3Regional(inputModel);
+        //analysisStep.implementScheme3(analysisStep.createTheModel());
+        //analysisStep.implementScheme3(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();
@@ -96,12 +114,12 @@ public class MainEntry {
 
         //write the file
         outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
-        outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(newModel));
+        //outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(newModel));
 
         long endTime = System.currentTimeMillis();
 
-        accessQuality(newModel);
-        accessQualityOnExtra(newModel);
+        //accessQuality(newModel);
+        //accessQualityOnExtra(newModel);
 
         System.out.println("-------Process finished-------");
         System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
@@ -109,5 +127,23 @@ public class MainEntry {
 
     public static void main(String[] args) throws IOException {
         workFlow();
+
+        OutputModel outputModel = getOutputModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\coarse\\cow.ply");
+        InputModel inputModel = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\coarse\\cow.ply");
+        String modelName = "cow";
+        outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(inputModel), ComparisonStep.getMeanCurvature(inputModel));
+        outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(inputModel));
+
+        //InputModel model = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\coarse\\cow.ply");
+        //ComparisonStep.writeCurvatureMean(model);
+        //ComparisonStep.writeCurvaturePrincipal(model);
+        //ComparisonStepSeparate.writeCurvature2(model);
+
+        //InputModel modelAnalytical = readTheModel("C:\\Users\\tangj\\Downloads\\stl_sphere\\Design1.ply");
+        //InputModel modelInput = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Sphere_Regular_data\\333\\sphere_refined.ply");
+        //ComparisonStep.writeHausorffDistribution(modelInput.getVertices(), modelAnalytical.getVertices(), 1);
+        //ComparisonStep.writeHausorffDistribution(modelAnalytical.getVertices(), modelInput.getVertices(), 2);
+        //double averageH2 = ComparisonStep.getAverageH(modelInput);
+        //System.out.println("Average h of the second model is " + averageH2);
     }
 }

@@ -96,6 +96,16 @@ public class ComparisonStep {
         bw.close();
     }
 
+    public static void writeHausorffDistribution(final List<Vertex> vertices1, final List<Vertex> vertices2, int order) throws IOException {
+        final List<Double> distribution1 = getMinDistanceDistribution(vertices1, vertices2);
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_hausorff" + order + ".dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double distance : distribution1) {
+            bw.write(Double.toString(distance) + "\n");
+        }
+        bw.close();
+    }
+
     /**
      * Get the dihedral angle for each edge
      *
