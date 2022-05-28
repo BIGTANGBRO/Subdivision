@@ -105,7 +105,7 @@ public class OutputModel {
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
-        bw.write("property uchar red\nproperty float green\nproperty float blue\n");
+        bw.write("property float red\nproperty float green\nproperty float blue\n");
         bw.write("element face " + faceMap.size() + "\n");
         bw.write("property list uchar int vertex_indices float\n");
         bw.write("end_header\n");
@@ -121,11 +121,13 @@ public class OutputModel {
 
             double curvatureMean = 0d;
             double curvatureGaussian = 0d;
+
             if (abs(mean.get(i)) >= 700d) {
                 curvatureMean = 255d;
             } else {
                 curvatureMean = abs(mean.get(i)) / maxMean * 255d;
             }
+
             if (abs(gaussian.get(i)) >= 700d) {
                 curvatureGaussian = 255d;
             } else {

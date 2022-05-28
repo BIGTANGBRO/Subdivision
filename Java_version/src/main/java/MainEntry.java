@@ -98,9 +98,9 @@ public class MainEntry {
         AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
         InputModel inputModel = analysisStep.createTheModel();
 
-        analysisStep.implementScheme3Regional(inputModel);
-        //analysisStep.implementScheme3(analysisStep.createTheModel());
-        //analysisStep.implementScheme3(analysisStep.createTheModel());
+        analysisStep.implementScheme3(inputModel);
+        analysisStep.implementScheme3(analysisStep.createTheModel());
+        analysisStep.implementScheme3(analysisStep.createTheModel());
 
         System.out.println("-------Subdivision scheme implemented successfully-------");
         InputModel newModel = analysisStep.createTheModel();
@@ -114,7 +114,7 @@ public class MainEntry {
 
         //write the file
         outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
-        //outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(newModel));
+        outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(newModel));
 
         long endTime = System.currentTimeMillis();
 
@@ -128,18 +128,12 @@ public class MainEntry {
     public static void main(String[] args) throws IOException {
         workFlow();
 
-        OutputModel outputModel = getOutputModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\coarse\\cow.ply");
-        InputModel inputModel = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\coarse\\cow.ply");
-        String modelName = "cow";
-        outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(inputModel), ComparisonStep.getMeanCurvature(inputModel));
-        outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(inputModel));
-
         //InputModel model = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\coarse\\cow.ply");
         //ComparisonStep.writeCurvatureMean(model);
         //ComparisonStep.writeCurvaturePrincipal(model);
         //ComparisonStepSeparate.writeCurvature2(model);
 
-        //InputModel modelAnalytical = readTheModel("C:\\Users\\tangj\\Downloads\\stl_sphere\\Design1.ply");
+        //InputModel modelInput = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_simulation_models\\STL_produced\\Design_Regular3.ply");
         //InputModel modelInput = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Sphere_Regular_data\\333\\sphere_refined.ply");
         //ComparisonStep.writeHausorffDistribution(modelInput.getVertices(), modelAnalytical.getVertices(), 1);
         //ComparisonStep.writeHausorffDistribution(modelAnalytical.getVertices(), modelInput.getVertices(), 2);
