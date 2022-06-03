@@ -33,6 +33,21 @@ public class ComparisonStep {
         return error;
     }
 
+    public static List<Double> getSphereR(final List<Vertex> vertices) {
+        //get the data from vertices;
+        final List<Double> rArray = new ArrayList<>();
+        for (final Vertex v : vertices) {
+            final Vector3d coord = v.getCoords();
+            final double x = coord.getXVal();
+            final double y = coord.getYVal();
+            final double z = coord.getZVal();
+            double r = Math.sqrt(x * x + y * y + z * z);
+            rArray.add(r);
+        }
+        return rArray;
+    }
+
+
     //function to calculate the hausorff error
     private static double getMinDistance(final List<Vertex> vertices1, final List<Vertex> vertices2) {
         double maxDistance = 0d;
@@ -189,25 +204,7 @@ public class ComparisonStep {
         return dihedralAngles;
     }
 
-    public static void writeAngleEdge(final InputModel inputModel) throws IOException {
-        final List<Double> dAngles = computeDihedralAngleEdge(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngleEdge.dat";
-        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double angle : dAngles) {
-            bw.write(Double.toString(angle) + "\n");
-        }
-        bw.close();
-    }
 
-    public static void writeAngle(final InputModel inputModel) throws IOException {
-        final List<Double> dAngles = computeDihedralAngle(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngle.dat";
-        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double angle : dAngles) {
-            bw.write(Double.toString(angle) + "\n");
-        }
-        bw.close();
-    }
 
 
     //For normal calculation
@@ -346,6 +343,36 @@ public class ComparisonStep {
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double distance : distributionError1) {
             bw.write(Double.toString(distance) + "\n");
+        }
+        bw.close();
+    }
+
+    public static void writeSphereR(final InputModel inputModel) throws IOException {
+        final List<Double> distributionR = getSphereR(inputModel.getVertices());
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_sphere_error.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double distance : distributionR) {
+            bw.write(Double.toString(distance) + "\n");
+        }
+        bw.close();
+    }
+
+    public static void writeAngleEdge(final InputModel inputModel) throws IOException {
+        final List<Double> dAngles = computeDihedralAngleEdge(inputModel);
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngleEdge.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double angle : dAngles) {
+            bw.write(Double.toString(angle) + "\n");
+        }
+        bw.close();
+    }
+
+    public static void writeAngle(final InputModel inputModel) throws IOException {
+        final List<Double> dAngles = computeDihedralAngle(inputModel);
+        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngle.dat";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        for (final Double angle : dAngles) {
+            bw.write(Double.toString(angle) + "\n");
         }
         bw.close();
     }

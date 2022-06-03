@@ -113,7 +113,7 @@ public class OutputModel {
         //double maxMean = Collections.max(mean.values());
         //double maxGaussian = Collections.max(gaussian.values());
 
-        double maxMean = 700d;
+        double maxMean = 200d;
         double maxGaussian = 700d;
 
         for (int i = 0; i < vertexMap.size(); i++) {
@@ -122,13 +122,12 @@ public class OutputModel {
             double curvatureMean = 0d;
             double curvatureGaussian = 0d;
 
-            if (abs(mean.get(i)) >= 700d) {
+            if (abs(mean.get(i)) >= maxMean) {
                 curvatureMean = 255d;
             } else {
                 curvatureMean = abs(mean.get(i)) / maxMean * 255d;
             }
-
-            if (abs(gaussian.get(i)) >= 700d) {
+            if (abs(gaussian.get(i)) >= maxGaussian) {
                 curvatureGaussian = 255d;
             } else {
                 curvatureGaussian = abs(gaussian.get(i)) / maxGaussian * 255d;
@@ -137,7 +136,6 @@ public class OutputModel {
             if (curvatureGaussian <= 1d) {
                 curvatureGaussian = 1d;
             }
-
             if (curvatureMean <= 1d) {
                 curvatureMean = 1d;
             }
@@ -199,7 +197,6 @@ public class OutputModel {
             if (k1 <= 1d) {
                 k1 = 1d;
             }
-
             if (k2 <= 1d) {
                 k2 = 1d;
             }
