@@ -79,7 +79,7 @@ public class MainEntry {
         long startTime = System.currentTimeMillis();
 
         //file location
-        String modelName = "cow";
+        String modelName = "sphere";
         String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing

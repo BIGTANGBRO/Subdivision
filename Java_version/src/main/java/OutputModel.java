@@ -99,6 +99,49 @@ public class OutputModel {
         bw.close();
     }
 
+    public void writePLYErrorSphere(final String name, Map<Integer, Double> error) throws IOException {
+        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+        bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
+        bw.write("element vertex " + vertexMap.size() + "\n");
+        bw.write("property float x\nproperty float y\nproperty float z\n");
+        bw.write("property float red\nproperty float green\nproperty float blue\n");
+        bw.write("element face " + faceMap.size() + "\n");
+        bw.write("property list uchar int vertex_indices float\n");
+        bw.write("end_header\n");
+
+        //double maxError = Collections.max(error.values());
+        double maxError = 255;
+
+        for (int i = 0; i < vertexMap.size(); i++) {
+            final Vector3d coord = vertexMap.get(i);
+
+            double errorVal = error.get(i) / maxError * 255d;
+            if (errorVal <=1){
+                errorVal = 1;
+            }
+
+            bw.write(Double.toString(coord.getXVal()) + " ");
+            bw.write(Double.toString(coord.getYVal()) + " ");
+            bw.write(Double.toString(coord.getZVal()) + " ");
+            //properties
+            bw.write(Double.toString(errorVal) + " ");
+            bw.write(Integer.toString(0) + " ");
+            bw.write(Integer.toString(0) + " ");
+            bw.write("\n");
+        }
+
+        for (int iFace = 0; iFace < faceMap.size(); iFace++) {
+            final List<Integer> vertexIndices = faceMap.get(iFace);
+            bw.write(3 + " ");
+            for (int iVertex = 0; iVertex < 3; iVertex++) {
+                bw.write(vertexIndices.get(iVertex) + " ");
+            }
+            bw.write("\n");
+        }
+        bw.close();
+    }
+
     public void writePLYCurvature(final String name, Map<Integer, Double> gaussian, Map<Integer, Double> mean) throws IOException {
         final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));

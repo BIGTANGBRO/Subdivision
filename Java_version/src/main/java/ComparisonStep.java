@@ -47,6 +47,19 @@ public class ComparisonStep {
         return rArray;
     }
 
+    public static Map<Integer, Double> getSphereErrorMap(final List<Vertex> vertices) {
+        //get the data from vertices;
+        Map<Integer, Double> errorMap = new HashMap<>();
+        for (final Vertex v : vertices) {
+            final Vector3d coord = v.getCoords();
+            final double x = coord.getXVal();
+            final double y = coord.getYVal();
+            final double z = coord.getZVal();
+            double r = Math.sqrt(x * x + y * y + z * z);
+            errorMap.put(v.getIndex(), abs(r - 127));
+        }
+        return errorMap;
+    }
 
     //function to calculate the hausorff error
     private static double getMinDistance(final List<Vertex> vertices1, final List<Vertex> vertices2) {
@@ -203,8 +216,6 @@ public class ComparisonStep {
         }
         return dihedralAngles;
     }
-
-
 
 
     //For normal calculation
