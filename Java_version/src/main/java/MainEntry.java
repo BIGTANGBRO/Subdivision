@@ -80,7 +80,7 @@ public class MainEntry {
 
         //file location
         String modelName = "sphere";
-        String fileName = "C:\\Users\\tangj\\Downloads\\" + modelName + ".ply";
+        String fileName = "C:\\Users\\jt2418\\Downloads\\" + modelName + ".ply";
 
         //Variables initializing
         InputStream in = new FileInputStream(fileName);

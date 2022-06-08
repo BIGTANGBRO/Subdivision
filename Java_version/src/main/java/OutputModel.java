@@ -38,7 +38,7 @@ public class OutputModel {
     }
 
     public void writePLY(final String name) throws IOException {
-        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
@@ -66,7 +66,7 @@ public class OutputModel {
     }
 
     public void writePLYNormal(final String name) throws IOException {
-        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
@@ -100,7 +100,7 @@ public class OutputModel {
     }
 
     public void writePLYErrorSphere(final String name, Map<Integer, Double> error) throws IOException {
-        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
@@ -143,7 +143,7 @@ public class OutputModel {
     }
 
     public void writePLYCurvature(final String name, Map<Integer, Double> gaussian, Map<Integer, Double> mean) throws IOException {
-        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
@@ -205,7 +205,7 @@ public class OutputModel {
     }
 
     public void writePLYCurvature2(final String name, Map<Integer, List<Double>> principalCurvature) throws IOException {
-        final String fileName = "C:\\Users\\tangj\\Downloads\\" + name + ".ply";
+        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
