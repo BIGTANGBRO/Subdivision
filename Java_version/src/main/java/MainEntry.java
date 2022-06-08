@@ -130,13 +130,13 @@ public class MainEntry {
     public static void main(String[] args) throws IOException {
         workFlow();
 
-        //InputModel modelInput = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Cow_data\\3\\cow_refined.ply");
+        //InputModel modelInput = readTheModel("C:\\Users\\jt2418\\Downloads\\Fyp_Quant_data\\Cow_data\\3\\cow_refined.ply");
         //ComparisonStep.writeCurvatureMean(model);
         //ComparisonStep.writeCurvaturePrincipal(model);
         //ComparisonStepSeparate.writeCurvature2(model);
 
-        //InputModel modelInput = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_simulation_models\\STL_produced\\Design_Regular3.ply");
-        //InputModel modelInput = readTheModel("C:\\Users\\tangj\\Downloads\\Fyp_Quant_data\\Sphere_Regular_data\\stl_sphere\\Design1.ply");
+        //InputModel modelInput = readTheModel("C:\\Users\\jt2418\\Downloads\\Fyp_simulation_models\\STL_produced\\Design_Regular3.ply");
+        //InputModel modelInput = readTheModel("C:\\Users\\jt2418\\Downloads\\Fyp_Quant_data\\Sphere_Regular_data\\stl_sphere\\Design1.ply");
         //ComparisonStep.writeHausorffDistribution(modelInput.getVertices(), modelAnalytical.getVertices(), 1);
         //ComparisonStep.writeHausorffDistribution(modelAnalytical.getVertices(), modelInput.getVertices(), 2);
         //double averageH2 = ComparisonStep.getAverageH(modelInput);
