@@ -66,7 +66,7 @@ public class OutputModel {
     }
 
     public void writePLYNormal(final String name) throws IOException {
-        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
+        final String fileName = "C:\\Users\\tangj\\Downloads\\Model_Lib" + name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
