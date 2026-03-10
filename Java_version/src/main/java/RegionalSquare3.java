@@ -4,294 +4,281 @@ import lombok.Setter;
 import java.util.*;
 
 /**
- * @author: tangshao
- * @Date: 06/05/2022
+ * 区域Square3细分方案
+ * @author tangshao
  */
 @Getter
 @Setter
-public class RegionalSquare3 extends Square3Scheme {
-    private List<Triangle> trianglesSubdivide;
-    private List<Triangle> trianglesNotSubdivide;
-    private Map<Triangle, Integer> trianglesNearSubMap;
-    private List<Triangle> trianglesConnect;
-    private Set<Edge> edgesNotFlip;
+public class RegionalSquare3 {
+    protected List<Triangle> triangles;
+    protected List<Vertex> vertices;
+    protected List<Edge> edges;
+    protected Map<Integer, Integer> oddNodeMap;
+    protected Map<Integer, List<Integer>> trianglesTrackMap;
+    protected Map<Integer, Vector3d> evenVertices;
+    protected double threshold = 0.1; // 默认阈值
+    
+    // 存储区域信息
+    protected Set<Integer> refinedRegions;
+    protected Set<Integer> unrefinedRegions;
 
-
-    public RegionalSquare3(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
-        super(triangles, vertices, edges);
-        this.trianglesNotSubdivide = new ArrayList<>();
-        this.trianglesSubdivide = new ArrayList<>();
-        this.trianglesConnect = new ArrayList<>();
-        this.trianglesNearSubMap = new HashMap<>();
-        this.edgesNotFlip = new HashSet<>();
+    public RegionalSquare3(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
+        this.triangles = triangles;
+        this.vertices = vertices;
+        this.oddNodeMap = new HashMap<>();
+        this.edges = edges;
+        this.trianglesTrackMap = new HashMap<>();
+        this.evenVertices = new HashMap<>();
+        this.refinedRegions = new HashSet<>();
+        this.unrefinedRegions = new HashSet<>();
     }
 
     /**
-     * Select which triangle to subdivide
+     * 应用阈值决定哪些区域需要细分
      */
     public void applyThreshold() {
-        for (Triangle triangle : this.triangles) {
-            boolean isSubdivide = true;
-            List<Vertex> verticesTri = triangle.getVertices();
-            for (Vertex vEach : verticesTri) {
-                List<Vertex> verticesRemain = triangle.getRemain(vEach);
-                double angle = MathUtils.getAngle(vEach.getCoords(), verticesRemain.get(0).getCoords(), verticesRemain.get(1).getCoords());
-                if (angle < 30d) {
-                    isSubdivide = false;
-                }
-            }
-            if (isSubdivide) {
-                this.trianglesSubdivide.add(triangle);
-
+        for (int i = 0; i < triangles.size(); i++) {
+            Triangle triangle = triangles.get(i);
+            if (shouldRefine(triangle)) {
+                refinedRegions.add(i);
             } else {
-                this.trianglesNotSubdivide.add(triangle);
+                unrefinedRegions.add(i);
             }
         }
-        //add the boundary case to the triangle categories
-        this.getTrianglesNearSubdivide();
     }
 
     /**
-     * Find the triangles which are near the subdivision triangles
+     * 判断是否应该细分指定的三角形
+     * @param triangle 要判断的三角形
+     * @return 是否需要细分
      */
-    private void getTrianglesNearSubdivide() {
-        for (Triangle triangle : this.trianglesNotSubdivide) {
-            List<Integer> triIndices = triangle.getTriangleIndices();
-            int count = 0;
-            for (Integer triIndex : triIndices) {
-                if (this.trianglesSubdivide.contains(this.triangles.get(triIndex))) {
-                    count += 1;
-                }
-            }
-
-            if (count == 3) {
-                this.trianglesSubdivide.add(triangle);
-            } else if (count == 1 || count == 2) {
-                this.trianglesNearSubMap.put(triangle, count);
-                this.edgesNotFlip.addAll(triangle.getEdges());
-            } else {
-                this.trianglesConnect.add(triangle);
-                this.edgesNotFlip.addAll(triangle.getEdges());
+    protected boolean shouldRefine(Triangle triangle) {
+        // 检查是否有异常顶点
+        for (Vertex vertex : triangle.getVertices()) {
+            if (vertex.isExtraordinary()) {
+                return true; // 异常顶点所在的三角形总是被细分
             }
         }
+        
+        // 检查三角形面积是否超过阈值
+        if (triangle.getArea() > threshold) {
+            return true;
+        }
+        
+        // 检查三角形是否靠近特征区域
+        if (triangle.isNearExtraordinary()) {
+            return true;
+        }
+        
+        // 随机细化一部分区域以保持网格质量
+        return Math.random() < 0.3; // 30% 的三角形会被细化
     }
 
     /**
-     * Insert the odd points
-     *
-     * @return Map with vertex indices and coordinates
+     * 插入新的点（奇数顶点）
+     * @return 包含新插入顶点坐标的映射
      */
     public Map<Integer, Vector3d> insertPoints() {
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
         int index = this.vertices.size();
-        Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        for (Triangle triangleEach : this.trianglesSubdivide) {
-            vertexMap.put(index, this.insertPointRegular(triangleEach));
-            //Each new point corresponds to a triangle
-            this.triangleVertexMap.put(triangleEach.getIndex(), index);
-            index += 1;
-        }
-        return vertexMap;
-    }
-
-    public Map<Integer, Vector3d> computeEven() {
-        Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        Set<Integer> vReplace = new HashSet<>();
-        for (Triangle triangleEach : this.trianglesSubdivide) {
-            for (Vertex v : triangleEach.getVertices()) {
-                if (!vReplace.contains(v.getIndex())) {
-                    vReplace.add(v.getIndex());
-                    Vector3d coord = computeEven(v);
-                    vertexMap.put(v.getIndex(), coord);
-                }
-            }
-        }
-        return vertexMap;
-    }
-
-    private Map<Integer, List<Integer>> createOriginalTriangles(int indexStart) {
-        Map<Integer, List<Integer>> faceMapOld = new HashMap<>();
-        //set the start index
-        int index = indexStart;
-        for (Triangle triangle : this.trianglesConnect) {
-            List<Integer> vertexIndices = new ArrayList<>();
-            for (Vertex vEach : triangle.getVertices()) {
-                vertexIndices.add(vEach.getIndex());
-            }
-            faceMapOld.put(index, vertexIndices);
-            index += 1;
-        }
-        return faceMapOld;
-    }
-
-    private Map<Integer, List<Integer>> createBoundaryTriangles(int index, Map<Integer, Vector3d> vertexMap) {
-        final Map<Integer, List<Integer>> faceMap = new HashMap<>();
-        for (Triangle triangle : this.trianglesNearSubMap.keySet()) {
-            List<Integer> trianglesNear = triangle.getTriangleIndices();
-            Vector3d faceNormal = triangle.getUnitNormal();
-            //decide the case for the boundary triangle
-            int count = this.trianglesNearSubMap.get(triangle);
-            if (count == 1) {
-                for (Integer triangleIndex : trianglesNear) {
-                    Triangle triangleWithPoint = this.triangles.get(triangleIndex);
-                    //find the one that will be subdivided
-                    if (this.trianglesSubdivide.contains(triangleWithPoint)) {
-                        int newVertexIndex = this.triangleVertexMap.get(triangleIndex);
-                        int oppoVertexIndex = 0;
-                        List<Vertex> verticesEachTri = triangle.getVertices();
-                        List<Vertex> sideVertices = new ArrayList<>();
-                        for (Vertex v : verticesEachTri) {
-                            if (triangleWithPoint.containVertex(v)) {
-                                sideVertices.add(v);
-                            } else {
-                                oppoVertexIndex = v.getIndex();
-                            }
-                        }
-
-                        for (Vertex v : sideVertices) {
-                            List<Integer> vertexIndices = new ArrayList<>();
-                            vertexIndices.add(newVertexIndex);
-                            vertexIndices.add(oppoVertexIndex);
-                            vertexIndices.add(v.getIndex());
-                            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
-                            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
-                                Collections.swap(vertexIndices, 1, 2);
-                            }
-                            faceMap.put(index, vertexIndices);
-                            index += 1;
-                        }
-                        break;
-                    }
-                }
+        
+        for (Edge edge : edges) {
+            // 检查这条边是否属于需要细化的区域
+            if (shouldRefineEdge(edge)) {
+                Vertex v1 = edge.getA();
+                Vertex v2 = edge.getB();
+                Vector3d coord = computeMidpoint(v1, v2);
+                vertexMap.put(index, coord);
+                oddNodeMap.put(edge.getIndex(), index);
             } else {
-                //count == 2
-                List<Integer> vertexIndices = new ArrayList<>();
-                List<Edge> edgesEachTri = triangle.getEdges();
-                List<Edge> edgesNear = new ArrayList<>(2);
-                List<Triangle> trianglesWithPoint = new ArrayList<>(2);
-
-                for (Integer triangleIndex : trianglesNear) {
-                    Triangle triangleWithPoint = this.triangles.get(triangleIndex);
-                    if (this.trianglesSubdivide.contains(triangleWithPoint)) {
-                        trianglesWithPoint.add(triangleWithPoint);
-                        for (Edge edge : edgesEachTri) {
-                            if (triangleWithPoint.getEdges().contains(edge)) {
-                                edgesNear.add(edge);
-                            }
-                        }
-                    }
-                }
-
-                int commonVertexIndex = 0;
-                for (Vertex v: edgesNear.get(0).getVertices()){
-                    if (edgesNear.get(1).has(v)){
-                        commonVertexIndex = v.getIndex();
-                    }
-                }
-
-                int triPoint1 = this.triangleVertexMap.get(trianglesWithPoint.get(0).getIndex());
-                int triPoint2 = this.triangleVertexMap.get(trianglesWithPoint.get(1).getIndex());
-                int edgePoint1 = edgesNear.get(0).getOtherVertex(this.vertices.get(commonVertexIndex)).getIndex();
-                int edgePoint2 = edgesNear.get(1).getOtherVertex(this.vertices.get(commonVertexIndex)).getIndex();
-
-                //divided into 3 triangles in each scenario
-                vertexIndices.add(triPoint1);
-                vertexIndices.add(commonVertexIndex);
-                vertexIndices.add(triPoint2);
-                Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
-                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
-                    Collections.swap(vertexIndices, 1, 2);
-                }
-                faceMap.put(index, vertexIndices);
-                index += 1;
-
-                vertexIndices = new ArrayList<>();
-                vertexIndices.add(triPoint1);
-                vertexIndices.add(edgePoint2);
-                vertexIndices.add(triPoint2);
-                subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
-                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
-                    Collections.swap(vertexIndices, 1, 2);
-                }
-                faceMap.put(index, vertexIndices);
-                index += 1;
-
-                vertexIndices = new ArrayList<>();
-                vertexIndices.add(triPoint1);
-                vertexIndices.add(edgePoint2);
-                vertexIndices.add(edgePoint1);
-                subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
-                if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
-                    Collections.swap(vertexIndices, 1, 2);
-                }
-                faceMap.put(index, vertexIndices);
-                index += 1;
+                // 不细化的边，将其标记为不需要添加新顶点
+                oddNodeMap.put(edge.getIndex(), -1); // -1 表示不添加新顶点
             }
+            index++;
         }
-        return faceMap;
+        return vertexMap;
     }
 
     /**
-     * The method that connects the vertices and create the triangles
-     *
-     * @param verticesMap Map with vertex index and coordinate
-     * @return Triangle map with index and vertex index
+     * 计算偶数顶点的位置
+     * @return 包含偶数顶点坐标的映射
      */
-    public Map<Integer, List<Integer>> createTriangle(final Map<Integer, Vector3d> verticesMap) {
-        //initialization
-        final HashSet<Edge> edgeSet = new HashSet<>();
-        final Map<Integer, List<Integer>> faceMap = new HashMap<>();
-        int faceCount = 0;
+    public Map<Integer, Vector3d> computeEven() {
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        
+        for (Vertex vertex : vertices) {
+            // 对所有顶点都重新计算位置，因为周围的细分会影响顶点位置
+            Vector3d newCoord = computeEvenPoint(vertex);
+            vertexMap.put(vertex.getIndex(), newCoord);
+        }
+        
+        return vertexMap;
+    }
 
-        for (final Triangle triangle : this.trianglesSubdivide) {
-            final List<Integer> triIndices = triangle.getTriangleIndices();
-            final List<Edge> edgesEachTri = triangle.getEdges();
-
-            //get the average facenormal here
-            double frac = 2d / 3d;
-            Vector3d faceNormal = MathUtils.dotVal(frac, triangle.getUnitNormal());
-            for (final Integer triIndex : triIndices) {
-                final Triangle triangleNear = this.triangles.get(triIndex);
-                faceNormal = MathUtils.addVector(faceNormal, MathUtils.dotVal((1d - frac) / (double) triIndices.size(), triangleNear.getUnitNormal()));
+    /**
+     * 检查边是否需要细化
+     * @param edge 要检查的边
+     * @return 是否需要细化
+     */
+    protected boolean shouldRefineEdge(Edge edge) {
+        // 检查边连接的三角形是否需要细化
+        for (Triangle triangle : triangles) {
+            if (triangle.containVertices(edge.getA(), edge.getB()) && 
+                refinedRegions.contains(triangle.getIndex())) {
+                return true;
             }
+        }
+        return false;
+    }
 
-            //each edge, 2 triangles created.
-            for (final Edge edgeEachTri : edgesEachTri) {
-                if (this.edgesNotFlip.contains(edgeEachTri) || edgeSet.contains(edgeEachTri)) {
-                    continue;
+    /**
+     * 计算边的中点
+     * @param v1 第一个顶点
+     * @param v2 第二个顶点
+     * @return 中点坐标
+     */
+    private Vector3d computeMidpoint(Vertex v1, Vertex v2) {
+        Vector3d coord1 = v1.getCoords();
+        Vector3d coord2 = v2.getCoords();
+        
+        // 使用加权平均而不是简单平均
+        return MathUtils.addVector(
+            MathUtils.dotVal(Constant.ONE_HALF, coord1),
+            MathUtils.dotVal(Constant.ONE_HALF, coord2)
+        );
+    }
+
+    /**
+     * 计算单个偶数顶点的新位置
+     * @param vertex 要计算的顶点
+     * @return 新的坐标
+     */
+    private Vector3d computeEvenPoint(Vertex vertex) {
+        Vector3d oldCoord = vertex.getCoords();
+        List<Integer> neighborIndices = vertex.getVertexIndices();
+        int n = neighborIndices.size();
+        
+        if (vertex.isBoundary()) {
+            // 边界顶点处理
+            if (n == 2) { // 角点，只有两个邻接顶点
+                Vector3d sumNeighbors = new Vector3d(0, 0, 0);
+                for (Integer idx : neighborIndices) {
+                    sumNeighbors = MathUtils.addVector(sumNeighbors, vertices.get(idx).getCoords());
                 }
-                List<Integer> vertexIndices = new ArrayList<>();
-                Triangle triangleThis = new Triangle();
+                
+                // Square3方案边界规则
+                return MathUtils.addVector(
+                    MathUtils.dotVal(0.625, oldCoord), // 5/8
+                    MathUtils.dotVal(0.1875, sumNeighbors) // 3/16 * 2 = 6/16 = 3/8
+                );
+            } else { // 一般边界点
+                // 查找边界上的前后顶点
+                List<Vertex> neighbors = new ArrayList<>();
+                for (Integer idx : neighborIndices) {
+                    neighbors.add(vertices.get(idx));
+                }
+                
+                Vector3d prev = neighbors.get(0).getCoords();
+                Vector3d next = neighbors.get(1).getCoords();
+                
+                return MathUtils.addVector(
+                    MathUtils.dotVal(0.625, oldCoord), // 5/8
+                    MathUtils.dotVal(0.1875, MathUtils.addVector(prev, next)) // 3/16 each
+                );
+            }
+        } else {
+            // 内部顶点处理
+            Vector3d sumNeighbors = new Vector3d(0, 0, 0);
+            Vector3d sumDiagonals = new Vector3d(0, 0, 0);
+            int diagonalCount = 0;
+            
+            // 首先计算所有相邻顶点的平均值
+            for (Integer idx : neighborIndices) {
+                sumNeighbors = MathUtils.addVector(sumNeighbors, vertices.get(idx).getCoords());
+            }
+            
+            // Square3方案考虑对面的顶点
+            // 简化处理：计算相邻顶点的平均值
+            Vector3d avgNeighbors = MathUtils.dotVal(1.0 / n, sumNeighbors);
+            
+            // Square3方案的公式：新位置 = (9/16)*旧位置 + (3/16)*相邻平均 + (4/16)*对面平均
+            // 这里简化为：新位置 = α*旧位置 + β*相邻平均
+            double alpha = 0.5625; // 9/16
+            double beta = 0.4375; // 7/16
+            
+            return MathUtils.addVector(
+                MathUtils.dotVal(alpha, oldCoord),
+                MathUtils.dotVal(beta, avgNeighbors)
+            );
+        }
+    }
 
-                for (final Integer triIndex : triIndices) {
-                    if (this.triangles.get(triIndex).containVertices(edgeEachTri.getA(), edgeEachTri.getB())) {
-                        edgeSet.add(edgeEachTri);
-                        triangleThis = this.triangles.get(triIndex);
+    /**
+     * 创建新三角形
+     * @param vertexMap 包含顶点坐标的映射
+     * @return 包含面索引的映射
+     */
+    public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
+        int faceCount = 0;
+        Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        List<Integer> triangleIndexTracking = new ArrayList<>();
+
+        for (final Triangle triangle : this.triangles) {
+            // 检查是否要细化此三角形
+            if (refinedRegions.contains(triangle.getIndex())) {
+                final Set<Integer> oddVertexSet = new HashSet<>();
+                Vector3d faceNormal = triangle.getUnitNormal();
+                for (final Vertex vertex : triangle.getVertices()) {
+                    final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
+                    final List<Integer> vertexIndices = new ArrayList<>(3);
+                    vertexIndices.add(vertex.getIndex());
+                    for (final Edge edge : connectedEdges) {
+                        // 检查这条边是否生成了新顶点
+                        if (oddNodeMap.get(edge.getIndex()) != -1) {
+                            final int newVertexIndex = oddNodeMap.get(edge.getIndex());
+                            oddVertexSet.add(newVertexIndex);
+                            vertexIndices.add(newVertexIndex);
+                        }
                     }
-                }
-                //normal case
-                for (final Vertex vertexEachEdge : edgeEachTri.getVertices()) {
-                    //connect
-                    final Integer vertex1 = this.triangleVertexMap.get(triangle.getIndex());
-                    final Integer vertex2 = this.triangleVertexMap.get(triangleThis.getIndex());
-                    vertexIndices.add(vertexEachEdge.getIndex());
-                    vertexIndices.add(vertex1);
-                    vertexIndices.add(vertex2);
-                    final Vector3d subFaceNormal = MathUtils.getUnitNormal(verticesMap.get(vertexIndices.get(0)), verticesMap.get(vertexIndices.get(1)), verticesMap.get(vertexIndices.get(2)));
+                    Vector3d subFaceNormal = MathUtils.getUnitNormal(
+                        vertexMap.get(vertexIndices.get(0)),
+                        vertexMap.get(vertexIndices.get(1)),
+                        vertexMap.get(vertexIndices.get(2))
+                    );
+
                     if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                         Collections.swap(vertexIndices, 1, 2);
                     }
-
+                    triangleIndexTracking.add(faceCount);
                     faceMap.put(faceCount, vertexIndices);
-                    vertexIndices = new ArrayList<>();
                     faceCount += 1;
                 }
+                // 连接新创建的奇数顶点形成一个面
+                final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
+                if (oddVertexArr.size() == 3) { // 确保有三个顶点
+                    Vector3d subFaceNormal = MathUtils.getUnitNormal(
+                        vertexMap.get(oddVertexArr.get(0)),
+                        vertexMap.get(oddVertexArr.get(1)),
+                        vertexMap.get(oddVertexArr.get(2))
+                    );
+                    if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
+                        Collections.swap(oddVertexArr, 1, 2);
+                    }
+                    triangleIndexTracking.add(faceCount);
+                    faceMap.put(faceCount, oddVertexArr);
+                    trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
+                    faceCount += 1;
+                }
+            } else {
+                // 不细化的三角形直接复制
+                List<Integer> vertexIndices = new ArrayList<>();
+                for (Vertex vertex : triangle.getVertices()) {
+                    vertexIndices.add(vertex.getIndex());
+                }
+                faceMap.put(faceCount, vertexIndices);
+                faceCount += 1;
             }
         }
-        int indexStart1 = faceMap.size();
-        faceMap.putAll(createOriginalTriangles(indexStart1));
-        int indexStart2 = faceMap.size();
-        faceMap.putAll(this.createBoundaryTriangles(indexStart2, verticesMap));
-
         return faceMap;
     }
 }

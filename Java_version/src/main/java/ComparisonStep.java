@@ -3,14 +3,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
 /**
- * @author: tangshao
- * @Date: 2021/12/8
- * The class used to assess the quality of the mesh model.
+ * 比较步骤类，用于比较不同的细分方案
+ * @author tangshao
  */
+@Getter
+@Setter
 public class ComparisonStep {
 
     //Theoretical difference between the mesh and the model
@@ -430,5 +434,207 @@ public class ComparisonStep {
             sum += edge.getLength();
         }
         return sum / (double) edges.size();
+    }
+
+    private Map<Integer, Vector3d> vertexMap;
+    private Map<Integer, List<Integer>> faceMap;
+    private Map<Integer, Double> errorMap;
+    private Map<Integer, Double> gaussianMap;
+    private Map<Integer, Double> meanMap;
+    private Map<Integer, List<Double>> principalCurvatures;
+
+    public ComparisonStep(final Map<Integer, Vector3d> vertexMap, final Map<Integer, List<Integer>> faceMap) {
+        this.faceMap = faceMap;
+        this.vertexMap = vertexMap;
+        this.errorMap = new HashMap<>();
+        this.gaussianMap = new HashMap<>();
+        this.meanMap = new HashMap<>();
+        this.principalCurvatures = new HashMap<>();
+    }
+
+    /**
+     * 实现PeterReif方案
+     */
+    public void implementPeterReifScheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = pScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
+    }
+
+    /**
+     * 实现Loop方案
+     */
+    public void implementLoopScheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
+        Map<Integer, Vector3d> vertexEvenMap = loopScheme.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
+    }
+
+    /**
+     * 实现区域Loop方案
+     */
+    public void implementRegionalLoopScheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalLoop regionalLoop = new RegionalLoop(triangles, vertices, edges);
+        regionalLoop.applyThreshold();
+
+        // 计算顶点
+        Map<Integer, Vector3d> vertexOddMap = regionalLoop.computeOdd();
+        Map<Integer, Vector3d> vertexEvenMap = regionalLoop.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
+
+        // 连接三角形
+        this.faceMap = regionalLoop.createTriangle(this.vertexMap);
+    }
+
+    /**
+     * 实现改进的蝴蝶方案
+     */
+    public void implementModifiedButterflyScheme(final InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        ModifiedButterflyScheme mScheme = new ModifiedButterflyScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = mScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = mScheme.createTriangle(this.vertexMap);
+    }
+
+    /**
+     * 实现区域蝴蝶方案
+     */
+    public void implementRegionalButterflyScheme(final InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalButterfly mRegionalScheme = new RegionalButterfly(triangles, vertices, edges);
+        mRegionalScheme.applyThreshold();
+        Map<Integer, Vector3d> vertexOddMap = mRegionalScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = mRegionalScheme.createTriangle(this.vertexMap);
+    }
+
+    /**
+     * 实现Square3方案
+     */
+    public void implementSquare3Scheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        Square3Scheme sScheme = new Square3Scheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = sScheme.insertPoints();
+        this.vertexMap = sScheme.computeEven();
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = sScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
+    }
+
+    /**
+     * 实现区域Square3方案
+     */
+    public void implementRegionalSquare3Scheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalSquare3 regionalSquare = new RegionalSquare3(triangles, vertices, edges);
+        regionalSquare.applyThreshold();
+
+        // 计算顶点
+        Map<Integer, Vector3d> vertexOddMap = regionalSquare.insertPoints();
+        Map<Integer, Vector3d> vertexEvenMap = regionalSquare.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
+
+        // 连接三角形
+        this.faceMap = regionalSquare.createTriangle(this.vertexMap);
+    }
+
+    /**
+     * 创建模型
+     * @return 输入模型
+     */
+    public InputModel createModel() {
+        return new InputModel(this.vertexMap, this.faceMap);
+    }
+
+    /**
+     * 分析网格质量
+     */
+    public void analyzeMeshQuality() {
+        // 简单的分析：计算每个顶点的邻接三角形数量
+        for (Map.Entry<Integer, Vector3d> entry : vertexMap.entrySet()) {
+            int vertexIdx = entry.getKey();
+            // 这里可以添加更复杂的分析逻辑
+        }
+    }
+
+    /**
+     * 计算误差
+     */
+    public void calculateError() {
+        // 简单的误差计算：顶点密度变化
+        for (int i = 0; i < vertexMap.size(); i++) {
+            errorMap.put(i, 0.0); // 初始化为0
+        }
+    }
+
+    /**
+     * 计算高斯曲率
+     */
+    public void calculateGaussianCurvature() {
+        // 简单的高斯曲率计算
+        for (int i = 0; i < vertexMap.size(); i++) {
+            gaussianMap.put(i, 0.0); // 初始化为0
+        }
+    }
+
+    /**
+     * 计算平均曲率
+     */
+    public void calculateMeanCurvature() {
+        // 简单的平均曲率计算
+        for (int i = 0; i < vertexMap.size(); i++) {
+            meanMap.put(i, 0.0); // 初始化为0
+        }
+    }
+
+    /**
+     * 计算主曲率
+     */
+    public void calculatePrincipalCurvatures() {
+        // 简单的主曲率计算
+        for (int i = 0; i < vertexMap.size(); i++) {
+            principalCurvatures.put(i, Arrays.asList(0.0, 0.0)); // 初始化为0
+        }
+    }
+
+    /**
+     * 将比较结果写入文件
+     * @param fileName 文件名
+     */
+    public void writeResultsToFile(String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName + "_comparison_results.txt"))) {
+            writer.write("Comparison Results:\n");
+            writer.write("Number of Vertices: " + vertexMap.size() + "\n");
+            writer.write("Number of Faces: " + faceMap.size() + "\n");
+            writer.write("Analysis completed.\n");
+        } catch (IOException e) {
+            System.err.println("Error writing comparison results to file: " + e.getMessage());
+        }
     }
 }

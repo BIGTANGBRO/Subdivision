@@ -5,38 +5,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 顶点类
  * @author tangshao
  */
 @Getter
 @Setter
 public class Vertex {
-    //this is a vertex class
+    //这是一个顶点类
     private int index;
     private Vector3d coords;
-    //neighbour polygons
+    //邻接多边形
     private List<Integer> triangleIndices;
-    //neighbour vertices
+    //邻接顶点
     private List<Integer> vertexIndices;
 
-    Vertex() {
-
+    public Vertex() {
+        this.triangleIndices = new ArrayList<>();
+        this.vertexIndices = new ArrayList<>();
     }
 
-    Vertex(int index) {
+    public Vertex(int index) {
         this.index = index;
         coords = new Vector3d(0, 0, 0);
         this.triangleIndices = new ArrayList<>();
         this.vertexIndices = new ArrayList<>();
     }
 
-    Vertex(final int index, final Vector3d coordinates, final int nPolygons, final List<Integer> vertexIndices) {
+    public Vertex(final int index, final Vector3d coordinates, final int nPolygons, final List<Integer> vertexIndices) {
         this.index = index;
         this.coords = coordinates;
         this.vertexIndices = vertexIndices;
         this.triangleIndices = new ArrayList<>(nPolygons);
     }
 
-    Vertex(final int index, final Vector3d coordinates, final List<Integer> vertexIndices, final List<Integer> triangleIndices) {
+    public Vertex(final int index, final Vector3d coordinates, final List<Integer> vertexIndices, final List<Integer> triangleIndices) {
         this.index = index;
         this.coords = coordinates;
         this.vertexIndices = vertexIndices;
@@ -67,8 +69,21 @@ public class Vertex {
         return this.getNumVertices() > this.getNumTriangles();
     }
 
-    //In triangular mesh, a vertex which is not connected 6 neighbours is extradinary
+    //在三角网格中，不连接6个邻居的顶点是异常的
     public boolean isRegular() {
         return this.getNumTriangles() == 6;
+    }
+    
+    /**
+     * 检查是否为异常顶点（非六邻域）
+     * @return 如果是异常顶点返回true
+     */
+    public boolean isExtraordinary() {
+        return !isRegular();
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("Vertex{index=%d, coords=%s}", index, coords);
     }
 }

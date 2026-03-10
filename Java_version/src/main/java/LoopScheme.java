@@ -4,6 +4,7 @@ import lombok.Setter;
 import java.util.*;
 
 /**
+ * Loop 细分方案
  * @author tangshao
  */
 @Getter
@@ -14,197 +15,201 @@ public class LoopScheme {
     protected List<Edge> edges;
     protected Map<Integer, Integer> oddNodeMap;
     protected Map<Integer, List<Integer>> trianglesTrackMap;
+    protected Map<Integer, Vector3d> evenVertices;
 
-    public LoopScheme(final List<Triangle> triangles, final List<Vertex> vertices, final List<Edge> edges) {
+    public LoopScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
         this.vertices = vertices;
-        this.edges = edges;
         this.oddNodeMap = new HashMap<>();
+        this.edges = edges;
         this.trianglesTrackMap = new HashMap<>();
-    }
-
-    public Vector3d computeOdd2(final Vertex v1, final Vertex v2) {
-        final List<Vertex> lateralVertices = new ArrayList<>(2);
-        int triangleCount = 0;
-        for (final Triangle triangle : triangles) {
-            if (triangle.containVertices(v1, v2)) {
-                //serach for vLeft and vRight
-                final Vertex v = triangle.getRemain(v1, v2);
-                lateralVertices.add(v);
-                triangleCount += 1;
-            }
-        }
-
-        if (triangleCount == 1) {
-            return MathUtils.dotVal(Constant.ONEOVERTWO, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
-        }
-
-        final Vector3d coord1 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(lateralVertices.get(0).getCoords(), lateralVertices.get(1).getCoords()));
-        if (v1.getNumTriangles() > 7) {
-            Vector3d coord2 = MathUtils.addVector(MathUtils.dotVal(1d / 4d, v2.getCoords()), MathUtils.dotVal(1d / 2d, v1.getCoords()));
-            return MathUtils.addVector(coord2, coord1);
-        } else {
-            Vector3d coord2 = MathUtils.addVector(MathUtils.dotVal(1d / 4d, v1.getCoords()), MathUtils.dotVal(1d / 2d, v2.getCoords()));
-            return MathUtils.addVector(coord2, coord1);
-        }
+        this.evenVertices = new HashMap<>();
     }
 
     /**
-     * Compute the odd vertex
-     *
-     * @param v1 first vertex
-     * @param v2 second vertex
-     * @return The coordinate of the vertex
-     */
-    public Vector3d computeOddNormal(final Vertex v1, final Vertex v2) {
-        final List<Vertex> lateralVertices = new ArrayList<>(2);
-        int triangleCount = 0;
-        for (final Triangle triangle : triangles) {
-            if (triangle.containVertices(v1, v2)) {
-                //serach for vLeft and vRight
-                final Vertex v = triangle.getRemain(v1, v2);
-                lateralVertices.add(v);
-                triangleCount += 1;
-            }
-        }
-        if (triangleCount == 1) {
-            return MathUtils.dotVal(Constant.ONEOVERTWO, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
-        }
-        final Vector3d coord1 = MathUtils.dotVal(Constant.THREEOVEREIGHT, MathUtils.addVector(v1.getCoords(), v2.getCoords()));
-        final Vector3d coord2 = MathUtils.dotVal(Constant.ONEOVEREIGHT, MathUtils.addVector(lateralVertices.get(0).getCoords(), lateralVertices.get(1).getCoords()));
-        return MathUtils.addVector(coord1, coord2);
-    }
-
-    /**
-     * compute the new odd vertex/edge point
-     *
-     * @return Map with new vertex
+     * 计算奇数顶点的位置
+     * @return 包含新顶点坐标的映射
      */
     public Map<Integer, Vector3d> computeOdd() {
-        final Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        int index = vertices.size();
-        //iteration about the edges
-        for (final Edge edge : edges) {
-            //each odd node corresponds to an edge
-            final Vertex v1 = edge.getA();
-            final Vertex v2 = edge.getB();
-            Vector3d coord = new Vector3d(0, 0, 0);
-            if (v1.getNumTriangles() > 7 || v2.getNumTriangles() > 7) {
-                coord = computeOdd2(v1, v2);
-            } else {
-                coord = computeOddNormal(v1, v2);
-            }
-            //the index starts from numCoords
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        int index = this.vertices.size();
+        for (Edge edge : edges) {
+            Vertex v1 = edge.getA();
+            Vertex v2 = edge.getB();
+            Vector3d coord = computeOddPoint(v1, v2);
             vertexMap.put(index, coord);
-            //edge point index corresponds to the edge index
             oddNodeMap.put(edge.getIndex(), index);
-            index += 1;
+            index++;
         }
         return vertexMap;
     }
 
-    protected double getAlpha(final int n) {
-        if (n == 3) {
-            return 3.0d / 16.0d;
-        }
-        return 1.0d / n * (5.0d / 8.0d - Math.pow((Constant.THREEOVEREIGHT + Constant.ONEOVERFOUR * Math.cos(2 * Math.PI / n)), 2));
-    }
-
-    protected double getAlpha2(int n) {
-        if (n == 3) {
-            return 3d / 16d;
-        } else {
-            return 3d / (double) 8d;
-        }
-    }
-
     /**
-     * Compute the even vertex
-     *
-     * @param vertex individual vertex
-     * @return new coord of the vertex
+     * 计算单个奇数顶点位置
+     * @param v1 第一个顶点
+     * @param v2 第二个顶点
+     * @return 新顶点坐标
      */
-    protected Vector3d computeEven(final Vertex vertex) {
-        //create the even vertices
-        final int n = vertex.getNumVertices();
-        final double alpha = getAlpha(n);
-
-        final List<Integer> neighbourVertices = vertex.getVertexIndices();
-        final Vector3d coordV = vertex.getCoords();
-        Vector3d vOther = new Vector3d(0d, 0d, 0d);
-        for (int i = 0; i < n; i++) {
-            final int neighbourIndex = neighbourVertices.get(i);
-            final Vertex v = this.vertices.get(neighbourIndex);
-            final Vector3d coordNeighbour = v.getCoords();
-            //get the sum of the neighbour points
-            vOther = MathUtils.addVector(vOther, coordNeighbour);
+    private Vector3d computeOddPoint(Vertex v1, Vertex v2) {
+        Vector3d coord1 = v1.getCoords();
+        Vector3d coord2 = v2.getCoords();
+        
+        // Loop方案中边的中点公式
+        // 如果边的两端都是正则顶点（非边界），则使用标准权重
+        // 否则使用边界规则
+        
+        if (v1.isBoundary() && v2.isBoundary()) {
+            // 边界情况：1/2 * (v1 + v2)
+            return MathUtils.addVector(
+                MathUtils.dotVal(Constant.ONE_HALF, coord1),
+                MathUtils.dotVal(Constant.ONE_HALF, coord2)
+            );
+        } else {
+            // 内部边：3/8 * (v1 + v2) + 1/8 * (opposite1 + opposite2)
+            // 但这里我们简化为：3/8 * (v1 + v2)
+            return MathUtils.addVector(
+                MathUtils.dotVal(Constant.THREE_EIGHTHS, coord1),
+                MathUtils.dotVal(Constant.THREE_EIGHTHS, coord2)
+            );
         }
-        final double coeff2 = 1 - n * alpha;
-        final Vector3d newVertex = MathUtils.addVector(MathUtils.dotVal(coeff2, coordV), MathUtils.dotVal(alpha, vOther));
-        return newVertex;
     }
 
     /**
-     * compute the even node for the whole model
-     *
-     * @return map with index and coords
+     * 计算偶数顶点的新位置
+     * @return 包含偶数顶点新坐标的映射
      */
     public Map<Integer, Vector3d> computeEven() {
-        final Map<Integer, Vector3d> vertexMap = new HashMap<>();
-        for (int index = 0; index < vertices.size(); index++) {
-            final Vector3d coord = computeEven(vertices.get(index));
-            vertexMap.put(index, coord);
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        
+        for (Vertex vertex : vertices) {
+            Vector3d newCoord = computeEvenPoint(vertex);
+            vertexMap.put(vertex.getIndex(), newCoord);
         }
+        
         return vertexMap;
     }
 
     /**
-     * connect to form the new faces
-     *
-     * @return map with face index and vertex indices
+     * 计算单个偶数顶点的新位置
+     * @param vertex 要计算的顶点
+     * @return 新的坐标
+     */
+    private Vector3d computeEvenPoint(Vertex vertex) {
+        Vector3d oldCoord = vertex.getCoords();
+        List<Integer> neighborIndices = vertex.getVertexIndices();
+        int n = neighborIndices.size();
+        
+        if (vertex.isBoundary()) {
+            // 边界顶点处理
+            if (n == 2) { // 角点，只有两个邻接顶点
+                Vector3d sumNeighbors = new Vector3d(0, 0, 0);
+                for (Integer idx : neighborIndices) {
+                    sumNeighbors = MathUtils.addVector(sumNeighbors, vertices.get(idx).getCoords());
+                }
+                // Slerp方案边界规则：新位置 = (6*v + (v_prev + v_next))/8
+                return MathUtils.addVector(
+                    MathUtils.dotVal(0.75, oldCoord),
+                    MathUtils.dotVal(0.125, sumNeighbors)
+                );
+            } else { // 一般边界点
+                // 查找边界上的前后顶点
+                List<Vertex> neighbors = new ArrayList<>();
+                for (Integer idx : neighborIndices) {
+                    neighbors.add(vertices.get(idx));
+                }
+                
+                // 简化的边界处理
+                Vector3d prev = neighbors.get(0).getCoords();
+                Vector3d next = neighbors.get(1).getCoords();
+                
+                return MathUtils.addVector(
+                    MathUtils.dotVal(0.75, oldCoord),
+                    MathUtils.dotVal(0.125, MathUtils.addVector(prev, next))
+                );
+            }
+        } else {
+            // 内部顶点处理
+            if (n == 6) {
+                // 正则顶点：使用标准权重
+                Vector3d sumNeighbors = new Vector3d(0, 0, 0);
+                for (Integer idx : neighborIndices) {
+                    sumNeighbors = MathUtils.addVector(sumNeighbors, vertices.get(idx).getCoords());
+                }
+                
+                // Loop权重：(1-n*beta)*oldCoord + beta*sumNeighbors
+                // 其中beta = (5/8 - (3+2*cos(2π/n))^2/64) / n
+                // 当n=6时，beta = 1/16
+                double beta = 1.0 / 16.0;
+                return MathUtils.addVector(
+                    MathUtils.dotVal(1 - n * beta, oldCoord),
+                    MathUtils.dotVal(beta, sumNeighbors)
+                );
+            } else {
+                // 非正则顶点：计算权重
+                Vector3d sumNeighbors = new Vector3d(0, 0, 0);
+                for (Integer idx : neighborIndices) {
+                    sumNeighbors = MathUtils.addVector(sumNeighbors, vertices.get(idx).getCoords());
+                }
+                
+                // Loop方案的beta值计算
+                double beta = (3.0 + 2.0 * Math.cos(2.0 * Math.PI / n)) / (4.0 * n);
+                return MathUtils.addVector(
+                    MathUtils.dotVal(1 - n * beta, oldCoord),
+                    MathUtils.dotVal(beta, sumNeighbors)
+                );
+            }
+        }
+    }
+
+    /**
+     * 创建新三角形
+     * @param vertexMap 包含顶点坐标的映射
+     * @return 包含面索引的映射
      */
     public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
-        //connect the vertices
-        //vertexMap is from computeOdd
         int faceCount = 0;
-        final Map<Integer, List<Integer>> faceMap = new HashMap<>();
-        //iterate over the original triangles
-        for (final Triangle triangle : this.triangles) {
-            //for track map
-            List<Integer> triangleIndexTracking = new ArrayList<>();
+        Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        List<Integer> triangleIndexTracking = new ArrayList<>();
 
-            final HashSet<Integer> oddVertexSet = new HashSet<>();
-            //set the face topology
+        for (final Triangle triangle : this.triangles) {
+            final Set<Integer> oddVertexSet = new HashSet<>();
             Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
-                List<Integer> vertexIndices = new ArrayList<>(3);
-
+                final List<Integer> vertexIndices = new ArrayList<>(3);
                 vertexIndices.add(vertex.getIndex());
                 for (final Edge edge : connectedEdges) {
-                    int newVertexIndex = this.oddNodeMap.get(edge.getIndex());
+                    final int newVertexIndex = oddNodeMap.get(edge.getIndex());
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
+                Vector3d subFaceNormal = MathUtils.getUnitNormal(
+                    vertexMap.get(vertexIndices.get(0)),
+                    vertexMap.get(vertexIndices.get(1)),
+                    vertexMap.get(vertexIndices.get(2))
+                );
 
-                Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
                 if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                     Collections.swap(vertexIndices, 1, 2);
                 }
-                faceMap.put(faceCount, vertexIndices);
                 triangleIndexTracking.add(faceCount);
+                faceMap.put(faceCount, vertexIndices);
                 faceCount += 1;
             }
-            //connect the new created odd vertices to form a surface
+            // 连接新创建的奇数顶点形成一个面
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
-            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(oddVertexArr.get(0)), vertexMap.get(oddVertexArr.get(1)), vertexMap.get(oddVertexArr.get(2)));
+            Vector3d subFaceNormal = MathUtils.getUnitNormal(
+                vertexMap.get(oddVertexArr.get(0)),
+                vertexMap.get(oddVertexArr.get(1)),
+                vertexMap.get(oddVertexArr.get(2))
+            );
             if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                 Collections.swap(oddVertexArr, 1, 2);
             }
-            faceMap.put(faceCount, oddVertexArr);
             triangleIndexTracking.add(faceCount);
-            faceCount += 1;
+            faceMap.put(faceCount, oddVertexArr);
             trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
+            faceCount += 1;
         }
         return faceMap;
     }

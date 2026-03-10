@@ -1,6 +1,7 @@
 import java.util.List;
 
 /**
+ * 数学工具类
  * @author tangshao
  */
 public class MathUtils {
@@ -47,51 +48,45 @@ public class MathUtils {
     }
 
     /**
-     * Get the angle between 2 vectors in degrees
+     * 获取两个向量之间的夹角（以度为单位）
      *
-     * @param v1 vector1
-     * @param v2 vector2
-     * @return Degree in between
+     * @param v1 向量1
+     * @param v2 向量2
+     * @return 两向量之间的角度（度）
      */
     public static double getAngle(Vector3d v1, Vector3d v2) {
-        double aDotb = v1.getXVal() * v2.getXVal() + v1.getYVal() * v2.getYVal() + v1.getZVal() * v2.getZVal();
-        double modA = Math.pow((Math.pow(v1.getXVal(), 2) + Math.pow(v1.getYVal(), 2) + Math.pow(v1.getZVal(), 2)), 0.5);
-        double modB = Math.pow((Math.pow(v2.getXVal(), 2) + Math.pow(v2.getYVal(), 2) + Math.pow(v2.getZVal(), 2)), 0.5);
-        double val = aDotb / (modA * modB);
-        if (val >= 1.0) {
-            val = 1.0;
-        } else if (val <= -1.0) {
-            val = -1.0;
+        double dotProduct = v1.getXVal() * v2.getXVal() + v1.getYVal() * v2.getYVal() + v1.getZVal() * v2.getZVal();
+        double magnitudeA = v1.getMod();
+        double magnitudeB = v2.getMod();
+        
+        if (magnitudeA < Constant.EPSILON || magnitudeB < Constant.EPSILON) {
+            return 0.0; // 零向量的情况
         }
-        return Math.toDegrees(Math.acos(val));
+        
+        double cosTheta = dotProduct / (magnitudeA * magnitudeB);
+        // 限制cosTheta范围在[-1, 1]之间，避免浮点误差导致的acos无效输入
+        cosTheta = Math.max(-1.0, Math.min(1.0, cosTheta));
+        
+        return Math.toDegrees(Math.acos(cosTheta));
     }
 
     public static double getAngle(Vector3d v1, Vector3d v2, Vector3d v3) {
-        Vector3d edge1 = MathUtils.minusVector(v2, v1);
-        Vector3d edge2 = MathUtils.minusVector(v3, v1);
+        Vector3d edge1 = MathUtils.minusVector(v1, v2); // 从v2到v1的向量
+        Vector3d edge2 = MathUtils.minusVector(v1, v3); // 从v3到v1的向量
 
-        double aDotb = edge1.getXVal() * edge2.getXVal() + edge1.getYVal() * edge2.getYVal() + edge1.getZVal() * edge2.getZVal();
-        double modA = Math.pow((Math.pow(edge1.getXVal(), 2) + Math.pow(edge1.getYVal(), 2) + Math.pow(edge1.getZVal(), 2)), 0.5);
-        double modB = Math.pow((Math.pow(edge2.getXVal(), 2) + Math.pow(edge2.getYVal(), 2) + Math.pow(edge2.getZVal(), 2)), 0.5);
-        double val = aDotb / (modA * modB);
-        if (val >= 1.0) {
-            val = 1.0;
-        } else if (val <= -1.0) {
-            val = -1.0;
-        }
-        return Math.toDegrees(Math.acos(val));
+        return getAngle(edge1, edge2);
     }
 
 
     public static double getMod(double x, double y, double z) {
-        return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
+        return Math.sqrt(x*x + y*y + z*z);
     }
 
     public static double getMod(Vector3d vec) {
         double x = vec.getXVal();
         double y = vec.getYVal();
         double z = vec.getZVal();
-        return Math.pow(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2), 0.5);
+        return Math.sqrt(x*x + y*y + z*z);
     }
 
     public static double getSum(Vector3d vec) {
@@ -107,10 +102,16 @@ public class MathUtils {
         double z = vec1.getXVal() * vec2.getYVal() - vec1.getYVal() * vec2.getXVal();
 
         double mod = MathUtils.getMod(x, y, z);
+        if (mod < Constant.EPSILON) {
+            return new Vector3d(0, 0, 0); // 退化三角形
+        }
         return new Vector3d(x / mod, y / mod, z / mod);
     }
 
     public static double getAverage(List<Double> list) {
+        if (list.isEmpty()) {
+            return 0.0;
+        }
         double sum = 0;
         for (Double val : list) {
             sum += val;
@@ -119,10 +120,13 @@ public class MathUtils {
     }
 
     public static double getVariance(List<Double> list, double average) {
+        if (list.isEmpty()) {
+            return 0.0;
+        }
         double sum = 0;
         for (Double val : list) {
-            double diff = Math.pow((val - average), 2);
-            sum += diff;
+            double diff = val - average;
+            sum += diff * diff;
         }
         return sum / list.size();
     }

@@ -2,17 +2,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
+ * 三维向量类
  * @author tangshao
  */
 @Getter
 @Setter
 public class Vector3d {
-    //coordinates
+    //坐标
     private double xVal;
     private double yVal;
     private double zVal;
 
-    Vector3d(final double x, final double y, final double z) {
+    public Vector3d(final double x, final double y, final double z) {
         this.xVal = x;
         this.yVal = y;
         this.zVal = z;
@@ -22,7 +23,28 @@ public class Vector3d {
         return new double[]{xVal, yVal, zVal};
     }
 
+    /**
+     * 获取向量的模长
+     * @return 向量的模长
+     */
     public double getMod() {
-        return Math.pow(Math.pow(xVal, 2) + Math.pow(yVal, 2) + Math.pow(zVal, 2), 0.5);
+        return Math.sqrt(xVal*xVal + yVal*yVal + zVal*zVal);
+    }
+
+    /**
+     * 标准化向量
+     * @return 标准化后的单位向量
+     */
+    public Vector3d normalize() {
+        double mod = getMod();
+        if (mod < Constant.EPSILON) {
+            return new Vector3d(0, 0, 0); // 零向量无法标准化
+        }
+        return new Vector3d(xVal/mod, yVal/mod, zVal/mod);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Vector3d{x=%.3f, y=%.3f, z=%.3f}", xVal, yVal, zVal);
     }
 }

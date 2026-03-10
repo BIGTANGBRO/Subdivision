@@ -5,37 +5,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 三角形类
  * @author tangshao
  */
 @Getter
 @Setter
 public class Triangle {
-    //data structure for the polygon
+    //多边形的数据结构
     protected int index;
     protected List<Vertex> vertices;
     protected List<Edge> edges;
-    //neighbour polygons
+    //邻接多边形
     protected List<Integer> triangleIndices;
 
 
-    Triangle() {
+    public Triangle() {
         this.vertices = new ArrayList<>();
     }
 
     /**
-     * constructor
+     * 构造函数
      *
-     * @param index           index number
-     * @param triangleIndices the index of the neighbour triangles
+     * @param index           索引号
+     * @param triangleIndices 邻接三角形的索引
      */
-    Triangle(final int index, final List<Integer> triangleIndices) {
+    public Triangle(final int index, final List<Integer> triangleIndices) {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = new ArrayList<>(3);
         this.edges = new ArrayList<>();
     }
 
-    Triangle(final int index, final List<Vertex> vertices, final List<Integer> triangleIndices) {
+    public Triangle(final int index, final List<Vertex> vertices, final List<Integer> triangleIndices) {
         this.index = index;
         this.triangleIndices = triangleIndices;
         this.vertices = vertices;
@@ -81,12 +82,15 @@ public class Triangle {
             case 0:
                 verticesRemain.add(this.vertices.get(1));
                 verticesRemain.add(this.vertices.get(2));
+                break;
             case 1:
                 verticesRemain.add(this.vertices.get(2));
                 verticesRemain.add(this.vertices.get(0));
+                break;
             default:
                 verticesRemain.add(this.vertices.get(0));
                 verticesRemain.add(this.vertices.get(1));
+                break;
         }
         return verticesRemain;
     }
@@ -122,7 +126,7 @@ public class Triangle {
 
     public boolean isNearExtraordinary() {
         for (final Vertex v : this.vertices) {
-            if (!v.isRegular()) {
+            if (v.isExtraordinary()) {  // 使用新的isExtraordinary方法
                 return true;
             }
         }
@@ -154,6 +158,15 @@ public class Triangle {
         final double z = vec1.getXVal() * vec2.getYVal() - vec1.getYVal() * vec2.getXVal();
 
         final double mod = MathUtils.getMod(x, y, z);
+        if (mod < Constant.EPSILON) {
+            return new Vector3d(0, 0, 0); // 退化三角形
+        }
         return new Vector3d(x / mod, y / mod, z / mod);
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("Triangle{index=%d, vertices=%s}", index, 
+                             vertices != null ? vertices.size() + " vertices" : "null");
     }
 }

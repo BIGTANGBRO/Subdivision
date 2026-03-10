@@ -1,145 +1,89 @@
+import org.smurn.jply.PlyReader;
 import org.smurn.jply.PlyReaderFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 
 /**
+ * 主入口类
+ * 
  * @author tangshao
  */
 public class MainEntry {
-    public static void accessQuality(InputModel inputModel) throws IOException {
-        //ComparisonStep.writeAngle(inputModel);
-        ComparisonStep.writeCurvatureGaussian(inputModel);
-        ComparisonStep.writeCurvatureMean(inputModel);
-        ComparisonStep.writeCurvaturePrincipal(inputModel);
-        System.out.println("--------Properties are written successfully-------");
+
+    /**
+     * 比较不同细分方案的性能
+     * @param inputModel 输入模型
+     */
+    private static void compareSchemes(InputModel inputModel) {
+        // 准备测试数据
+        Map<Integer, Vector3d> baseVertices = new HashMap<>();
+        Map<Integer, List<Integer>> baseFaces = new HashMap<>();
+
+        // 创建性能比较实例
+        ComparisonStepSeparate comparisonStep = new ComparisonStepSeparate(baseVertices, baseFaces);
+
+        // 执行性能测试
+        comparisonStep.performanceTest(inputModel);
+
+        // 保存测试结果
+        comparisonStep.saveTestResults("performance_comparison");
     }
 
-    public static void accessQualityOnExtra(InputModel inputModel) throws IOException {
-        //ComparisonStepSeparate.writeAngle(inputModel);
-        ComparisonStepSeparate.writeCurvature1(inputModel);
-        ComparisonStepSeparate.writeCurvature2(inputModel);
-        System.out.println("--------Extraordinary properties are written successfully-------");
-    }
+    public static void main(String[] args) {
+        System.out.println("开始处理PLY模型...");
 
-    public static void compareSphere(InputModel inputModel) throws IOException {
-        ComparisonStep.writeSphereDiff(inputModel);
-    }
+        if (args.length < 1) {
+            System.err.println("用法: java MainEntry <PLY文件路径>");
+            return;
+        }
 
-    public static void vertexCompareHausorff(InputModel inputModel1, InputModel inputModel2) {
-        double distance = ComparisonStep.getHausorffDistance(inputModel1.getVertices(), inputModel2.getVertices());
-        System.out.println("The maximum hausorff distance is" + distance);
-    }
+        String filePath = args[0];
+        System.out.println("正在读取文件: " + filePath);
 
-    public static InputModel readTheModel(String filePath) throws IOException {
-        //Variables initializing
-        InputStream in = new FileInputStream(filePath);
-        PlyReaderFile reader = new PlyReaderFile(in);
-        int numFaces = reader.getElementCount("face");
-        int numVertices = reader.getElementCount("vertex");
-        Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
-        Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
-        //read the detail
-        ReadPLY.read(reader, vertices, faces);
-        System.out.println("--------File read from computer successfully-------");
-        System.out.println("Info of the model");
-        System.out.println("Number of elements:" + numFaces);
-        System.out.println("Number of vertices:" + numVertices);
+        try {
+            // 读取PLY文件
+            PlyReader plyReader = new PlyReaderFile(filePath);
+            Map<Integer, Vector3d> vertices = new HashMap<>();
+            Map<Integer, List<Integer>> faces = new HashMap<>();
+            
+            ReadPLY.read(plyReader, vertices, faces);
+            System.out.println("成功读取 " + vertices.size() + " 个顶点和 " + faces.size() + " 个面");
 
-        AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
-        return analysisStep.createTheModel();
-    }
+            // 创建输入模型
+            InputModel inputModel = new InputModel(vertices, faces);
+            System.out.println("输入模型创建完成");
 
-    public static OutputModel getOutputModel(String filePath) throws IOException {
-        //Variables initializing
-        InputStream in = new FileInputStream(filePath);
-        PlyReaderFile reader = new PlyReaderFile(in);
-        int numFaces = reader.getElementCount("face");
-        int numVertices = reader.getElementCount("vertex");
-        Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
-        Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
-        //read the detail
-        ReadPLY.read(reader, vertices, faces);
-        System.out.println("--------File read from computer successfully-------");
-        System.out.println("Info of the model");
-        System.out.println("Number of elements:" + numFaces);
-        System.out.println("Number of vertices:" + numVertices);
+            // 执行分析步骤 - 可选择不同的细分方案
+            Map<Integer, Vector3d> outputVertices = new HashMap<>(vertices);
+            Map<Integer, List<Integer>> outputFaces = new HashMap<>(faces);
 
-        OutputModel outputModel = new OutputModel(vertices, faces);
-        return outputModel;
-    }
+            // 示例：使用Loop方案进行细分
+            AnalysisStep analysisStep = new AnalysisStep(outputVertices, outputFaces);
+            analysisStep.implementScheme1(inputModel);
+            System.out.println("细分完成");
 
-    //subdivision workflow
-    public static void workFlow() throws IOException {
-        System.out.println("--------NORMAL PROCEDURE EXECUTING-------");
-        //set the current timeMills
-        long startTime = System.currentTimeMillis();
+            // 创建输出模型
+            OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap());
+            
+            // 尝试写入PLY文件
+            try {
+                outputModel.writePLY("output_model");
+                System.out.println("输出文件已保存为 output_model.ply");
+            } catch (IOException e) {
+                System.err.println("写入PLY文件时发生错误: " + e.getMessage());
+            }
 
-        //file location
-        String modelName = "sphere";
-        String fileName = "C:\\Users\\tangj\\Downloads\\Model_Lib\\" + modelName + ".ply";
+            // 性能比较测试
+            System.out.println("\n开始性能比较测试...");
+            compareSchemes(inputModel);
 
-        //Variables initializing
-        InputStream in = new FileInputStream(fileName);
-        PlyReaderFile reader = new PlyReaderFile(in);
-        int numFaces = reader.getElementCount("face");
-        int numVertices = reader.getElementCount("vertex");
-        Map<Integer, Vector3d> vertices = new HashMap<>(numVertices);
-        Map<Integer, List<Integer>> faces = new HashMap<>(numFaces);
-        //read the detail and Creation
-        ReadPLY.read(reader, vertices, faces);
-        System.out.println("--------Input coarse model read successfully-------");
-        System.out.println("Info of the old model");
-        System.out.println("Number of elements:" + numFaces);
-        System.out.println("Number of vertices:" + numVertices);
-        AnalysisStep analysisStep = new AnalysisStep(vertices, faces);
-        InputModel inputModel = analysisStep.createTheModel();
+            // 关闭PLY读取器
+            plyReader.close();
 
-        analysisStep.implementScheme3(inputModel);
-        //analysisStep.implementScheme3(analysisStep.createTheModel());
-        //analysisStep.implementScheme3(analysisStep.createTheModel());
-
-        System.out.println("-------Subdivision scheme implemented successfully-------");
-        InputModel newModel = analysisStep.createTheModel();
-
-        //normal calculation
-        Map<Integer, Vector3d> normalMap = ComparisonStep.getNormalForVertices(newModel);
-        OutputModel outputModel = new OutputModel(analysisStep.getVertexMap(), analysisStep.getFaceMap(), normalMap);
-        System.out.println("Info of the new model:");
-        System.out.println("Number of elements:" + outputModel.getFaceMap().size());
-        System.out.println("Number of vertices:" + outputModel.getVertexMap().size());
-
-        //write the file
-        outputModel.writePLYNormal(modelName + "_refined");
-        //outputModel.writePLYCurvature(modelName + "_refined", ComparisonStep.getGaussianCurvature(newModel), ComparisonStep.getMeanCurvature(newModel));
-        //outputModel.writePLYCurvature2(modelName + "_refined2", ComparisonStep.getPrincipalCurvature(newModel));
-
-        long endTime = System.currentTimeMillis();
-
-        //ComparisonStep.writeSphereR(newModel);
-        //accessQuality(newModel);
-        //accessQualityOnExtra(newModel);
-
-        System.out.println("-------Process finished-------");
-        System.out.println("The program takes " + (endTime - startTime) / 1000d + "s");
-    }
-
-    public static void main(String[] args) throws IOException {
-        workFlow();
-
-        //InputModel modelInput = readTheModel("C:\\Users\\jt2418\\Downloads\\Fyp_Quant_data\\Cow_data\\3\\cow_refined.ply");
-        //ComparisonStep.writeCurvatureMean(model);
-        //ComparisonStep.writeCurvaturePrincipal(model);
-        //ComparisonStepSeparate.writeCurvature2(model);
-
-        //InputModel modelInput = readTheModel("C:\\Users\\jt2418\\Downloads\\Fyp_simulation_models\\STL_produced\\Design_Regular3.ply");
-        //InputModel modelInput = readTheModel("C:\\Users\\jt2418\\Downloads\\Fyp_Quant_data\\Sphere_Regular_data\\stl_sphere\\Design1.ply");
-        //ComparisonStep.writeHausorffDistribution(modelInput.getVertices(), modelAnalytical.getVertices(), 1);
-        //ComparisonStep.writeHausorffDistribution(modelAnalytical.getVertices(), modelInput.getVertices(), 2);
-        //double averageH2 = ComparisonStep.getAverageH(modelInput);
-        //System.out.println("Average h of the second model is " + averageH2);
+        } catch (IOException e) {
+            System.err.println("读取PLY文件时发生错误: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

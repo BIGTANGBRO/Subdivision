@@ -4,6 +4,8 @@ import lombok.Setter;
 import java.util.*;
 
 /**
+ * 改进的蝴蝶细分方案
+ *
  * @author: tangshao
  * @Date: 26/01/2022
  */
@@ -15,7 +17,7 @@ public class ModifiedButterflyScheme {
     protected List<Edge> edges;
     protected Map<Integer, Integer> oddNodeMap;
     protected Map<Integer, List<Integer>> trianglesTrackMap;
-    protected double w = 0d;//or -1/16
+    protected double w = 0d; // 或 -1/16
 
     public ModifiedButterflyScheme(List<Triangle> triangles, List<Vertex> vertices, List<Edge> edges) {
         this.triangles = triangles;
@@ -26,11 +28,11 @@ public class ModifiedButterflyScheme {
     }
 
     /**
-     * Get the neighbour points in order
+     * 按顺序获取邻近点
      *
-     * @param vMain The main vertex
-     * @param vNear The neighbour vertex
-     * @return The list of vertices
+     * @param vMain  主顶点
+     * @param vNear  邻近顶点
+     * @return 按顺序排列的顶点列表
      */
     public List<Vertex> getNeighbourPtsInOrder(Vertex vMain, Vertex vNear) {
         List<Integer> trianglesIndexNear = vMain.getTriangleIndices();
@@ -43,53 +45,74 @@ public class ModifiedButterflyScheme {
 
         List<Vertex> verticesNear = new ArrayList<>();
         verticesNear.add(vNear);
+        
+        // 找到起始的相邻顶点
+        boolean foundStart = false;
         for (Triangle triangle : trianglesNear) {
-            if (triangle.containVertices(vMain, vNear) && triangle.getRemainInDirection(vMain).get(0).getIndex() == vNear.getIndex()) {
-                Vertex vRemain = triangle.getRemainInDirection(vMain).get(1);
-                verticesNear.add(vRemain);
-                break;
-            }
-        }
-
-        //for some model with wrong topology, increase the robustness
-        if (verticesNear.size() <= 1) {
-            for (Triangle triangle : trianglesNear) {
-                if (triangle.containVertices(vMain, vNear)) {
-                    verticesNear.add(triangle.getRemain(vMain, vNear));
+            if (triangle.containVertices(vMain, vNear)) {
+                List<Vertex> remaining = triangle.getRemainInDirection(vMain);
+                if (remaining.size() >= 2 && remaining.get(0).getIndex() == vNear.getIndex()) {
+                    verticesNear.add(remaining.get(1));
+                    foundStart = true;
                     break;
                 }
             }
         }
 
+        // 对于拓扑有问题的模型，增加鲁棒性
+        if (!foundStart && verticesNear.size() <= 1) {
+            for (Triangle triangle : trianglesNear) {
+                if (triangle.containVertices(vMain, vNear)) {
+                    Vertex remaining = triangle.getRemain(vMain, vNear);
+                    if (remaining != null && !verticesNear.contains(remaining)) {
+                        verticesNear.add(remaining);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (verticesNear.size() < 2) {
+            return verticesNear; // 无法构建完整的邻域
+        }
+        
         Vertex vOld = verticesNear.get(1);
         while (verticesNear.size() != vMain.getNumVertices()) {
             if (iterN > maxN) {
                 break;
             }
+            boolean foundNext = false;
             for (Triangle triangle : trianglesNear) {
                 if (triangle.containVertices(vMain, vOld)) {
                     Vertex vRemain = triangle.getRemain(vMain, vOld);
-                    if (!verticesNear.contains(vRemain)) {
+                    if (vRemain != null && !verticesNear.contains(vRemain)) {
                         verticesNear.add(vRemain);
                         vOld = vRemain;
+                        foundNext = true;
+                        break;
                     }
                 }
-                iterN += 1;
             }
-            iterN += 1;
+            if (!foundNext) {
+                // 如果没有找到下一个顶点，尝试其他三角形
+                iterN++;
+            } else {
+                iterN = 0; // 重置计数器，因为我们找到了一个新顶点
+            }
         }
         return verticesNear;
     }
 
-    //Both are not extraordinary
-    public Map<String, List<Vertex>> getStenil(Vertex v1, Vertex v2) {
+    // 获取模板
+    public Map<String, List<Vertex>> getStencil(Vertex v1, Vertex v2) {
         List<Vertex> vertex1 = getNeighbourPtsInOrder(v1, v2);
         List<Vertex> vertex2 = getNeighbourPtsInOrder(v2, v1);
-        Map<String, List<Vertex>> stencils = new HashMap<>();
+        Map<String, List<Vertex>> stencil = new HashMap<>();
         List<Vertex> aList = new ArrayList<>(2);
         List<Vertex> bList = new ArrayList<>(2);
         List<Vertex> cList = new ArrayList<>(4);
         List<Vertex> dList = new ArrayList<>(2);
+        
         aList.add(v1);
         aList.add(v2);
         bList.add(vertex1.get(1));
@@ -102,43 +125,47 @@ public class ModifiedButterflyScheme {
 
         dList.add(vertex1.get(3));
         dList.add(vertex2.get(3));
-        stencils.put("a", aList);
-        stencils.put("b", bList);
-        stencils.put("c", cList);
-        stencils.put("d", dList);
-        return stencils;
+        
+        stencil.put("a", aList);
+        stencil.put("b", bList);
+        stencil.put("c", cList);
+        stencil.put("d", dList);
+        return stencil;
     }
 
     /**
-     * Get the coefficients for n >= 5
+     * 获取 n >= 5 时的系数
      *
-     * @param j index
-     * @param n number of points
-     * @return Coefficients
+     * @param j 索引
+     * @param n 点的数量
+     * @return 系数
      */
     protected double getCoeff(int j, int n) {
-        return (0.25d + Math.cos(2.0d * Math.PI * (double) j / (double) n) + 0.5 * Math.cos(4.0d * Math.PI * (double) j / (double) n)) / (double) n;
+        double cosTerm1 = Math.cos(2.0d * Math.PI * j / n);
+        double cosTerm2 = Math.cos(4.0d * Math.PI * j / n);
+        return (0.25d + cosTerm1 + 0.5 * cosTerm2) / n;
     }
 
-    public double[] getCoeff(double w) {
+    public double[] getCoefficients(double w) {
         return new double[]{0.5d - w, 0.125d + 2d * w, -1d / 16d - w, w};
     }
 
     /**
-     * Calculate the extraordinary coordinates
+     * 计算异常情况的坐标
      *
-     * @param vMain Main vertex
-     * @param vNear Near vertex
-     * @return The coordinate of the calculated vertex
+     * @param vMain 主顶点
+     * @param vNear 邻近顶点
+     * @return 计算出的顶点坐标
      */
-    public Vector3d calcualeExtraordinary(Vertex vMain, Vertex vNear) {
-        //n is the number of neighbours
+    public Vector3d calculateExtraordinary(Vertex vMain, Vertex vNear) {
+        // n 是邻居数量
         List<Vertex> vertexIndices = getNeighbourPtsInOrder(vMain, vNear);
         int n = vertexIndices.size();
+        
         if (n == 3) {
             double[] coeffs = new double[]{5d / 12d, -1d / 12d, -1d / 12d};
             Vector3d sum = new Vector3d(0, 0, 0);
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 3 && i < vertexIndices.size(); i++) {
                 Vertex v = vertexIndices.get(i);
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeffs[i], v.getCoords()));
             }
@@ -146,14 +173,14 @@ public class ModifiedButterflyScheme {
         } else if (n == 4) {
             double[] coeffs = new double[]{3d / 8d, 0, -1d / 8d, 0};
             Vector3d sum = new Vector3d(0, 0, 0);
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4 && i < vertexIndices.size(); i++) {
                 Vertex v = vertexIndices.get(i);
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeffs[i], v.getCoords()));
             }
             return MathUtils.addVector(sum, MathUtils.dotVal(3d / 4d, vMain.getCoords()));
         } else {
             Vector3d sum = new Vector3d(0, 0, 0);
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n && i < vertexIndices.size(); i++) {
                 double coeff = getCoeff(i, n);
                 Vertex v = vertexIndices.get(i);
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff, v.getCoords()));
@@ -164,34 +191,35 @@ public class ModifiedButterflyScheme {
 
     public Vector3d computeOdd(Vertex v1, Vertex v2) {
         if (v1.isRegular() && v2.isRegular()) {
-            Map<String, List<Vertex>> stencils = getStenil(v1, v2);
-            List<Vertex> alist = stencils.get("a");
-            List<Vertex> blist = stencils.get("b");
-            List<Vertex> clist = stencils.get("c");
-            List<Vertex> dlist = stencils.get("d");
-            double[] coeff = getCoeff(this.w);
+            Map<String, List<Vertex>> stencil = getStencil(v1, v2);
+            List<Vertex> aList = stencil.get("a");
+            List<Vertex> bList = stencil.get("b");
+            List<Vertex> cList = stencil.get("c");
+            List<Vertex> dList = stencil.get("d");
+            double[] coeff = getCoefficients(this.w);
             Vector3d sum = new Vector3d(0, 0, 0);
-            for (Vertex vertexNear : alist) {
+            
+            for (Vertex vertexNear : aList) {
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[0], vertexNear.getCoords()));
             }
-            for (Vertex vertexNear : blist) {
+            for (Vertex vertexNear : bList) {
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[1], vertexNear.getCoords()));
             }
-            for (Vertex vertexNear : clist) {
+            for (Vertex vertexNear : cList) {
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[2], vertexNear.getCoords()));
             }
-            for (Vertex vertexNear : dlist) {
+            for (Vertex vertexNear : dList) {
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[3], vertexNear.getCoords()));
             }
             return sum;
         } else if (v1.isRegular()) {
-            return calcualeExtraordinary(v2, v1);
+            return calculateExtraordinary(v2, v1);
         } else if (v2.isRegular()) {
-            return calcualeExtraordinary(v1, v2);
+            return calculateExtraordinary(v1, v2);
         } else {
-            Vector3d vCoord1 = calcualeExtraordinary(v1, v2);
-            Vector3d vCoord2 = calcualeExtraordinary(v2, v1);
-            return MathUtils.dotVal(0.5d, MathUtils.addVector(vCoord1, vCoord2));
+            Vector3d vCoord1 = calculateExtraordinary(v1, v2);
+            Vector3d vCoord2 = calculateExtraordinary(v2, v1);
+            return MathUtils.dotVal(Constant.HALF, MathUtils.addVector(vCoord1, vCoord2));
         }
     }
 
@@ -201,9 +229,6 @@ public class ModifiedButterflyScheme {
         for (Edge edge : edges) {
             Vertex v1 = edge.getA();
             Vertex v2 = edge.getB();
-//            if (v1.getIndex() == 273 || v1.getIndex() == 681){
-//                System.out.println("here");
-//            }
             Vector3d coord = computeOdd(v1, v2);
             vertexMap.put(index, coord);
             oddNodeMap.put(edge.getIndex(), index);
@@ -218,7 +243,7 @@ public class ModifiedButterflyScheme {
         List<Integer> triangleIndexTracking = new ArrayList<>();
 
         for (final Triangle triangle : this.triangles) {
-            final HashSet<Integer> oddVertexSet = new HashSet<>();
+            final Set<Integer> oddVertexSet = new HashSet<>();
             Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
                 final List<Edge> connectedEdges = triangle.getConnectedEdges(vertex);
@@ -229,7 +254,13 @@ public class ModifiedButterflyScheme {
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
-                Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(vertexIndices.get(0)), vertexMap.get(vertexIndices.get(1)), vertexMap.get(vertexIndices.get(2)));
+                Vector3d subFaceNormal = MathUtils.getUnitNormal(
+                    vertexMap.get(vertexIndices.get(0)), 
+                    vertexMap.get(vertexIndices.get(1)), 
+                    vertexMap.get(vertexIndices.get(2))
+                );
+                
+                // 检查面的朝向一致性
                 if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                     Collections.swap(vertexIndices, 1, 2);
                 }
@@ -237,9 +268,13 @@ public class ModifiedButterflyScheme {
                 faceMap.put(faceCount, vertexIndices);
                 faceCount += 1;
             }
-            //connect the new created odd vertices to form a surface
+            // 连接新创建的奇数顶点形成一个面
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
-            Vector3d subFaceNormal = MathUtils.getUnitNormal(vertexMap.get(oddVertexArr.get(0)), vertexMap.get(oddVertexArr.get(1)), vertexMap.get(oddVertexArr.get(2)));
+            Vector3d subFaceNormal = MathUtils.getUnitNormal(
+                vertexMap.get(oddVertexArr.get(0)), 
+                vertexMap.get(oddVertexArr.get(1)), 
+                vertexMap.get(oddVertexArr.get(2))
+            );
             if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
                 Collections.swap(oddVertexArr, 1, 2);
             }

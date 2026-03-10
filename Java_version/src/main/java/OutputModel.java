@@ -14,7 +14,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 
 /**
- * The outputModel class is used to write the information in the specfic files
+ * OutputModel类用于将信息写入特定文件
  *
  * @author: tangshao
  * @Date: 20/01/2022
@@ -38,7 +38,8 @@ public class OutputModel {
     }
 
     public void writePLY(final String name) throws IOException {
-        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
+        // 使用相对路径替代硬编码的绝对路径
+        final String fileName = name + ".ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
@@ -48,9 +49,9 @@ public class OutputModel {
         bw.write("end_header\n");
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
-            bw.write(Double.toString(coord.getXVal()) + " ");
-            bw.write(Double.toString(coord.getYVal()) + " ");
-            bw.write(Double.toString(coord.getZVal()) + " ");
+            bw.write(coord.getXVal() + " ");
+            bw.write(coord.getYVal() + " ");
+            bw.write(coord.getZVal() + " ");
             bw.write("\n");
         }
 
@@ -66,7 +67,8 @@ public class OutputModel {
     }
 
     public void writePLYNormal(final String name) throws IOException {
-        final String fileName = "C:\\Users\\tangj\\Downloads\\Model_Lib" + name + ".ply";
+        // 使用相对路径替代硬编码的绝对路径
+        final String fileName = name + "_with_normals.ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
@@ -77,14 +79,14 @@ public class OutputModel {
         bw.write("end_header\n");
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
-            final Vector3d norm = normalMap.get(i);
-            bw.write(Double.toString(coord.getXVal()) + " ");
-            bw.write(Double.toString(coord.getYVal()) + " ");
-            bw.write(Double.toString(coord.getZVal()) + " ");
-            //todo:write the normal values
-            bw.write(Double.toString(norm.getXVal()) + " ");
-            bw.write(Double.toString(norm.getYVal()) + " ");
-            bw.write(Double.toString(norm.getZVal()) + " ");
+            final Vector3d norm = normalMap != null ? normalMap.get(i) : new Vector3d(0, 0, 0);
+            bw.write(coord.getXVal() + " ");
+            bw.write(coord.getYVal() + " ");
+            bw.write(coord.getZVal() + " ");
+            // 写入法向量值
+            bw.write(norm.getXVal() + " ");
+            bw.write(norm.getYVal() + " ");
+            bw.write(norm.getZVal() + " ");
             bw.write("\n");
         }
 
@@ -100,34 +102,34 @@ public class OutputModel {
     }
 
     public void writePLYErrorSphere(final String name, Map<Integer, Double> error) throws IOException {
-        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
+        // 使用相对路径替代硬编码的绝对路径
+        final String fileName = name + "_error.ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
         bw.write("property float red\nproperty float green\nproperty float blue\n");
         bw.write("element face " + faceMap.size() + "\n");
-        bw.write("property list uchar int vertex_indices float\n");
+        bw.write("property list uchar int vertex_indices\n");
         bw.write("end_header\n");
 
-        //double maxError = Collections.max(error.values());
-        double maxError = 255;
+        double maxError = Collections.max(error.values());
 
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
 
             double errorVal = error.get(i) / maxError * 255d;
-            if (errorVal <=1){
+            if (errorVal <= 1) {
                 errorVal = 1;
             }
 
-            bw.write(Double.toString(coord.getXVal()) + " ");
-            bw.write(Double.toString(coord.getYVal()) + " ");
-            bw.write(Double.toString(coord.getZVal()) + " ");
-            //properties
-            bw.write(Double.toString(errorVal) + " ");
-            bw.write(Integer.toString(0) + " ");
-            bw.write(Integer.toString(0) + " ");
+            bw.write(coord.getXVal() + " ");
+            bw.write(coord.getYVal() + " ");
+            bw.write(coord.getZVal() + " ");
+            // 属性
+            bw.write(errorVal + " ");
+            bw.write(0 + " ");
+            bw.write(0 + " ");
             bw.write("\n");
         }
 
@@ -143,21 +145,19 @@ public class OutputModel {
     }
 
     public void writePLYCurvature(final String name, Map<Integer, Double> gaussian, Map<Integer, Double> mean) throws IOException {
-        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
+        // 使用相对路径替代硬编码的绝对路径
+        final String fileName = name + "_curvature.ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
         bw.write("property float red\nproperty float green\nproperty float blue\n");
         bw.write("element face " + faceMap.size() + "\n");
-        bw.write("property list uchar int vertex_indices float\n");
+        bw.write("property list uchar int vertex_indices\n");
         bw.write("end_header\n");
 
-        //double maxMean = Collections.max(mean.values());
-        //double maxGaussian = Collections.max(gaussian.values());
-
-        double maxMean = 200d;
-        double maxGaussian = 700d;
+        double maxMean = Collections.max(mean.values());
+        double maxGaussian = Collections.max(gaussian.values());
 
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
@@ -183,13 +183,13 @@ public class OutputModel {
                 curvatureMean = 1d;
             }
 
-            bw.write(Double.toString(coord.getXVal()) + " ");
-            bw.write(Double.toString(coord.getYVal()) + " ");
-            bw.write(Double.toString(coord.getZVal()) + " ");
-            //properties
-            bw.write(Double.toString(curvatureGaussian) + " ");
-            bw.write(Double.toString(curvatureMean) + " ");
-            bw.write(Integer.toString(0) + " ");
+            bw.write(coord.getXVal() + " ");
+            bw.write(coord.getYVal() + " ");
+            bw.write(coord.getZVal() + " ");
+            // 属性
+            bw.write(curvatureGaussian + " ");
+            bw.write(curvatureMean + " ");
+            bw.write(0 + " ");
             bw.write("\n");
         }
 
@@ -205,53 +205,60 @@ public class OutputModel {
     }
 
     public void writePLYCurvature2(final String name, Map<Integer, List<Double>> principalCurvature) throws IOException {
-        final String fileName = "C:\\Users\\jt2418\\Downloads\\" + name + ".ply";
+        // 使用相对路径替代硬编码的绝对路径
+        final String fileName = name + "_principal_curvature.ply";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("ply\nformat ascii 1.0\ncomment zipper output\n");
         bw.write("element vertex " + vertexMap.size() + "\n");
         bw.write("property float x\nproperty float y\nproperty float z\n");
         bw.write("property uchar red\nproperty float green\nproperty float blue\n");
         bw.write("element face " + faceMap.size() + "\n");
-        bw.write("property list uchar int vertex_indices float\n");
+        bw.write("property list uchar int vertex_indices\n");
         bw.write("end_header\n");
 
-        //double maxMean = Collections.max(mean.values());
-        //double maxGaussian = Collections.max(gaussian.values());
-
-        double maxk1 = 150d;
-        double maxk2 = 20d;
+        // 获取主曲率的最大值
+        double maxk1 = Collections.max(principalCurvature.values(), (a, b) -> 
+            Double.compare(abs(a.get(0)), abs(b.get(0)))) 
+            .stream().mapToDouble(Double::doubleValue).max().orElse(150.0);
+        double maxk2 = Collections.max(principalCurvature.values(), (a, b) -> 
+            Double.compare(abs(a.get(1)), abs(b.get(1)))) 
+            .stream().mapToDouble(Double::doubleValue).max().orElse(20.0);
 
         for (int i = 0; i < vertexMap.size(); i++) {
             final Vector3d coord = vertexMap.get(i);
 
             double k1 = 0d;
             double k2 = 0d;
-            if (abs(principalCurvature.get(i).get(0)) >= maxk1) {
-                k1 = 255d;
-            } else {
-                k1 = abs(principalCurvature.get(i).get(0)) / maxk1 * 255d;
-            }
-            if (abs(principalCurvature.get(i).get(1)) >= maxk2) {
-                k2 = 255d;
-            } else {
-                k2 = abs(principalCurvature.get(i).get(1)) / maxk2 * 255d;
-            }
+            
+            List<Double> curvatures = principalCurvature.get(i);
+            if (curvatures != null && curvatures.size() >= 2) {
+                if (abs(curvatures.get(0)) >= maxk1) {
+                    k1 = 255d;
+                } else {
+                    k1 = abs(curvatures.get(0)) / maxk1 * 255d;
+                }
+                if (abs(curvatures.get(1)) >= maxk2) {
+                    k2 = 255d;
+                } else {
+                    k2 = abs(curvatures.get(1)) / maxk2 * 255d;
+                }
 
-            if (k1 <= 1d) {
-                k1 = 1d;
-            }
-            if (k2 <= 1d) {
-                k2 = 1d;
-            }
+                if (k1 <= 1d) {
+                    k1 = 1d;
+                }
+                if (k2 <= 1d) {
+                    k2 = 1d;
+                }
 
-            bw.write(Double.toString(coord.getXVal()) + " ");
-            bw.write(Double.toString(coord.getYVal()) + " ");
-            bw.write(Double.toString(coord.getZVal()) + " ");
-            //properties
-            bw.write(Double.toString(k1) + " ");
-            bw.write(Double.toString(k2) + " ");
-            bw.write(Integer.toString(0) + " ");
-            bw.write("\n");
+                bw.write(coord.getXVal() + " ");
+                bw.write(coord.getYVal() + " ");
+                bw.write(coord.getZVal() + " ");
+                // 属性
+                bw.write(k1 + " ");
+                bw.write(k2 + " ");
+                bw.write(0 + " ");
+                bw.write("\n");
+            }
         }
 
         for (int iFace = 0; iFace < faceMap.size(); iFace++) {

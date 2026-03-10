@@ -1,215 +1,239 @@
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * @author: tangshao
- * @Date: 24/02/2022
+ * 单独的比较步骤类，用于比较不同的细分方案
+ * @author tangshao
  */
+@Getter
+@Setter
 public class ComparisonStepSeparate {
-    private static List<Double> getMinDistanceDistributionExtraordinary(final List<Vertex> vertices1, final List<Vertex> vertices2) {
-        final List<Double> vertexDistances = new ArrayList<>(vertices1.size());
-        for (final Vertex vertex1 : vertices1) {
-            if (!vertex1.isRegular()) {
-                double minDist = Double.POSITIVE_INFINITY;
-                for (final Vertex vertex2 : vertices2) {
-                    final double distance = MathUtils.minusVector(vertex1.getCoords(), vertex2.getCoords()).getMod();
-                    if (distance <= minDist) {
-                        minDist = distance;
-                    }
-                }
-                vertexDistances.add(minDist);
-            }
-        }
-        return vertexDistances;
+    private Map<Integer, Vector3d> vertexMap;
+    private Map<Integer, List<Integer>> faceMap;
+
+    public ComparisonStepSeparate(final Map<Integer, Vector3d> vertexMap, final Map<Integer, List<Integer>> faceMap) {
+        this.faceMap = faceMap;
+        this.vertexMap = vertexMap;
     }
 
     /**
-     * Output the data to plot the histogram
-     *
-     * @param vertices1 vertices from model1
-     * @param vertices2 vertices from model2
-     * @throws IOException Ioexception
+     * 实现PeterReif方案
      */
-    public static void writeHausorffDistribution(final List<Vertex> vertices1, final List<Vertex> vertices2) throws IOException {
-        final List<Double> distribution1 = getMinDistanceDistributionExtraordinary(vertices1, vertices2);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_hausorff_extraordinary.dat";
-        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1) {
-            bw.write(Double.toString(distance) + "\n");
-        }
-        bw.close();
+    public void implementPeterReifScheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        PeterReifScheme pScheme = new PeterReifScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = pScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = pScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
     }
 
     /**
-     * Get the dihedral angle for each triangle face in degrees
-     *
-     * @param inputModel InputModel class
-     * @return The list of dihedral angles in this model
+     * 实现Loop方案
      */
-    private static List<Double> computeDihedralAngleExtraordinary(final InputModel inputModel) {
-        final List<Triangle> triangles = inputModel.getTriangles();
-        final List<Vertex> vertices = inputModel.getVertices();
-        final List<Double> dihedralAngles = new ArrayList<>();
-        for (final Triangle triangle : triangles) {
-            if (triangle.isNearExtraordinary()) {
-                final List<Vertex> verticesTri = triangle.getVertices();
-
-                double numerator = 0d;
-                double denominator = 0d;
-
-                //In a single triangle, get the val for each vertex
-                for (final Vertex v : verticesTri) {
-                    final List<Integer> triangleIndices = v.getTriangleIndices();
-                    final List<Triangle> trianglesNear = new ArrayList<>();
-                    final List<Double> angles = new ArrayList<>();
-                    for (final Integer triangleIndex : triangleIndices) {
-                        trianglesNear.add(triangles.get(triangleIndex));
-                    }
-
-                    final List<Integer> vertexIndices = v.getVertexIndices();
-                    //find the triangles share an edge
-                    for (final Integer vertexIndex : vertexIndices) {
-                        final List<Vector3d> trianglesAnEdge = new ArrayList<>();
-                        for (final Triangle triangleNear : trianglesNear) {
-                            if (triangleNear.containVertices(v, vertices.get(vertexIndex))) {
-                                trianglesAnEdge.add(triangleNear.getUnitNormal());
-                            }
-                        }
-                        final double angle = 180d - MathUtils.getAngle(trianglesAnEdge.get(0), trianglesAnEdge.get(1));
-                        angles.add(angle);
-                    }
-                    //calculate the average and variance
-                    final double average = MathUtils.getAverage(angles);
-                    final double variance = MathUtils.getVariance(angles, average);
-                    numerator += (average * variance);
-                    denominator += variance;
-
-                }
-                dihedralAngles.add(numerator / denominator);
-            }
-        }
-        return dihedralAngles;
-    }
-
-    public static void writeAngle(final InputModel inputModel) throws IOException {
-        final List<Double> dAngles = computeDihedralAngleExtraordinary(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngleExtraordinary.dat";
-        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double angle : dAngles) {
-            bw.write(Double.toString(angle) + "\n");
-        }
-        bw.close();
+    public void implementLoopScheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        LoopScheme loopScheme = new LoopScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = loopScheme.computeOdd();
+        Map<Integer, Vector3d> vertexEvenMap = loopScheme.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = loopScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
     }
 
     /**
-     * Get the guassian curvature for each vertex
-     *
-     * @param inputModel Completed inputModel
-     * @return List of gaussian curvature
+     * 实现区域Loop方案
      */
-    public static List<Double> getGaussianCurvatureExtraordinary(final InputModel inputModel) {
-        final List<Vertex> vertices = inputModel.getVertices();
-        final List<Triangle> triangles = inputModel.getTriangles();
-        final List<Double> ks = new ArrayList<>();
-        for (final Vertex v : vertices) {
-            if (!v.isRegular()) {
-                final List<Integer> triangleIndices = v.getTriangleIndices();
-                final List<Triangle> trianglesNear = new ArrayList<>();
-                for (final Integer i : triangleIndices) {
-                    trianglesNear.add(triangles.get(i));
-                }
+    public void implementRegionalLoopScheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalLoop regionalLoop = new RegionalLoop(triangles, vertices, edges);
+        regionalLoop.applyThreshold();
 
-                double area = 0d;
-                for (Triangle triangle : trianglesNear) {
-                    area += triangle.getArea();
-                }
+        // 计算顶点
+        Map<Integer, Vector3d> vertexOddMap = regionalLoop.computeOdd();
+        Map<Integer, Vector3d> vertexEvenMap = regionalLoop.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
 
-                double angleSum = 0d;
-                for (final Triangle triangleNear : trianglesNear) {
-                    final List<Vertex> verticesRemain = triangleNear.getRemain(v);
-                    //from degree to radians
-                    final double angle = Math.toRadians(MathUtils.getAngle(MathUtils.minusVector(verticesRemain.get(0).getCoords(), v.getCoords()), MathUtils.minusVector(verticesRemain.get(1).getCoords(), v.getCoords())));
-                    angleSum += angle;
-                }
-                double k = 2 * Math.PI - angleSum;
-                k = 3 * k / area;
-                ks.add(k);
-            }
-        }
-        return ks;
+        // 连接三角形
+        this.faceMap = regionalLoop.createTriangle(this.vertexMap);
     }
 
-    public static List<Double> getMeanCurvatureExtraordinary(final InputModel inputModel) {
-        final List<Vertex> vertices = inputModel.getVertices();
-        final List<Triangle> triangles = inputModel.getTriangles();
-        final List<Double> hs = new ArrayList<>();
-        for (final Vertex v : vertices) {
-            if (!v.isRegular()) {
-                //data initialization
-                final List<Integer> triangleIndices = v.getTriangleIndices();
-                final List<Triangle> trianglesNear = new ArrayList<>();
-                for (final Integer i : triangleIndices) {
-                    trianglesNear.add(triangles.get(i));
-                }
-
-                //get the pair of the triangles with same edge
-                final Map<Integer, List<Triangle>> diTriangles = new HashMap<>();
-                int index = 0;
-                for (final Integer vertexNear : v.getVertexIndices()) {
-                    final List<Triangle> trianglePair = new ArrayList<>();
-                    final Vertex vNear = vertices.get(vertexNear);
-                    for (final Triangle triangleNear : trianglesNear) {
-                        if (triangleNear.containVertices(v, vNear)) {
-                            trianglePair.add(triangleNear);
-                        }
-                    }
-                    diTriangles.put(index, trianglePair);
-                    index += 1;
-                }
-
-                double area = 0d;
-                for (Triangle triangle : trianglesNear) {
-                    area += triangle.getArea();
-                }
-
-                //curvature calculation
-                double h = 0;
-                final List<Integer> verticesNear = v.getVertexIndices();
-                for (final Map.Entry<Integer, List<Triangle>> entry : diTriangles.entrySet()) {
-                    //from degrees to radians, dihedral angle calculation
-                    final double angle = Math.toRadians(MathUtils.getAngle(entry.getValue().get(0).getUnitNormal(), entry.getValue().get(1).getUnitNormal()));
-                    final double length = MathUtils.getMod(MathUtils.minusVector(vertices.get(verticesNear.get(entry.getKey())).getCoords(), v.getCoords()));
-                    h += 1d / 4d * length * angle;
-                }
-                h = 3d * h / area;
-                hs.add(h);
-            }
-        }
-        return hs;
+    /**
+     * 实现改进的蝴蝶方案
+     */
+    public void implementModifiedButterflyScheme(final InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        ModifiedButterflyScheme mScheme = new ModifiedButterflyScheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = mScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = mScheme.createTriangle(this.vertexMap);
     }
 
-    public static void writeCurvature1(final InputModel inputModel) throws IOException {
-        final List<Double> distribution1 = getGaussianCurvatureExtraordinary(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_gaussian_extraordinary.dat";
-        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1) {
-            bw.write(Double.toString(distance) + "\n");
-        }
-        bw.close();
+    /**
+     * 实现区域蝴蝶方案
+     */
+    public void implementRegionalButterflyScheme(final InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalButterfly mRegionalScheme = new RegionalButterfly(triangles, vertices, edges);
+        mRegionalScheme.applyThreshold();
+        Map<Integer, Vector3d> vertexOddMap = mRegionalScheme.computeOdd();
+        this.vertexMap.putAll(vertexOddMap);
+        this.faceMap = mRegionalScheme.createTriangle(this.vertexMap);
     }
 
-    public static void writeCurvature2(final InputModel inputModel) throws IOException {
-        final List<Double> distribution1 = getMeanCurvatureExtraordinary(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_mean_extraordinary.dat";
-        final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-        for (final Double distance : distribution1) {
-            bw.write(Double.toString(distance) + "\n");
+    /**
+     * 实现Square3方案
+     */
+    public void implementSquare3Scheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        Square3Scheme sScheme = new Square3Scheme(triangles, vertices, edges);
+        Map<Integer, Vector3d> vertexOddMap = sScheme.insertPoints();
+        this.vertexMap = sScheme.computeEven();
+        this.vertexMap.putAll(vertexOddMap);
+        Map<Integer, List<Integer>> faceMap = sScheme.createTriangle(this.vertexMap);
+        this.faceMap = faceMap;
+    }
+
+    /**
+     * 实现区域Square3方案
+     */
+    public void implementRegionalSquare3Scheme(InputModel inputModel) {
+        List<Triangle> triangles = inputModel.getTriangles();
+        List<Edge> edges = inputModel.getEdges();
+        List<Vertex> vertices = inputModel.getVertices();
+        RegionalSquare3 regionalSquare = new RegionalSquare3(triangles, vertices, edges);
+        regionalSquare.applyThreshold();
+
+        // 计算顶点
+        Map<Integer, Vector3d> vertexOddMap = regionalSquare.insertPoints();
+        Map<Integer, Vector3d> vertexEvenMap = regionalSquare.computeEven();
+        this.vertexMap.putAll(vertexEvenMap);
+        this.vertexMap.putAll(vertexOddMap);
+
+        // 连接三角形
+        this.faceMap = regionalSquare.createTriangle(this.vertexMap);
+    }
+
+    /**
+     * 创建模型
+     * @return 输入模型
+     */
+    public InputModel createModel() {
+        return new InputModel(this.vertexMap, this.faceMap);
+    }
+
+    /**
+     * 测试所有方案的性能
+     */
+    public void performanceTest(InputModel inputModel) {
+        System.out.println("Starting performance tests...");
+        
+        // 测试PeterReif方案
+        testSchemePerformance(() -> implementPeterReifScheme(inputModel), "PeterReif");
+        
+        // 重置数据
+        resetData();
+        
+        // 测试Loop方案
+        testSchemePerformance(() -> implementLoopScheme(inputModel), "Loop");
+        
+        // 重置数据
+        resetData();
+        
+        // 测试区域Loop方案
+        testSchemePerformance(() -> implementRegionalLoopScheme(inputModel), "RegionalLoop");
+        
+        // 重置数据
+        resetData();
+        
+        // 测试改进的蝴蝶方案
+        testSchemePerformance(() -> implementModifiedButterflyScheme(inputModel), "ModifiedButterfly");
+        
+        // 重置数据
+        resetData();
+        
+        // 测试区域蝴蝶方案
+        testSchemePerformance(() -> implementRegionalButterflyScheme(inputModel), "RegionalButterfly");
+        
+        // 重置数据
+        resetData();
+        
+        // 测试Square3方案
+        testSchemePerformance(() -> implementSquare3Scheme(inputModel), "Square3");
+        
+        // 重置数据
+        resetData();
+        
+        // 测试区域Square3方案
+        testSchemePerformance(() -> implementRegionalSquare3Scheme(inputModel), "RegionalSquare3");
+    }
+
+    /**
+     * 测试方案性能
+     * @param schemeImplementation 方案实现
+     * @param schemeName 方案名称
+     */
+    private void testSchemePerformance(Runnable schemeImplementation, String schemeName) {
+        long startTime = System.currentTimeMillis();
+        long startMemory = getUsedMemory();
+        
+        schemeImplementation.run();
+        
+        long endTime = System.currentTimeMillis();
+        long endMemory = getUsedMemory();
+        
+        System.out.printf("%s方案: %d ms, 内存变化: %d KB%n", 
+                         schemeName, endTime - startTime, (endMemory - startMemory) / 1024);
+    }
+
+    /**
+     * 获取当前使用的内存量
+     * @return 已使用的内存量（字节）
+     */
+    private long getUsedMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.totalMemory() - runtime.freeMemory();
+    }
+
+    /**
+     * 重置数据
+     */
+    private void resetData() {
+        this.vertexMap.clear();
+        this.faceMap.clear();
+    }
+
+    /**
+     * 保存测试结果到文件
+     * @param fileName 文件名
+     */
+    public void saveTestResults(String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName + "_performance_test_results.txt"))) {
+            writer.write("Performance Test Results:\n");
+            writer.write("Number of Vertices: " + vertexMap.size() + "\n");
+            writer.write("Number of Faces: " + faceMap.size() + "\n");
+            writer.write("Test completed.\n");
+        } catch (IOException e) {
+            System.err.println("Error saving test results: " + e.getMessage());
         }
-        bw.close();
     }
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 边类
  * @author tangshao
  */
 @Getter
@@ -17,7 +18,7 @@ public class Edge {
     public Edge() {
     }
 
-    Edge(final Vertex a, final Vertex b, final int index) {
+    public Edge(final Vertex a, final Vertex b, final int index) {
         this.a = a;
         this.b = b;
         this.index = index;
@@ -35,11 +36,10 @@ public class Edge {
     }
 
     public Vertex getOtherVertex(final Vertex v) {
-        if (a != v) {
-            return a;
-        } else {
-            return b;
+        if (!has(v)) {
+            return null; // 如果v不是这条边的端点，则返回null
         }
+        return a != v ? a : b;
     }
 
     public double getLength() {
@@ -48,7 +48,10 @@ public class Edge {
 
     @Override
     public int hashCode() {
-        return this.a.hashCode() + this.b.hashCode();
+        // 使用较小索引的顶点作为第一个元素来确保顺序无关性
+        int minIndex = Math.min(a.getIndex(), b.getIndex());
+        int maxIndex = Math.max(a.getIndex(), b.getIndex());
+        return minIndex * 31 + maxIndex;
     }
 
     @Override
@@ -56,10 +59,17 @@ public class Edge {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof Edge) {
-            final Edge edge = (Edge) obj;
-            return (this.a.getIndex() == edge.a.getIndex() && this.b.getIndex() == edge.b.getIndex()) || (this.b.getIndex() == edge.a.getIndex() && this.a.getIndex() == edge.b.getIndex());
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
         }
-        return false;
+        
+        final Edge edge = (Edge) obj;
+        return (this.a.getIndex() == edge.a.getIndex() && this.b.getIndex() == edge.b.getIndex()) || 
+               (this.b.getIndex() == edge.a.getIndex() && this.a.getIndex() == edge.b.getIndex());
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("Edge{index=%d, vertexA=%d, vertexB=%d}", index, a.getIndex(), b.getIndex());
     }
 }
