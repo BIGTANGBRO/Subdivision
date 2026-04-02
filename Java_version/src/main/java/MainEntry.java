@@ -16,9 +16,11 @@ public class MainEntry {
      * @param inputModel 输入模型
      */
     private static void compareSchemes(InputModel inputModel) {
-        // 准备测试数据
-        Map<Integer, Vector3d> baseVertices = new HashMap<>();
-        Map<Integer, List<Integer>> baseFaces = new HashMap<>();
+        // 准备测试数据 - 使用实际的输入模型数据
+        Map<Integer, Vector3d> baseVertices = inputModel.getVertices() != null ? 
+            convertVerticesToMap(inputModel.getVertices()) : new HashMap<>();
+        Map<Integer, List<Integer>> baseFaces = inputModel.getTriangles() != null ? 
+            convertTrianglesToMap(inputModel.getTriangles()) : new HashMap<>();
 
         // 创建性能比较实例
         ComparisonStepSeparate comparisonStep = new ComparisonStepSeparate(baseVertices, baseFaces);
@@ -28,6 +30,32 @@ public class MainEntry {
 
         // 保存测试结果
         comparisonStep.saveTestResults("performance_comparison");
+    }
+    
+    // 辅助方法：将顶点列表转换为映射
+    private static Map<Integer, Vector3d> convertVerticesToMap(List<Vertex> vertices) {
+        Map<Integer, Vector3d> vertexMap = new HashMap<>();
+        if (vertices != null) {
+            for (Vertex v : vertices) {
+                vertexMap.put(v.getIndex(), v.getCoords());
+            }
+        }
+        return vertexMap;
+    }
+    
+    // 辅助方法：将三角形列表转换为映射
+    private static Map<Integer, List<Integer>> convertTrianglesToMap(List<Triangle> triangles) {
+        Map<Integer, List<Integer>> faceMap = new HashMap<>();
+        if (triangles != null) {
+            for (Triangle t : triangles) {
+                List<Integer> vertexIndices = new ArrayList<>();
+                for (Vertex v : t.getVertices()) {
+                    vertexIndices.add(v.getIndex());
+                }
+                faceMap.put(t.getIndex(), vertexIndices);
+            }
+        }
+        return faceMap;
     }
 
     public static void main(String[] args) {
@@ -41,9 +69,10 @@ public class MainEntry {
         String filePath = args[0];
         System.out.println("正在读取文件: " + filePath);
 
+        PlyReaderFile plyReader = null;
         try {
             // 读取PLY文件
-            PlyReader plyReader = new PlyReaderFile(filePath);
+            plyReader = new PlyReaderFile(filePath);
             Map<Integer, Vector3d> vertices = new HashMap<>();
             Map<Integer, List<Integer>> faces = new HashMap<>();
             
@@ -78,12 +107,18 @@ public class MainEntry {
             System.out.println("\n开始性能比较测试...");
             compareSchemes(inputModel);
 
-            // 关闭PLY读取器
-            plyReader.close();
-
         } catch (IOException e) {
             System.err.println("读取PLY文件时发生错误: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // 确保PLY读取器被关闭
+            if (plyReader != null) {
+                try {
+                    plyReader.close();
+                } catch (IOException e) {
+                    System.err.println("关闭PLY读取器时发生错误: " + e.getMessage());
+                }
+            }
         }
     }
 }

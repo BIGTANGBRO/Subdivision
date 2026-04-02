@@ -116,21 +116,32 @@ public class ComparisonStep {
      *
      * @param vertices1 vertices from model1
      * @param vertices2 vertices from model2
+     * @param fileName file name for output
      * @throws IOException Ioexception
      */
-    public static void writeHausorffDistribution(final List<Vertex> vertices1, final List<Vertex> vertices2) throws IOException {
+    public static void writeHausorffDistribution(final List<Vertex> vertices1, final List<Vertex> vertices2, String fileName) throws IOException {
         final List<Double> distribution1 = getMinDistanceDistribution(vertices1, vertices2);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_hausorff.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double distance : distribution1) {
             bw.write(Double.toString(distance) + "\n");
         }
         bw.close();
     }
+    
+    /**
+     * Output the data to plot the histogram (overloaded method with default name)
+     *
+     * @param vertices1 vertices from model1
+     * @param vertices2 vertices from model2
+     * @throws IOException Ioexception
+     */
+    public static void writeHausorffDistribution(final List<Vertex> vertices1, final List<Vertex> vertices2) throws IOException {
+        writeHausorffDistribution(vertices1, vertices2, "distribution_hausorff.dat");
+    }
 
     public static void writeHausorffDistribution(final List<Vertex> vertices1, final List<Vertex> vertices2, int order) throws IOException {
         final List<Double> distribution1 = getMinDistanceDistribution(vertices1, vertices2);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_hausorff" + order + ".dat";
+        final String fileName = "distribution_hausorff" + order + ".dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double distance : distribution1) {
             bw.write(Double.toString(distance) + "\n");
@@ -352,59 +363,73 @@ public class ComparisonStep {
         return principalCurvatures;
     }
 
-    public static void writeSphereDiff(final InputModel inputModel) throws IOException {
+    public static void writeSphereDiff(final InputModel inputModel, String fileName) throws IOException {
         final List<Double> distributionError1 = getSphereError1(inputModel.getVertices());
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_sphere_error.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double distance : distributionError1) {
             bw.write(Double.toString(distance) + "\n");
         }
         bw.close();
     }
+    
+    public static void writeSphereDiff(final InputModel inputModel) throws IOException {
+        writeSphereDiff(inputModel, "distribution_sphere_error.dat");
+    }
 
-    public static void writeSphereR(final InputModel inputModel) throws IOException {
+    public static void writeSphereR(final InputModel inputModel, String fileName) throws IOException {
         final List<Double> distributionR = getSphereR(inputModel.getVertices());
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_sphere_error.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double distance : distributionR) {
             bw.write(Double.toString(distance) + "\n");
         }
         bw.close();
     }
+    
+    public static void writeSphereR(final InputModel inputModel) throws IOException {
+        writeSphereR(inputModel, "distribution_sphere_r.dat");
+    }
 
-    public static void writeAngleEdge(final InputModel inputModel) throws IOException {
+    public static void writeAngleEdge(final InputModel inputModel, String fileName) throws IOException {
         final List<Double> dAngles = computeDihedralAngleEdge(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngleEdge.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double angle : dAngles) {
             bw.write(Double.toString(angle) + "\n");
         }
         bw.close();
     }
+    
+    public static void writeAngleEdge(final InputModel inputModel) throws IOException {
+        writeAngleEdge(inputModel, "distribution_angle_edge.dat");
+    }
 
-    public static void writeAngle(final InputModel inputModel) throws IOException {
+    public static void writeAngle(final InputModel inputModel, String fileName) throws IOException {
         final List<Double> dAngles = computeDihedralAngle(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distributionAngle.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (final Double angle : dAngles) {
             bw.write(Double.toString(angle) + "\n");
         }
         bw.close();
     }
+    
+    public static void writeAngle(final InputModel inputModel) throws IOException {
+        writeAngle(inputModel, "distribution_angle.dat");
+    }
 
-    public static void writeCurvatureGaussian(final InputModel inputModel) throws IOException {
+    public static void writeCurvatureGaussian(final InputModel inputModel, String fileName) throws IOException {
         final Map<Integer, Double> distribution1 = getGaussianCurvature(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_gaussian.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (int i = 0; i < inputModel.getVertices().size(); i++) {
             bw.write(Double.toString(distribution1.get(i)) + "\n");
         }
         bw.close();
     }
+    
+    public static void writeCurvatureGaussian(final InputModel inputModel) throws IOException {
+        writeCurvatureGaussian(inputModel, "distribution_curvature_gaussian.dat");
+    }
 
-    public static void writeCurvatureMean(final InputModel inputModel) throws IOException {
+    public static void writeCurvatureMean(final InputModel inputModel, String fileName) throws IOException {
         final Map<Integer, Double> distribution1 = getMeanCurvature(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_mean.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         //for (final Double distance : distribution1.values()) {
         //    bw.write(Double.toString(distance) + "\n");
@@ -414,10 +439,13 @@ public class ComparisonStep {
         }
         bw.close();
     }
+    
+    public static void writeCurvatureMean(final InputModel inputModel) throws IOException {
+        writeCurvatureMean(inputModel, "distribution_curvature_mean.dat");
+    }
 
-    public static void writeCurvaturePrincipal(final InputModel inputModel) throws IOException {
+    public static void writeCurvaturePrincipal(final InputModel inputModel, String fileName) throws IOException {
         final Map<Integer, List<Double>> distribution = getPrincipalCurvature(inputModel);
-        final String fileName = "C:\\Users\\tangj\\Downloads\\distribution_curvature_principal.dat";
         final BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
         for (int i = 0; i < inputModel.getVertices().size(); i++) {
             final double k1 = distribution.get(i).get(0);
@@ -425,6 +453,10 @@ public class ComparisonStep {
             bw.write(Double.toString(k1) + " " + Double.toString(k2) + "\n");
         }
         bw.close();
+    }
+    
+    public static void writeCurvaturePrincipal(final InputModel inputModel) throws IOException {
+        writeCurvaturePrincipal(inputModel, "distribution_curvature_principal.dat");
     }
 
     public static double getAverageH(final InputModel inputModel) {

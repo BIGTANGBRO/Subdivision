@@ -20,9 +20,9 @@ public class InputModel {
     }
 
     /**
-     * construcotr
+     * constructor
      *
-     * @param triangles trianle list
+     * @param triangles triangle list
      * @param vertices  vertex list
      * @param edges     edge list
      */
@@ -39,8 +39,8 @@ public class InputModel {
      * @param faces    faces with index and vertex indices
      */
     public InputModel(final Map<Integer, Vector3d> vertices, final Map<Integer, List<Integer>> faces) {
-        //vertex index is from 0 to numFaces;
-        //face index is from 0 to numVertices
+        //vertex index is from 0 to numVertices;
+        //face index is from 0 to numFaces
         final int numVertices = vertices.size();
         final int numFaces = faces.size();
         this.triangles = new ArrayList<>(numFaces);

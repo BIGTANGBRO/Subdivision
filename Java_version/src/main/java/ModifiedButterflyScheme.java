@@ -150,6 +150,20 @@ public class ModifiedButterflyScheme {
         return new double[]{0.5d - w, 0.125d + 2d * w, -1d / 16d - w, w};
     }
 
+    private Vector3d interpolateMidpoint(final Vertex v1, final Vertex v2) {
+        return MathUtils.addVector(
+            MathUtils.dotVal(Constant.ONE_HALF, v1.getCoords()),
+            MathUtils.dotVal(Constant.ONE_HALF, v2.getCoords())
+        );
+    }
+
+    private boolean isValidVector(final Vector3d coord) {
+        return coord != null
+            && Double.isFinite(coord.getXVal())
+            && Double.isFinite(coord.getYVal())
+            && Double.isFinite(coord.getZVal());
+    }
+
     /**
      * 计算异常情况的坐标
      *
@@ -190,6 +204,7 @@ public class ModifiedButterflyScheme {
     }
 
     public Vector3d computeOdd(Vertex v1, Vertex v2) {
+        final Vector3d coord;
         if (v1.isRegular() && v2.isRegular()) {
             Map<String, List<Vertex>> stencil = getStencil(v1, v2);
             List<Vertex> aList = stencil.get("a");
@@ -211,16 +226,17 @@ public class ModifiedButterflyScheme {
             for (Vertex vertexNear : dList) {
                 sum = MathUtils.addVector(sum, MathUtils.dotVal(coeff[3], vertexNear.getCoords()));
             }
-            return sum;
+            coord = sum;
         } else if (v1.isRegular()) {
-            return calculateExtraordinary(v2, v1);
+            coord = calculateExtraordinary(v2, v1);
         } else if (v2.isRegular()) {
-            return calculateExtraordinary(v1, v2);
+            coord = calculateExtraordinary(v1, v2);
         } else {
             Vector3d vCoord1 = calculateExtraordinary(v1, v2);
             Vector3d vCoord2 = calculateExtraordinary(v2, v1);
-            return MathUtils.dotVal(Constant.HALF, MathUtils.addVector(vCoord1, vCoord2));
+            coord = MathUtils.dotVal(Constant.HALF, MathUtils.addVector(vCoord1, vCoord2));
         }
+        return isValidVector(coord) ? coord : interpolateMidpoint(v1, v2);
     }
 
     public Map<Integer, Vector3d> computeOdd() {
@@ -240,9 +256,9 @@ public class ModifiedButterflyScheme {
     public Map<Integer, List<Integer>> createTriangle(Map<Integer, Vector3d> vertexMap) {
         int faceCount = 0;
         Map<Integer, List<Integer>> faceMap = new HashMap<>();
-        List<Integer> triangleIndexTracking = new ArrayList<>();
 
         for (final Triangle triangle : this.triangles) {
+            List<Integer> triangleIndexTracking = new ArrayList<>();
             final Set<Integer> oddVertexSet = new HashSet<>();
             Vector3d faceNormal = triangle.getUnitNormal();
             for (final Vertex vertex : triangle.getVertices()) {
@@ -254,11 +270,18 @@ public class ModifiedButterflyScheme {
                     oddVertexSet.add(newVertexIndex);
                     vertexIndices.add(newVertexIndex);
                 }
-                Vector3d subFaceNormal = MathUtils.getUnitNormal(
-                    vertexMap.get(vertexIndices.get(0)), 
-                    vertexMap.get(vertexIndices.get(1)), 
-                    vertexMap.get(vertexIndices.get(2))
-                );
+                if (vertexIndices.size() != 3) {
+                    continue;
+                }
+
+                final Vector3d coord0 = vertexMap.get(vertexIndices.get(0));
+                final Vector3d coord1 = vertexMap.get(vertexIndices.get(1));
+                final Vector3d coord2 = vertexMap.get(vertexIndices.get(2));
+                if (!isValidVector(coord0) || !isValidVector(coord1) || !isValidVector(coord2)) {
+                    continue;
+                }
+
+                Vector3d subFaceNormal = MathUtils.getUnitNormal(coord0, coord1, coord2);
                 
                 // 检查面的朝向一致性
                 if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
@@ -270,18 +293,21 @@ public class ModifiedButterflyScheme {
             }
             // 连接新创建的奇数顶点形成一个面
             final List<Integer> oddVertexArr = new ArrayList<>(oddVertexSet);
-            Vector3d subFaceNormal = MathUtils.getUnitNormal(
-                vertexMap.get(oddVertexArr.get(0)), 
-                vertexMap.get(oddVertexArr.get(1)), 
-                vertexMap.get(oddVertexArr.get(2))
-            );
-            if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
-                Collections.swap(oddVertexArr, 1, 2);
+            if (oddVertexArr.size() == 3) {
+                final Vector3d coord0 = vertexMap.get(oddVertexArr.get(0));
+                final Vector3d coord1 = vertexMap.get(oddVertexArr.get(1));
+                final Vector3d coord2 = vertexMap.get(oddVertexArr.get(2));
+                if (isValidVector(coord0) && isValidVector(coord1) && isValidVector(coord2)) {
+                    Vector3d subFaceNormal = MathUtils.getUnitNormal(coord0, coord1, coord2);
+                    if (MathUtils.getAngle(faceNormal, subFaceNormal) >= 90) {
+                        Collections.swap(oddVertexArr, 1, 2);
+                    }
+                    triangleIndexTracking.add(faceCount);
+                    faceMap.put(faceCount, oddVertexArr);
+                    faceCount += 1;
+                }
             }
-            triangleIndexTracking.add(faceCount);
-            faceMap.put(faceCount, oddVertexArr);
             trianglesTrackMap.put(triangle.getIndex(), triangleIndexTracking);
-            faceCount += 1;
         }
         return faceMap;
     }

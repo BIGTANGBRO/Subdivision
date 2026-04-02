@@ -1,13 +1,3 @@
-/**
- * 常量类
- */
-public class Constant {
-    public static final double ONE_HALF = 0.5;
-    public static final double THREE_QUARTERS = 0.75;
-    public static final double ONE_EIGHTH = 0.125;
-    public static final double FIVE_EIGHTHS = 0.625;
-    public static final double THREE_EIGHTHS = 0.375;
-}
 import lombok.Getter;
 import lombok.Setter;
 

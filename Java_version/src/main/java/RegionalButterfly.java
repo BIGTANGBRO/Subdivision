@@ -127,8 +127,8 @@ public class RegionalButterfly {
         if (v1.isRegular() && v2.isRegular()) {
             // 使用标准的蝴蝶方案权重
             return MathUtils.addVector(
-                MathUtils.dotVal(Constant.THREE_OVER_EIGHT, coord1),
-                MathUtils.dotVal(Constant.THREE_OVER_EIGHT, coord2)
+                MathUtils.dotVal(Constant.THREE_EIGHTHS, coord1),
+                MathUtils.dotVal(Constant.THREE_EIGHTHS, coord2)
             );
         } else {
             // 如果任一顶点是非正则的，使用特殊处理

@@ -22,5 +22,21 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# IDE files
 *.idea/
 *.iml
+.vscode/
+
+# Maven / Java build output
+target/
+**/target/
+
+# Local project metadata
+**/.idea/
+
+# Generated subdivision outputs
+Java_version/output_model.ply
+Java_version/*_performance_test_results.txt
+
+# Local test / model files kept out of Git by default
+Java_version/*.ply

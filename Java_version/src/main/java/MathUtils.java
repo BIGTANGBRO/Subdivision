@@ -94,6 +94,9 @@ public class MathUtils {
     }
 
     public static Vector3d getUnitNormal(Vector3d coord1, Vector3d coord2, Vector3d coord3) {
+        if (coord1 == null || coord2 == null || coord3 == null) {
+            return new Vector3d(0, 0, 0);
+        }
         Vector3d vec1 = MathUtils.minusVector(coord1, coord2);
         Vector3d vec2 = MathUtils.minusVector(coord1, coord3);
 
